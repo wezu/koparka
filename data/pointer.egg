@@ -1,0 +1,642 @@
+<CoordinateSystem> { Z-Up }
+
+<Group> Torus001 {
+  <VertexPool> Torus001.verts {
+    <Vertex> 0 {
+      0 0 0
+      <UV> { 0.5 0 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 1 {
+      0.141421 0.141421 0
+      <UV> { 0.875 0 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 2 {
+      0.2 -6.78706e-009 0
+      <UV> { 0.75 0 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 3 {
+      -4.008e-009 0.2 0
+      <UV> { 3.79455e-008 0 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 4 {
+      0.141421 0.141421 0
+      <UV> { -0.125 0 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 5 {
+      -0.141421 0.141421 0
+      <UV> { 0.125 0 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 6 {
+      -0.2 -1.45447e-008 0
+      <UV> { 0.25 0 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 7 {
+      -0.141421 -0.141421 0
+      <UV> { 0.375 0 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 8 {
+      4.09651e-010 -0.2 0
+      <UV> { 0.5 0 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 9 {
+      0.141421 -0.141421 0
+      <UV> { 0.625 0 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 10 {
+      0.2 -6.78706e-009 0
+      <UV> { 0.75 0 }
+      <Normal> { 1 -7.30005e-008 1.52811e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 11 {
+      0.141421 0.141421 128
+      <UV> { 0.875 1 }
+      <Normal> { 0.707107 0.707107 9.65141e-011 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 12 {
+      0.2 6.68001e-010 128
+      <UV> { 0.75 1 }
+      <Normal> { 1 -1.01787e-007 9.64617e-011 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 13 {
+      0.141421 0.141421 0
+      <UV> { 0.875 0 }
+      <Normal> { 0.707107 0.707107 1.50809e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 14 {
+      0.141421 0.141421 0
+      <UV> { -0.125 0 }
+      <Normal> { 0.707107 0.707107 1.50809e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 15 {
+      -7.86471e-009 0.2 128
+      <UV> { 3.79455e-008 1 }
+      <Normal> { 2.87868e-008 1 1.22185e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 16 {
+      0.141421 0.141421 128
+      <UV> { -0.125 1 }
+      <Normal> { 0.707107 0.707107 9.65141e-011 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 17 {
+      -4.008e-009 0.2 0
+      <UV> { 3.79455e-008 0 }
+      <Normal> { 0 1 1.25802e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 18 {
+      -0.141421 0.141421 128
+      <UV> { 0.125 1 }
+      <Normal> { -0.707107 0.707107 1.15769e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 19 {
+      -0.141421 0.141421 0
+      <UV> { 0.125 0 }
+      <Normal> { -0.707107 0.707107 1.86175e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 20 {
+      -0.2 -1.86598e-008 128
+      <UV> { 0.25 1 }
+      <Normal> { -1 -8.63605e-008 1.67253e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 21 {
+      -0.2 -1.45447e-008 0
+      <UV> { 0.25 0 }
+      <Normal> { -1 -5.75737e-008 2.36195e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 22 {
+      -0.141421 -0.141421 128
+      <UV> { 0.375 1 }
+      <Normal> { -0.707107 -0.707107 1.73648e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 23 {
+      -0.141421 -0.141421 0
+      <UV> { 0.375 0 }
+      <Normal> { -0.707107 -0.707107 1.75801e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 24 {
+      4.26635e-009 -0.2 128
+      <UV> { 0.5 1 }
+      <Normal> { 5.75737e-008 -1 1.22185e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 25 {
+      4.09651e-010 -0.2 0
+      <UV> { 0.5 0 }
+      <Normal> { 0 -1 1.75748e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 26 {
+      0.141421 -0.141421 128
+      <UV> { 0.625 1 }
+      <Normal> { 0.707107 -0.707107 1.22238e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 27 {
+      0.141421 -0.141421 0
+      <UV> { 0.625 0 }
+      <Normal> { 0.707107 -0.707107 1.77855e-010 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 28 {
+      0 0 128
+      <UV> { 0.5 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 29 {
+      0.2 6.68001e-010 128
+      <UV> { 0.75 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 30 {
+      0.141421 0.141421 128
+      <UV> { 0.875 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 31 {
+      0.141421 0.141421 128
+      <UV> { -0.125 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 32 {
+      -7.86471e-009 0.2 128
+      <UV> { 3.79455e-008 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 33 {
+      -0.141421 0.141421 128
+      <UV> { 0.125 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 34 {
+      -0.2 -1.86598e-008 128
+      <UV> { 0.25 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 35 {
+      -0.141421 -0.141421 128
+      <UV> { 0.375 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 36 {
+      4.26635e-009 -0.2 128
+      <UV> { 0.5 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 37 {
+      0.141421 -0.141421 128
+      <UV> { 0.625 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 0 1 }
+    }
+    <Vertex> 38 {
+      7.96717e-007 17.2814 0.5
+      <UV> { 1 1 }
+      <Normal> { 0.944294 0.329102 0 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 39 {
+      2.46438 10.2103 0.5
+      <UV> { 0 1 }
+      <Normal> { 0.944294 0.329102 0 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 40 {
+      2.46438 10.2103 -0.5
+      <UV> { 0 0 }
+      <Normal> { 0.944294 0.329102 0 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 41 {
+      7.96717e-007 17.2814 -0.5
+      <UV> { 1 0 }
+      <Normal> { 0.944294 0.329102 0 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 42 {
+      -2.46438 10.2103 0.5
+      <UV> { 1 1 }
+      <Normal> { -0.944294 0.329102 0 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 43 {
+      7.96717e-007 17.2814 0.5
+      <UV> { 0 1 }
+      <Normal> { -0.944294 0.329102 0 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 44 {
+      7.96717e-007 17.2814 -0.5
+      <UV> { 0 0 }
+      <Normal> { -0.944294 0.329102 0 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 45 {
+      -2.46438 10.2103 -0.5
+      <UV> { 1 0 }
+      <Normal> { -0.944294 0.329102 0 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 46 {
+      -2.46438 10.2103 -0.5
+      <UV> { 1 1 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 47 {
+      7.96717e-007 17.2814 -0.5
+      <UV> { 0 1 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 48 {
+      2.46438 10.2103 -0.5
+      <UV> { 0 0 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 49 {
+      2.46438 10.2103 0.5
+      <UV> { 1 0 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 50 {
+      7.96717e-007 17.2814 0.5
+      <UV> { 1 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 51 {
+      -2.46438 10.2103 0.5
+      <UV> { 0 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 52 {
+      -2.46438 10.2103 0.5
+      <UV> { 0 1 }
+      <Normal> { -1.59361e-007 -1 0 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 53 {
+      -2.46438 10.2103 -0.5
+      <UV> { 1 0 }
+      <Normal> { -1.88148e-007 -1 0 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 54 {
+      2.46438 10.2103 -0.5
+      <UV> { 0 0 }
+      <Normal> { -1.59361e-007 -1 0 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 55 {
+      2.46438 10.2103 0.5
+      <UV> { 0 1 }
+      <Normal> { -1.88148e-007 -1 0 }
+      <RGBA> { 0 0 1 1 }
+    }
+    <Vertex> 56 {
+      17.2814 -2.17849e-006 0.5
+      <UV> { 1 1 }
+      <Normal> { 0.329102 -0.944294 0 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 57 {
+      10.2103 -2.46438 0.5
+      <UV> { 0 1 }
+      <Normal> { 0.329102 -0.944294 0 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 58 {
+      10.2103 -2.46438 -0.5
+      <UV> { 0 0 }
+      <Normal> { 0.329102 -0.944294 0 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 59 {
+      17.2814 -2.17849e-006 -0.5
+      <UV> { 1 0 }
+      <Normal> { 0.329102 -0.944294 0 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 60 {
+      10.2103 2.46438 0.5
+      <UV> { 1 1 }
+      <Normal> { 0.329102 0.944294 0 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 61 {
+      17.2814 -2.17849e-006 0.5
+      <UV> { 0 1 }
+      <Normal> { 0.329102 0.944294 0 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 62 {
+      17.2814 -2.17849e-006 -0.5
+      <UV> { 0 0 }
+      <Normal> { 0.329102 0.944294 0 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 63 {
+      10.2103 2.46438 -0.5
+      <UV> { 1 0 }
+      <Normal> { 0.329102 0.944294 0 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 64 {
+      10.2103 2.46438 -0.5
+      <UV> { 1 1 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 65 {
+      17.2814 -2.17849e-006 -0.5
+      <UV> { 0 1 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 66 {
+      10.2103 -2.46438 -0.5
+      <UV> { 0 0 }
+      <Normal> { 0 0 -1 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 67 {
+      10.2103 -2.46438 0.5
+      <UV> { 1 0 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 68 {
+      17.2814 -2.17849e-006 0.5
+      <UV> { 1 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 69 {
+      10.2103 2.46438 0.5
+      <UV> { 0 1 }
+      <Normal> { 0 0 1 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 70 {
+      10.2103 2.46438 0.5
+      <UV> { 0 1 }
+      <Normal> { -1 1.30574e-007 0 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 71 {
+      10.2103 2.46438 -0.5
+      <UV> { 1 0 }
+      <Normal> { -1 1.30574e-007 0 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 72 {
+      10.2103 -2.46438 -0.5
+      <UV> { 0 0 }
+      <Normal> { -1 1.30574e-007 0 }
+      <RGBA> { 1 0 0 1 }
+    }
+    <Vertex> 73 {
+      10.2103 -2.46438 0.5
+      <UV> { 0 1 }
+      <Normal> { -1 1.30574e-007 0 }
+      <RGBA> { 1 0 0 1 }
+    }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 0 1 2 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 0 3 4 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 0 5 3 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 0 6 5 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 0 7 6 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 0 8 7 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 0 9 8 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 0 2 9 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 10 11 12 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 10 13 11 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 14 15 16 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 14 17 15 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 17 18 15 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 17 19 18 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 19 20 18 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 19 21 20 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 21 22 20 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 21 23 22 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 23 24 22 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 23 25 24 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 25 26 24 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 25 27 26 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 27 12 26 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 27 10 12 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 28 29 30 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 28 31 32 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 28 32 33 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 28 33 34 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 28 34 35 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 28 35 36 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 28 36 37 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 28 37 29 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 38 39 40 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 40 41 38 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 42 43 44 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 44 45 42 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 46 47 48 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 49 50 51 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 52 53 54 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 54 55 52 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 56 57 58 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 58 59 56 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 60 61 62 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 62 63 60 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 64 65 66 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 67 68 69 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 70 71 72 <Ref> { Torus001.verts } }
+  }
+  <Polygon> {
+    <RGBA> { 1 1 1 1 }
+    <VertexRef> { 72 73 70 <Ref> { Torus001.verts } }
+  }
+}
