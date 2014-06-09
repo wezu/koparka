@@ -15,11 +15,14 @@ def _resetPivot(frame):
 
 
 class GuiHelper():
-    def __init__(self):
+    def __init__(self, path=""):
         self.elements=[]
+        self.path=path
         
         self.font = DGG.getDefaultFont()
         self.font.setPixelsPerUnit(16)
+        self.fontBig=self.font.makeCopy()        
+        self.fontBig.setPixelsPerUnit(32)
         
         self.TopLeft=pixel2d.attachNewNode('TopLeft')
         self.TopRight=pixel2d.attachNewNode('TopRight')
@@ -30,9 +33,200 @@ class GuiHelper():
         self.Left=pixel2d.attachNewNode('Left')
         self.Right=pixel2d.attachNewNode('Right')
         self.Center=pixel2d.attachNewNode('Center')
-        
         self.updateBaseNodes()
         
+        
+
+    def addSaveLoadDialog(self, save_command, load_command, cancel_command):
+        #save/load 
+        self.SaveLoadFrame=DirectFrame( frameSize=_rec2d(512,512),
+                                        frameColor=(0,0,0, 0.8),
+                                        text="                                           Save/Load Menu\n\nDirectory:\n\nHeight:\n\nDetail:\n\nColor:\n\nExtra:\n\nObjects:",
+                                        text_scale=32,
+                                        text_font=self.fontBig,
+                                        text_pos=(-440,480),
+                                        text_fg=(0.7,0.7,0.7,1),
+                                        parent=self.Center)
+        _resetPivot(self.SaveLoadFrame)
+        self.SaveLoadFrame.setPos(_pos2d(-256, -256))
+        self.entry1 = DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = self.path+"save/default1/",
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText= self.path+"save/default1/",
+                        numLines = 2,
+                        width=19,
+                        focus=0,
+                        parent=self.SaveLoadFrame
+                        )
+        _resetPivot(self.entry1)
+        self.entry1.setPos(_pos2d(150,70))
+        self.entry2 = DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = "heightmap.png",
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText="heightmap.png",
+                        numLines = 2,
+                        width=19,
+                        focus=0,
+                        parent=self.SaveLoadFrame
+                        )
+        _resetPivot(self.entry2)
+        self.entry2.setPos(_pos2d(150,132))
+        self.entry3 = DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = "detail.png",
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText="detail.png",
+                        numLines = 2,
+                        width=19,
+                        focus=0,
+                        parent=self.SaveLoadFrame
+                        )
+        _resetPivot(self.entry3)
+        self.entry3.setPos(_pos2d(150,194))
+        self.entry4 = DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = "color.png",
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText="color.png",
+                        numLines = 2,
+                        width=19,
+                        focus=0,
+                        parent=self.SaveLoadFrame
+                        )
+        _resetPivot(self.entry4)
+        self.entry4.setPos(_pos2d(150,256))
+        self.entry5 = DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text ="grass.png",
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText="grass.png",
+                        numLines = 2,
+                        width=19,
+                        focus=0,
+                        parent=self.SaveLoadFrame
+                        )
+        _resetPivot(self.entry5)
+        self.entry5.setPos(_pos2d(150,318))
+        self.entry6 = DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = "objects.json",
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText="objects.json",
+                        numLines = 2,
+                        width=19,
+                        focus=0,
+                        parent=self.SaveLoadFrame
+                        )
+        _resetPivot(self.entry6)
+        self.entry6.setPos(_pos2d(150,380))        
+        self.check1=DirectFrame(frameSize=_rec2d(32,32),
+                                frameColor=(1,1,1,0.99),                      
+                                frameTexture='icon/yes.png',
+                                state=DGG.NORMAL, 
+                                parent=self.SaveLoadFrame)
+        _resetPivot(self.check1)
+        self.check1.setPos(_pos2d(464,134))
+        self.check2=DirectFrame(frameSize=_rec2d(32,32),
+                                frameColor=(1,1,1,0.99),                      
+                                frameTexture='icon/yes.png',
+                                state=DGG.NORMAL, 
+                                parent=self.SaveLoadFrame)
+        _resetPivot(self.check2)
+        self.check2.setPos(_pos2d(464,196))
+        self.check3=DirectFrame(frameSize=_rec2d(32,32),
+                                frameColor=(1,1,1,0.99),                      
+                                frameTexture='icon/yes.png',
+                                state=DGG.NORMAL, 
+                                parent=self.SaveLoadFrame)
+        _resetPivot(self.check3)
+        self.check3.setPos(_pos2d(464,258))
+        self.check4=DirectFrame(frameSize=_rec2d(32,32),
+                                frameColor=(1,1,1,0.99),                      
+                                frameTexture='icon/yes.png',
+                                state=DGG.NORMAL, 
+                                parent=self.SaveLoadFrame)
+        _resetPivot(self.check4)
+        self.check4.setPos(_pos2d(464,320))
+        self.check5=DirectFrame(frameSize=_rec2d(32,32),
+                                frameColor=(1,1,1,0.99),                      
+                                frameTexture='icon/yes.png',
+                                state=DGG.NORMAL, 
+                                parent=self.SaveLoadFrame)
+        _resetPivot(self.check5)
+        self.check5.setPos(_pos2d(464,382))
+        self.check1.bind(DGG.B1PRESS, self.switchFlag, [0])
+        self.check2.bind(DGG.B1PRESS, self.switchFlag, [1])
+        self.check3.bind(DGG.B1PRESS, self.switchFlag, [2])
+        self.check4.bind(DGG.B1PRESS, self.switchFlag, [3])
+        self.check5.bind(DGG.B1PRESS, self.switchFlag, [4])
+        
+        self.checkers=[self.check1,self.check2,self.check3,self.check4,self.check5]
+        self.flags=[True,True,True,True,True]
+        
+        self.saveButton=DirectFrame(frameSize=_rec2d(128,32),
+                                    frameColor=(1,1,1,0.5),  
+                                    text="SAVE",
+                                    text_scale=32,
+                                    text_font=self.fontBig,
+                                    text_pos=(-70,7),
+                                    text_fg=(0,1,0,1),
+                                    state=DGG.NORMAL, 
+                                    parent=self.SaveLoadFrame)
+        _resetPivot(self.saveButton)
+        self.saveButton.setPos(_pos2d(32,448))
+        
+        self.loadButton=DirectFrame(frameSize=_rec2d(128,32),
+                                    frameColor=(1,1,1,0.5),  
+                                    text="LOAD",
+                                    text_scale=32,
+                                    text_font=self.fontBig,
+                                    text_pos=(-70,7),
+                                    text_fg=(0,0,1,1),
+                                    state=DGG.NORMAL, 
+                                    parent=self.SaveLoadFrame)
+        _resetPivot(self.loadButton)
+        self.loadButton.setPos(_pos2d(352,448))
+        
+        self.cancelButton=DirectFrame(frameSize=_rec2d(128,32),
+                                    frameColor=(1,1,1,0.5),  
+                                    text="CANCEL",
+                                    text_scale=32,
+                                    text_font=self.fontBig,
+                                    text_pos=(-66,7),
+                                    text_fg=(1,0,0,1),
+                                    state=DGG.NORMAL, 
+                                    parent=self.SaveLoadFrame)
+        _resetPivot(self.cancelButton)
+        self.cancelButton.setPos(_pos2d(192,448))
+        
+        self.saveButton.bind(DGG.B1PRESS, save_command)
+        self.loadButton.bind(DGG.B1PRESS, load_command)
+        self.cancelButton.bind(DGG.B1PRESS, cancel_command)
+        
+        self.SaveLoadFrame.hide()
+    
+    def switchFlag(self, flag_id, event=None):
+        if self.flags[flag_id]:
+            self.flags[flag_id]=False
+            self.checkers[flag_id]['frameTexture']='icon/no.png'
+        else:
+            self.flags[flag_id]=True
+            self.checkers[flag_id]['frameTexture']='icon/yes.png'
+            
     def updateBaseNodes(self):
         wp=base.win.getProperties()
         winX = wp.getXSize()

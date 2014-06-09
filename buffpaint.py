@@ -36,6 +36,7 @@ class BufferPainter ():
         p=PNMImage(self.buffSize[id], self.buffSize[id],4)              
         base.graphicsEngine.extractTextureData(self.textures[id],base.win.getGsg())
         self.textures[id].store(p) 
+        p.removeAlpha()
         p.write(file)
    
     def addCanvas(self, size=512, default_tex='data/black.png', brush_shader=None, shader_inputs=None):
@@ -69,13 +70,13 @@ class BufferPainter ():
         self.brushes[-1].setTransparency(TransparencyAttrib.MAlpha)        
         self.brushes[-1].setLightOff()
         self.brushes[-1].setColor(1, 1, 1, 0.05) 
-        if brush_shader:
+        if brush_shader:           
             self.brushes[-1].setShader(brush_shader)
             for input in shader_inputs:
                 self.brushes[-1].setShaderInput(input, shader_inputs[input])
             
     def paint(self, id):
-        print "paint"
+        #print "paint"
         p=PNMImage(self.buffSize[id], self.buffSize[id],4)              
         base.graphicsEngine.extractTextureData(self.textures[id],base.win.getGsg())
         self.textures[id].store(p) 
@@ -89,6 +90,10 @@ class BufferPainter ():
             new_alpha=min(1.0, max(0.0, self.brushAlpha+alpha))           
             self.brushAlpha=new_alpha                
             brush.setColor(color[0],color[1],color[2], new_alpha)
+    
+    def hideBrushes(self):    
+        for brush in self.brushes:
+            brush.hide()
             
     def setBrushColor(self, color):
         for brush in self.brushes:

@@ -24,14 +24,17 @@ from camcon import CameraControler
 from buffpaint import BufferPainter
 from guihelper import GuiHelper
 import os, sys
+from random import uniform 
 
 BUFFER_HEIGHT=0
 BUFFER_ATR=1
 BUFFER_COLOR=2
+BUFFER_EXTRA=3 #used for grass (red)... maybe something extra in the future?
 
 MODE_HEIGHT=0
 MODE_TEXTURE=1
-MODE_OBJECT=2
+MODE_EXTRA=2
+MODE_OBJECT=3
 
 class Editor (DirectObject):
     def __init__(self):
@@ -46,7 +49,8 @@ class Editor (DirectObject):
         self.grid.setTexScale(TextureStage.getDefault(), 16, 16, 1)
         self.grid.setZ(1)
         self.grid.setLightOff()
-        self.grid.setColor(0,0,0,0.5)        
+        self.grid.setColor(0,0,0,0.5)  
+        #axis to help orient the scene
         self.axis=loader.loadModel('data/axis.egg')
         self.axis.reparentTo(render)
         self.axis.setLightOff()
@@ -70,7 +74,7 @@ class Editor (DirectObject):
         for fname in dirList:
             if  Filename(fname).getExtension() in ('png', 'tga', 'dds'):
                 self.textureList.append("textures/"+fname)
-        self.painter=BufferPainter(self.brushList)
+        self.painter=BufferPainter(self.brushList, showBuff=False)
         #2 buffers should do, but painting in an alpha channel is strange, so I use 3
         #BUFFER_HEIGHT
         self.painter.addCanvas() 
@@ -81,10 +85,11 @@ class Editor (DirectObject):
                                 default_tex='data/gray.png',
                                 brush_shader=loader.loadShader('shaders/brush.cg'),
                                 shader_inputs={'brushTex':loader.loadTexture(self.textureList[18])})
-        
+        #BUFFER_EXTRA (grass for now)
+        self.painter.addCanvas() 
         
         #GUI
-        self.gui=GuiHelper()
+        self.gui=GuiHelper(path)
         #the toolbar_id here is just an int, not a 'toolbar object'!
         self.toolbar_id=self.gui.addToolbar(self.gui.TopLeft, 512)        
         id=0
@@ -99,6 +104,8 @@ class Editor (DirectObject):
             id+=1
         #detail composer preview    
         self.composer_id=self.gui.addComposer(self.gui.BottomRight, self.updateComposer)
+        #save/load
+        self.gui.addSaveLoadDialog(self.save, self.load, self.hideSaveMenu)
         
         #extra tools and info at the bottom
         self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, 1024, icon_size=64, y_offset=-64)           
@@ -108,8 +115,9 @@ class Editor (DirectObject):
         self.gui.addInfoIcon(self.statusbar, 'icon/blank.png', '')#empty space
         self.gui.addButton(self.statusbar, 'icon/hm_icon.png', self.setMode, [MODE_HEIGHT])
         self.gui.addButton(self.statusbar, 'icon/tex_icon.png', self.setMode, [MODE_TEXTURE])
+        self.gui.addButton(self.statusbar, 'icon/grass.png', self.setMode, [MODE_EXTRA])
         self.gui.addButton(self.statusbar, 'icon/place_icon.png', self.setMode, [MODE_OBJECT])
-        self.gui.addButton(self.statusbar, 'icon/save.png', self.save)
+        self.gui.addButton(self.statusbar, 'icon/save.png', self.showSaveMenu)
         
         #terrain mesh
         self.mesh=loader.loadModel('data/mesh10k.egg')
@@ -118,11 +126,28 @@ class Editor (DirectObject):
         gradient.setWrapU(Texture.WMClamp)
         gradient.setWrapV(Texture.WMClamp  )
         self.mesh.reparentTo(render)
-        #shader
         self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v.glsl", "shaders/ter_f1.glsl"))
         self.mesh.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
         self.mesh.setShaderInput("atr", self.painter.textures[BUFFER_ATR]) 
         self.mesh.setShaderInput("gradient", gradient)
+        #grass
+        self.grass=render.attachNewNode('grass')
+        self.CreateGrassTile(uv_offset=Vec2(0,0), pos=(0,0,0), parent=self.grass)
+        self.CreateGrassTile(uv_offset=Vec2(0,0.5), pos=(0, 256, 0), parent=self.grass)
+        self.CreateGrassTile(uv_offset=Vec2(0.5,0), pos=(256, 0, 0), parent=self.grass)
+        self.CreateGrassTile(uv_offset=Vec2(0.5,0.5), pos=(256, 256, 0), parent=self.grass)  
+        anim_data= PTA_LVecBase4f()
+        for i in xrange(256):
+            x=uniform(-1.0, 1.0)
+            y=uniform(-1.0, 1.0)
+            z=uniform(-1.0, 1.0)
+            if abs(z)<0.2:
+                if z<0:
+                    z-=0.2
+                else:
+                    z+=0.2
+            anim_data.pushBack(UnalignedLVecBase4f(x,y,z,1.0))
+        self.grass.setShaderInput('anim_data', anim_data)        
         #light
         self.dlight = DirectionalLight('dlight') 
         self.dlight.setColor(VBase4(0.8, 0.8, 0.7, 1))     
@@ -165,12 +190,101 @@ class Editor (DirectObject):
         
         #tasks
         taskMgr.doMethodLater(0.1, self.update,'update_task')
-    
-    def save(self, guiEvent=None):
-        self.painter.write(BUFFER_HEIGHT, "save/heightmap.png")
-        self.painter.write(BUFFER_ATR, "save/atrmap.png")
-        self.painter.write(BUFFER_COLOR, "save/colormap.png")
-    
+        taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task')
+        
+    def showSaveMenu(self, guiEvent=None):
+        self.painter.hideBrushes()
+        self.gui.SaveLoadFrame.show()
+        self.ignore('mouse1-up')
+        self.ignore('mouse1')
+        
+    def hideSaveMenu(self, guiEvent=None):
+        self.gui.SaveLoadFrame.hide()
+        self.setMode(self.mode)
+        
+    def CreateGrassTile(self, uv_offset, pos, parent, count=256):
+        grass=loader.loadModel("data/grass_model")
+        grass.reparentTo(parent)
+        grass.setInstanceCount(count) 
+        grass.node().setBounds(BoundingBox((0,0,0), (256,256,128)))
+        grass.node().setFinal(1)
+        grass.setShader(Shader.load(Shader.SLGLSL, "shaders/grass_v.glsl", "shaders/grass_f.glsl"))
+        grass.setShaderInput('height', self.painter.textures[BUFFER_HEIGHT]) 
+        grass.setShaderInput('grass', self.painter.textures[BUFFER_EXTRA])
+        grass.setShaderInput('uv_offset', uv_offset)   
+        grass.setPos(pos)
+        return grass
+        
+    def load(self, guiEvent=None):
+        save_dir=path+self.gui.entry1.get()
+        if self.gui.flags[0]:
+            print "loading height map...",
+            file=path+save_dir+"/"+self.gui.entry2.get()
+            if os.path.exists(file):
+                self.painter.paintPlanes[BUFFER_HEIGHT].setTexture(loader.loadTexture(file))
+                print "done"
+            else:
+                print "FILE NOT FOUND!"
+        if self.gui.flags[1]:
+            print "loading detail map...",
+            file=path+save_dir+"/"+self.gui.entry3.get()
+            if os.path.exists(file):
+                self.painter.paintPlanes[BUFFER_ATR].setTexture(loader.loadTexture(file))
+                print "done"
+            else:
+                print "FILE NOT FOUND!"            
+        if self.gui.flags[2]:
+            print "loading color map...",
+            file=path+save_dir+"/"+self.gui.entry4.get()
+            if os.path.exists(file):
+                self.painter.paintPlanes[BUFFER_COLOR].setTexture(loader.loadTexture(file))
+                print "done"
+            else:
+                print "FILE NOT FOUND!"            
+            
+        if self.gui.flags[3]:
+            print "loading grass map...",
+            file=path+save_dir+"/"+self.gui.entry5.get()
+            if os.path.exists(file):
+                self.painter.paintPlanes[BUFFER_EXTRA].setTexture(loader.loadTexture(file))
+                print "done"
+            else:
+                print "FILE NOT FOUND!"                       
+        if self.gui.flags[4]:
+            print "Object loading not implemented!"        
+        print "Loading DONE!"        
+        self.hideSaveMenu()
+        
+        
+    def save(self, guiEvent=None):  
+        save_dir=path+self.gui.entry1.get()        
+        if os.path.exists(path+save_dir):
+            print "ERROR:", save_dir, "already exists!"
+            print "No files saved!"
+            return    
+        else:
+            os.makedirs(Filename(path+save_dir).toOsSpecific())            
+        if self.gui.flags[0]:
+            print "saving height map...",
+            self.painter.write(BUFFER_HEIGHT, path+save_dir+"/"+self.gui.entry2.get())
+            print "done"
+        if self.gui.flags[1]:
+            print "saving detail map...",
+            self.painter.write(BUFFER_ATR, path+save_dir+"/"+self.gui.entry3.get())  
+            print "done"
+        if self.gui.flags[2]:
+            print "saving color map...",
+            self.painter.write(BUFFER_COLOR, path+save_dir+"/"+self.gui.entry4.get())
+            print "done"
+        if self.gui.flags[3]:
+            print "saving grass map...",
+            self.painter.write(BUFFER_EXTRA, path+save_dir+"/"+self.gui.entry5.get())          
+            print "done"
+        if self.gui.flags[4]:
+            print "Object saving not implemented!"        
+        print "SAVING DONE!"       
+        self.hideSaveMenu()
+        
     def updateComposer(self):
         id =self.composer_id
         preview_geom=self.gui.elements[id]['geom']
@@ -201,15 +315,18 @@ class Editor (DirectObject):
             self.painter.brushes[BUFFER_HEIGHT].setColor(1, 1, 1, 0.05)
             self.painter.brushes[BUFFER_ATR].hide()
             self.painter.brushes[BUFFER_COLOR].hide()
+            self.painter.brushes[BUFFER_EXTRA].hide()
             self.painter.brushAlpha=0.05
             self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
             self.accept('mouse1-up', self.keyMap.__setitem__, ['paint', False])
             self.gui.hideElement(self.composer_id)
             self.gui.hideElement(self.palette_id)
+            self.grass.hide()
         elif mode==MODE_TEXTURE:
             self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v.glsl", "shaders/ter_f.glsl")) 
             self.painter.brushes[BUFFER_HEIGHT].hide()
             self.painter.brushes[BUFFER_ATR].show()
+            self.painter.brushes[BUFFER_EXTRA].hide()
             self.painter.brushes[BUFFER_ATR].setColor(1,0,0,1.0)
             self.painter.brushes[BUFFER_COLOR].show()
             self.painter.brushes[BUFFER_COLOR].setColor(1, 1, 1, 1)
@@ -218,25 +335,46 @@ class Editor (DirectObject):
             self.ignore('mouse1-up')
             self.gui.showElement(self.composer_id)
             self.gui.showElement(self.palette_id)
+            self.grass.show()
+        elif mode==MODE_EXTRA:
+            self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v.glsl", "shaders/ter_f.glsl")) 
+            self.painter.brushes[BUFFER_HEIGHT].hide()
+            self.painter.brushes[BUFFER_ATR].hide()
+            self.painter.brushes[BUFFER_COLOR].hide()
+            self.painter.brushes[BUFFER_EXTRA].show()
+            self.painter.brushes[BUFFER_EXTRA].setColor(1,0,0, 1)
+            self.painter.brushAlpha=1.0
+            self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
+            self.accept('mouse1-up', self.keyMap.__setitem__, ['paint', False])
+            self.gui.hideElement(self.composer_id)
+            self.gui.hideElement(self.palette_id)
+            self.grass.show()
         elif mode==MODE_OBJECT:
             print "Not implemented!"
             return
         self.mode=mode
         
     def flipBrushColor(self):        
-        if self.mode==MODE_HEIGHT:
+        if self.mode in (MODE_HEIGHT, MODE_EXTRA):
+            print "TAB!"
             if self.tempColor==1:
                 self.tempColor=0
             else:    
                 self.tempColor=1
             c=self.tempColor
-            a=self.painter.brushes[BUFFER_HEIGHT].getColor()[3]
-            self.painter.brushes[BUFFER_HEIGHT].setColor(c,c,c,a)            
-        
+            #a=self.painter.brushes[BUFFER_HEIGHT].getColor()[3]
+            self.painter.brushes[BUFFER_HEIGHT].setColor(c,c,c,self.painter.brushAlpha) 
+            if self.mode==MODE_EXTRA:
+                self.painter.brushes[BUFFER_EXTRA].setColor(c,0,0,self.painter.brushAlpha)
+             
     def update(self, task):
-        if self.mode==MODE_HEIGHT:            
+        if self.mode==MODE_HEIGHT:
             if self.keyMap['paint']:      
-                self.painter.paint(BUFFER_HEIGHT)#, grayscale=True)            
+                self.painter.paint(BUFFER_HEIGHT)
+        elif self.mode==MODE_EXTRA:
+            if self.keyMap['paint']:      
+                self.painter.paint(BUFFER_EXTRA) 
+                
         if self.keyMap['rotate_l']:
             self.painter.adjustBrushHeading(5)
             self.heading_info['text']='%.0f'%self.painter.brushes[0].getH()
@@ -256,6 +394,11 @@ class Editor (DirectObject):
             self.painter.adjustBrushAlpha(-0.01) 
             self.color_info['text']='%.2f'%self.painter.brushAlpha 
         return task.again 
+        
+    def perFrameUpdate(self, task): 
+        time=globalClock.getFrameTime()    
+        self.grass.setShaderInput('time', time)    
+        return task.cont    
         
     def windowEventHandler( self, window=None ):    
         if window is not None: # window is none if panda3d is not started

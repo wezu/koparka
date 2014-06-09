@@ -16,7 +16,7 @@ void main()
     gl_TexCoord[0] = gl_MultiTexCoord0;  
     
     halfVector = gl_LightSource[0].halfVector.xyz;
-    diffuse = gl_FrontMaterial.diffuse * gl_LightSource[0].diffuse;
+    diffuse = gl_LightSource[0].diffuse;
     //ambient = gl_FrontMaterial.ambient * gl_LightSource[0].ambient;
     //ambient += gl_LightModel.ambient * gl_FrontMaterial.ambient;    
     }
