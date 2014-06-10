@@ -136,18 +136,7 @@ class Editor (DirectObject):
         self.CreateGrassTile(uv_offset=Vec2(0,0.5), pos=(0, 256, 0), parent=self.grass)
         self.CreateGrassTile(uv_offset=Vec2(0.5,0), pos=(256, 0, 0), parent=self.grass)
         self.CreateGrassTile(uv_offset=Vec2(0.5,0.5), pos=(256, 256, 0), parent=self.grass)  
-        anim_data= PTA_LVecBase4f()
-        for i in xrange(256):
-            x=uniform(-1.0, 1.0)
-            y=uniform(-1.0, 1.0)
-            z=uniform(-1.0, 1.0)
-            if abs(z)<0.2:
-                if z<0:
-                    z-=0.2
-                else:
-                    z+=0.2
-            anim_data.pushBack(UnalignedLVecBase4f(x,y,z,1.0))
-        self.grass.setShaderInput('anim_data', anim_data)        
+               
         #light
         self.dlight = DirectionalLight('dlight') 
         self.dlight.setColor(VBase4(0.8, 0.8, 0.7, 1))     

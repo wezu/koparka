@@ -4,7 +4,7 @@
 uniform sampler2D p3d_Texture0; //rgb color texture 
 
 varying vec3 normal;
-//varying float alpha;
+
 
 void main()
     {    
@@ -13,7 +13,7 @@ void main()
     
     vec4 color_tex =texture2D(p3d_Texture0,texUV);
     vec4 color =vec4(0.5, 0.5, 0.8, 1.0); 
-    //alpha*=color_tex.a;
+
     //lights
     vec3 lightDir;
     float NdotL; 
