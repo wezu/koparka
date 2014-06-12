@@ -12,9 +12,9 @@ void main()
     vec3 norm=vec3(0,0,1);    
     vec2 texUV=gl_TexCoord[0].xy;
     const float pixel=1.0/512.0;
-    const float repeat=128.0;
+    //const float repeat=64.0;
     const float height_scale=128.0;
-    const float detail_mul=0.05;
+    //const float detail_mul=0.05;
     
     float me=texture2D(height,texUV).r;
     float n=texture2D(height,vec2(texUV.x,texUV.y+pixel)).r;        

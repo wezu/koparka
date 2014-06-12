@@ -4,7 +4,7 @@ from direct.filter.FilterManager import FilterManager
 
 class BufferPainter ():
     def __init__(self, brushList, showBuff=False):        
-        self.brushList=brushList
+        self.brushList=brushList        
         #make a pointer
         self.pointer = loader.loadModel("data/pointer")
         self.pointer.reparentTo(render)
@@ -19,9 +19,9 @@ class BufferPainter ():
         self.cameras=[]
         self.paintPlanes=[]
         self.buffSize=[]
-        
         self.brushSize=1.0
         self.brushAlpha=0.05
+        self.hiddenBrushes=[]
         
         #view the buffers
         if showBuff:
@@ -91,8 +91,8 @@ class BufferPainter ():
             self.brushAlpha=new_alpha                
             brush.setColor(color[0],color[1],color[2], new_alpha)
     
-    def hideBrushes(self):    
-        for brush in self.brushes:
+    def hideBrushes(self):          
+        for brush in self.brushes:            
             brush.hide()
             
     def setBrushColor(self, color):
@@ -110,13 +110,13 @@ class BufferPainter ():
             
     def adjustBrushSize(self, size):
         for brush in self.brushes:  
-            new_size=min(2.0, max(0.1, self.brushSize+size))
+            new_size=min(5.00, max(0.11, self.brushSize+size))
             #make 'sticky' around 1.0
             if new_size> 0.99 and new_size< 1.01:
                 new_size=1            
             self.brushSize=new_size            
             brush.setScale(new_size)
-        
+            brush.setShaderInput('brushSize', new_size)
     def __getMousePos(self, task):
         if base.mouseWatcherNode.hasMouse():
             mpos = base.mouseWatcherNode.getMouse()

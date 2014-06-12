@@ -16,12 +16,13 @@ void fshader(
 	 in float4 l_texcoord0 : TEXCOORD0,
 	 uniform float4x4 texmat_0,
 	 out float4 o_color : COLOR0,
-     uniform float4 attr_color
+     uniform float4 attr_color,
+     uniform float brushSize
 ) {	 
 	 l_texcoord0 = mul(texmat_0, l_texcoord0);
 	 l_texcoord0.xyz /= l_texcoord0.w;
 	 // Fetch all textures.
 	 float4 alpha = tex2D(tex_0, l_texcoord0.xy);
-     float4 brush = tex2D(brushTex, l_texcoord0.xy);
+     float4 brush = tex2D(brushTex, l_texcoord0.xy*brushSize);
 	 o_color = float4(brush.rgb, alpha.a) * attr_color;   
 }

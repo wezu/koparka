@@ -219,6 +219,12 @@ class GuiHelper():
         
         self.SaveLoadFrame.hide()
     
+    def grayOutButtons(self, toolbar, from_to, but_not):
+        for i in range(from_to[0], from_to[1]):
+            self.elements[toolbar]['buttons'][i]['frameColor']=(0.4,0.4,0.4, 1)
+        if but_not:
+            self.elements[toolbar]['buttons'][but_not]['frameColor']=(1,1,1, 1)
+            
     def switchFlag(self, flag_id, event=None):
         if self.flags[flag_id]:
             self.flags[flag_id]=False
@@ -248,20 +254,24 @@ class GuiHelper():
     def showElement(self, id):
         self.elements[id]['frame'].show()
     
-    def addToolbar(self, parent, size, icon_size=32, x_offset=0, y_offset=0):         
-        frame=DirectFrame( frameSize=_rec2d(size,128),
-                        frameColor=(1,0,0, 0),
+    def addToolbar(self, parent, size, icon_size=32, x_offset=0, y_offset=0, hover_command=False):         
+        frame=DirectFrame( frameSize=_rec2d(size[0],size[1]),
+                        frameColor=(1,0,0, 0),                        
+                        state=DGG.NORMAL,   
                         parent=parent)
         _resetPivot(frame)
         frame.setTransparency(TransparencyAttrib.MDual)
         frame.setX(frame, x_offset)
         frame.setZ(frame, -y_offset)
-        data={'size':size, 'icon_size':icon_size, 'frame':frame, 'buttons':[]}
+        if hover_command:
+            frame.bind(DGG.WITHOUT, hover_command,[False])  
+            frame.bind(DGG.WITHIN, hover_command, [True]) 
+        data={'size':size[0], 'icon_size':icon_size, 'frame':frame, 'buttons':[]}
         id=len(self.elements)
         self.elements.append(data)
         return id
         
-    def addButton(self, toolbar, icon, command, arg=[]):
+    def addButton(self, toolbar, icon, command, arg=[], tooltip=None, tooltip_text=None):
         size=self.elements[toolbar]['icon_size']
         parent=self.elements[toolbar]['frame']
         max_x=self.elements[toolbar]['size']
@@ -281,8 +291,11 @@ class GuiHelper():
         frame.setPos(_pos2d(x,y))
         frame.bind(DGG.B1PRESS, command, arg)
         self.elements[toolbar]['buttons'].append(frame)
-        
-    def addInfoIcon(self, toolbar, icon, text):        
+        if tooltip:            
+            frame.bind(DGG.WITHIN, self.setTooltip,[tooltip, tooltip_text])  
+            frame.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])  
+            
+    def addInfoIcon(self, toolbar, icon, text, tooltip=None, tooltip_text=None):       
         parent=self.elements[toolbar]['frame']
         x=len(self.elements[toolbar]['buttons'])*64
           
@@ -298,26 +311,60 @@ class GuiHelper():
         frame.setTransparency(TransparencyAttrib.MDual)
         frame.setPos(_pos2d(x,0))
         self.elements[toolbar]['buttons'].append(frame)
+        if tooltip:  
+            frame['state']=DGG.NORMAL
+            frame.bind(DGG.WITHIN, self.setTooltip,[tooltip, tooltip_text])  
+            frame.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])
         return frame
         
-    def addComposer(self, parent, update_command, x_offset=-160, y_offset=-224):
-        frame=DirectFrame( frameSize=_rec2d(160,224),
-                        frameColor=(1,0,0, 0),
+    def setTooltip(self, tooltip, tooltip_text, guiEvent=None):
+        if tooltip_text:
+            tooltip.show()
+            tooltip['text']=tooltip_text            
+        else:    
+            tooltip.hide()
+            
+    def addTooltip(self, parent,size, x_offset=0, y_offset=0):
+        frame=DirectFrame( frameSize=_rec2d(size[0],size[1]),
+                        frameColor=(0,0,0, 0.5),  
+                        text="test",
+                        text_scale=16,
+                        text_align=TextNode.ALeft,
+                        text_pos=(-size[0]+10,14),
+                        text_fg=(1,1,1,1),                        
+                        state=DGG.NORMAL,   
                         parent=parent)
         _resetPivot(frame)
         frame.setTransparency(TransparencyAttrib.MDual)
         frame.setX(frame, x_offset)
         frame.setZ(frame, -y_offset)
-        
+        return frame
+    
+    def addComposer(self, parent, update_command, x_offset=-160, y_offset=-224, hover_command=False, tooltip=None):
+        frame=DirectFrame( frameSize=_rec2d(160,224),
+                        frameColor=(0,0,1, 0),                      
+                        state=DGG.NORMAL,   
+                        parent=parent)
+        _resetPivot(frame)
+        frame.setTransparency(TransparencyAttrib.MDual)
+        frame.setX(frame, x_offset)
+        frame.setZ(frame, -y_offset)
+        if hover_command:
+            frame.bind(DGG.WITHOUT, hover_command,[False])  
+            frame.bind(DGG.WITHIN, hover_command, [True])
         preview=DirectFrame( frameSize=_rec2d(128,128),
                         frameColor=(1,1,1, 1),                                               
                         frameTexture='data/detail.png',
                         parent=frame)
         _resetPivot(preview)        
         preview.setPos(_pos2d(16, 96))
-        
+        if tooltip:  
+            preview['state']=DGG.NORMAL
+            preview.bind(DGG.WITHIN, self.setTooltip,[tooltip, 'Detail Preview, use sliders to change'])  
+            preview.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])
+            
         r_slider=DirectSlider(range=(0,1),
-                              value=1,
+                              value=0,
                               pageSize=10,      
                               thumb_relief=DGG.FLAT,
                               scale=64,
@@ -326,6 +373,9 @@ class GuiHelper():
                               parent=frame)
         r_slider.setPos(_pos2d(80, 16))
         r_slider.setColor(1,0,0,1)
+        if tooltip:
+            r_slider.bind(DGG.WITHIN, self.setTooltip,[tooltip, "Set detail 'R' component (dirt)"])  
+            r_slider.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])
         
         g_slider=DirectSlider(range=(0,1),
                               value=0,
@@ -337,7 +387,9 @@ class GuiHelper():
                               parent=frame)
         g_slider.setPos(_pos2d(80, 48))
         g_slider.setColor(0,1,0,1)
-        
+        if tooltip:
+            g_slider.bind(DGG.WITHIN, self.setTooltip,[tooltip, "Set detail 'G' component (grass)"])  
+            g_slider.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])
         b_slider=DirectSlider(range=(0,1),
                               value=0,
                               pageSize=10,      
@@ -347,8 +399,10 @@ class GuiHelper():
                               command=update_command,
                               parent=frame)
         b_slider.setPos(_pos2d(80, 80))
-        b_slider.setColor(0,0,1,1)
-        
+        b_slider.setColor(0,0,1,1)        
+        if tooltip:
+            b_slider.bind(DGG.WITHIN, self.setTooltip,[tooltip, "Set detail 'B' component (rock)"])  
+            b_slider.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])
         preview_geom=preview.stateNodePath[0] 
         preview_geom.setShader(loader.loadShader('shaders/composer_view.cg'))
         preview_geom.setShaderInput('mix', Vec4(r_slider['value'],g_slider['value'],b_slider['value'],1.0 ))

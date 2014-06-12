@@ -4,8 +4,8 @@
 uniform sampler2D height;
 uniform mat4 p3d_ModelViewProjectionMatrix;
 
-varying vec4 diffuse;
-varying vec3 halfVector;
+//varying vec4 diffuse;
+//varying vec3 halfVector;
 
 void main()
     {    
@@ -15,8 +15,8 @@ void main()
 	gl_Position = p3d_ModelViewProjectionMatrix * vert;          
     gl_TexCoord[0] = gl_MultiTexCoord0;  
     
-    halfVector = gl_LightSource[0].halfVector.xyz;
-    diffuse = gl_LightSource[0].diffuse;
+    //halfVector = gl_LightSource[0].halfVector.xyz;
+    //diffuse = gl_LightSource[0].diffuse;
     //ambient = gl_FrontMaterial.ambient * gl_LightSource[0].ambient;
     //ambient += gl_LightModel.ambient * gl_FrontMaterial.ambient;    
     }

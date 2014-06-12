@@ -6,15 +6,15 @@ uniform sampler2D p3d_Texture1; //detail texture, grayscale heightmap in each ch
 uniform sampler2D atr; // rgb vaules are for mapping details
 uniform sampler2D height; // a heightmap 
 
-varying vec4 diffuse;
-varying vec3 halfVector;
+//varying vec4 diffuse;
+//varying vec3 halfVector;
 
 void main()
     {
     vec3 norm=vec3(0,0,1);    
     vec2 texUV=gl_TexCoord[0].xy;
     const float pixel=1.0/512.0;
-    const float repeat=128.0;
+    const float repeat=32.0;
     const float height_scale=128.0;
     const float detail_mul=0.02;
     
@@ -55,23 +55,18 @@ void main()
     norm = normalize(norm);
     
     vec4 color_tex =texture2D(p3d_Texture0, texUV);  
-    //vec4 color =vec4(0.6, 0.6, 0.7, 1.0); //ambient color
-    
-    
+    vec4 color =vec4(0.4, 0.4, 0.5, 1.0); 
+       
+   
     //lights
-    vec3 halfV,lightDir;
-    float NdotL,NdotHV; 
-    lightDir = vec3(gl_LightSource[0].position);     
-    vec4 color =vec4(0.8, 0.8, 1.0, 1.0);   
-    /* compute the dot product between normal and ldir */
- 
-    NdotL = max(dot(norm,lightDir),0.0);
-    if (NdotL > 0.0) {
-        color += diffuse * NdotL;
-        halfV = normalize(halfVector);
-        NdotHV = max(dot(norm,halfV),0.0);
-    }       
-    
+    vec3 lightDir;
+    float NdotL; 
+    for(int i = 0; i <= 3; i++) 
+        {  
+        lightDir = vec3(gl_LightSource[i].position);   
+        NdotL = max(dot(norm,lightDir),0.0);
+        color += gl_LightSource[i].diffuse * NdotL;        
+        } 
     
     gl_FragColor = vec4(color.rgb *(color_tex.rgb-me_detail*0.4), 1.0); 
     }

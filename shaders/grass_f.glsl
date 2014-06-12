@@ -13,7 +13,7 @@ void main()
     vec3 norm = normalize(normal);
     
     vec4 color_tex =texture2D(p3d_Texture0,texUV);
-    vec4 color =vec4(0.5, 0.5, 0.8, 1.0); 
+    vec4 color =vec4(0.4,0.4,0.5, 1.0); 
 
     if(mask < 0.5)
         discard;
