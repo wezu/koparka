@@ -24,6 +24,7 @@ from camcon import CameraControler
 from buffpaint import BufferPainter
 from guihelper import GuiHelper
 from fxaa import makeFXAA
+from collisiongen import GenerateCollisionEgg
 import os, sys
 from random import uniform 
 
@@ -63,6 +64,7 @@ class Editor (DirectObject):
         self.mode=MODE_HEIGHT
         self.tempColor=1
         self.ignoreHover=False
+        self.collision_mesh=None
         
         #camera control
         base.disableMouse()  
@@ -117,9 +119,9 @@ class Editor (DirectObject):
         
         #extra tools and info at the bottom
         self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (1024, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover)
-        self.size_info=self.gui.addInfoIcon(self.statusbar, 'icon/resize.png', '1.0', tooltip=self.tooltip, tooltip_text='Brush Size:   [A]-Decrease    [D]-Increase')
-        self.color_info=self.gui.addInfoIcon(self.statusbar, 'icon/color.png', '0.05',tooltip=self.tooltip, tooltip_text='Brush Strength:   [W]-Increase   [S]-Decrease')
-        self.heading_info=self.gui.addInfoIcon(self.statusbar, 'icon/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Brush Rotation:   [Q]-Left   [E]-Right')
+        self.size_info=self.gui.addInfoIcon(self.statusbar, 'icon/resize.png', '1.0', tooltip=self.tooltip, tooltip_text='Brush Size or Object Scale:   [A]-Decrease    [D]-Increase')
+        self.color_info=self.gui.addInfoIcon(self.statusbar, 'icon/color.png', '0.05',tooltip=self.tooltip, tooltip_text='Brush Strength or Object Z offset:   [W]-Increase   [S]-Decrease')
+        self.heading_info=self.gui.addInfoIcon(self.statusbar, 'icon/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Brush Rotation ([Tab] to change axis in Object Mode):   [Q]-Left   [E]-Right')
         self.gui.addInfoIcon(self.statusbar, 'icon/blank.png', '')#empty space
         self.gui.addButton(self.statusbar, 'icon/hm_icon.png', self.setMode, [MODE_HEIGHT], self.tooltip, 'Paint Heightmap Mode [F1]')
         self.gui.addButton(self.statusbar, 'icon/tex_icon.png', self.setMode, [MODE_TEXTURE], self.tooltip, 'Paint Texture Mode [F2]')
@@ -131,7 +133,7 @@ class Editor (DirectObject):
         
         
         #terrain mesh
-        self.mesh=loader.loadModel('data/mesh10k.egg')
+        self.mesh=loader.loadModel('data/mesh3k.egg')
         self.mesh.setTexture(self.painter.textures[BUFFER_COLOR], 1)
         gradient=loader.loadTexture('data/gradient.png')
         gradient.setWrapU(Texture.WMClamp)
@@ -199,11 +201,14 @@ class Editor (DirectObject):
         #make sure things have some/any starting value
         self.setMode(MODE_HEIGHT)
         self.setBrush(0)
+        self.painter.brushes[BUFFER_ATR].setColor(1,0,0,1.0)
         
         #tasks
         taskMgr.doMethodLater(0.1, self.update,'update_task')
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task')
-
+        
+    def hideDialog(self, guiEvent=None): 
+        self.gui.dialog.hide()
    
     def onToolbarHover(self, hoverIn, guiEvent=None):        
         if self.ignoreHover:
@@ -240,14 +245,16 @@ class Editor (DirectObject):
         
     def load(self, guiEvent=None):
         save_dir=path+self.gui.entry1.get()
+        feedback=""
         if self.gui.flags[0]:
             print "loading height map...",
             file=path+save_dir+"/"+self.gui.entry2.get()
             if os.path.exists(file):
                 self.painter.paintPlanes[BUFFER_HEIGHT].setTexture(loader.loadTexture(file))
-                print "done"
+                print "done"                
             else:
                 print "FILE NOT FOUND!"
+                feedback+=file +' '   
         if self.gui.flags[1]:
             print "loading detail map...",
             file=path+save_dir+"/"+self.gui.entry3.get()
@@ -256,6 +263,7 @@ class Editor (DirectObject):
                 print "done"
             else:
                 print "FILE NOT FOUND!"            
+                feedback+=file+' '
         if self.gui.flags[2]:
             print "loading color map...",
             file=path+save_dir+"/"+self.gui.entry4.get()
@@ -263,8 +271,8 @@ class Editor (DirectObject):
                 self.painter.paintPlanes[BUFFER_COLOR].setTexture(loader.loadTexture(file))
                 print "done"
             else:
-                print "FILE NOT FOUND!"            
-            
+                print "FILE NOT FOUND!" 
+                feedback+=file+' '
         if self.gui.flags[3]:
             print "loading grass map...",
             file=path+save_dir+"/"+self.gui.entry5.get()
@@ -272,19 +280,39 @@ class Editor (DirectObject):
                 self.painter.paintPlanes[BUFFER_EXTRA].setTexture(loader.loadTexture(file))
                 print "done"
             else:
-                print "FILE NOT FOUND!"                       
+                print "FILE NOT FOUND!"  
+                feedback+=file+' '
         if self.gui.flags[4]:
-            print "Object loading not implemented!"        
-        print "Loading DONE!"        
+            print "Object loading not implemented!"  
+        if self.gui.flags[5]:
+            print "loading collision mesh...",
+            file=path+save_dir+"/"+self.gui.entry7.get()
+            if os.path.exists(file):
+                if self.collision_mesh:
+                    self.collision_mesh.removeNode()
+                self.collision_mesh=loader.loadModel(file)
+                self.collision_mesh.reparentTo(render)
+                print "done"
+            else:
+                print "FILE NOT FOUND!"  
+                feedback+=file+' '                     
+        print "Loading DONE!"         
+        if feedback!="":            
+            self.gui.okDialog(text="Some files are missing:\n"+feedback, command=self.hideDialog)       
         self.hideSaveMenu()
         
         
-    def save(self, guiEvent=None):  
+    def save(self, override, guiEvent=None):          
         save_dir=path+self.gui.entry1.get()        
         if os.path.exists(path+save_dir):
-            print "ERROR:", save_dir, "already exists!"
-            print "No files saved!"
-            return    
+            if override=="ASK":                
+                self.gui.yesNoDialog(text=save_dir+" already exists! \nOverride files?", command=self.save,arg=[])
+                self.gui.SaveLoadFrame.hide()                
+                return    
+            if override==False:
+                self.gui.dialog.hide()
+                self.hideSaveMenu()
+                return
         else:
             os.makedirs(Filename(path+save_dir).toOsSpecific())            
         if self.gui.flags[0]:
@@ -305,7 +333,12 @@ class Editor (DirectObject):
             print "done"
         if self.gui.flags[4]:
             print "Object saving not implemented!"        
-        print "SAVING DONE!"       
+        if self.gui.flags[5]:
+            print "saving collision mesh...",
+            self.genCollision(True, path+save_dir+"/"+self.gui.entry7.get())    
+            print "done"
+        print "SAVING DONE!" 
+        self.gui.okDialog(text="Files saved to:\n"+save_dir, command=self.hideDialog)    
         self.hideSaveMenu()
         
     def updateComposer(self):
@@ -336,12 +369,12 @@ class Editor (DirectObject):
             self.gui.grayOutButtons(self.statusbar, (4,8), 4)
             #self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v.glsl", "shaders/ter_f1.glsl"))
             self.painter.brushes[BUFFER_HEIGHT].show()
-            self.painter.brushes[BUFFER_HEIGHT].setColor(1, 1, 1, 0.05)
+            self.painter.brushes[BUFFER_HEIGHT].setColor(1, 1, 1, self.painter.brushAlpha)
             self.painter.brushes[BUFFER_ATR].hide()
             self.painter.brushes[BUFFER_COLOR].hide()
             self.painter.brushes[BUFFER_EXTRA].hide()
-            self.painter.brushAlpha=0.05
-            self.color_info['text']='%.2f'%self.painter.brushAlpha
+            #self.painter.brushAlpha=0.05
+            #self.color_info['text']='%.2f'%self.painter.brushAlpha
             self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
             self.accept('mouse1-up', self.keyMap.__setitem__, ['paint', False])
             self.gui.hideElement(self.composer_id)
@@ -355,9 +388,9 @@ class Editor (DirectObject):
             self.painter.brushes[BUFFER_EXTRA].hide()
             #self.painter.brushes[BUFFER_ATR].setColor(1,0,0,1.0)
             self.painter.brushes[BUFFER_COLOR].show()
-            self.painter.brushes[BUFFER_COLOR].setColor(1, 1, 1, 1)
-            self.painter.brushAlpha=1.0
-            self.color_info['text']='%.2f'%self.painter.brushAlpha
+            self.painter.brushes[BUFFER_COLOR].setColor(1, 1, 1, self.painter.brushAlpha)
+            #self.painter.brushAlpha=1.0
+            #self.color_info['text']='%.2f'%self.painter.brushAlpha
             self.accept('mouse1', self.paint)                
             self.ignore('mouse1-up')
             self.gui.showElement(self.composer_id)
@@ -370,19 +403,35 @@ class Editor (DirectObject):
             self.painter.brushes[BUFFER_ATR].hide()
             self.painter.brushes[BUFFER_COLOR].hide()
             self.painter.brushes[BUFFER_EXTRA].show()
-            self.painter.brushes[BUFFER_EXTRA].setColor(1,0,0, 1)
-            self.painter.brushAlpha=1.0
-            self.color_info['text']='%.2f'%self.painter.brushAlpha
+            self.painter.brushes[BUFFER_EXTRA].setColor(1,0,0, self.painter.brushAlpha)
+            #self.painter.brushAlpha=1.0
+            #self.color_info['text']='%.2f'%self.painter.brushAlpha
             self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
             self.accept('mouse1-up', self.keyMap.__setitem__, ['paint', False])
             self.gui.hideElement(self.composer_id)
             self.gui.hideElement(self.palette_id)
             #self.grass.show()
         elif mode==MODE_OBJECT:
-            print "Not implemented!"
+            self.gui.yesNoDialog("To place objects a collision mesh is needed.\nGenerate Collision Mesh?", self.genCollision,['temp/collision.egg'])
+            self.painter.hideBrushes()            
             return
         self.mode=mode
         
+    def genCollision(self, yes, file, guiEvent=None):
+        if yes:
+            heightmap=PNMImage(self.painter.buffSize[BUFFER_HEIGHT], self.painter.buffSize[BUFFER_HEIGHT],4)              
+            base.graphicsEngine.extractTextureData(self.painter.textures[BUFFER_HEIGHT],base.win.getGsg())
+            self.painter.textures[BUFFER_HEIGHT].store(heightmap)
+            GenerateCollisionEgg(heightmap, file)
+            if self.collision_mesh:
+                self.collision_mesh.removeNode()
+            self.collision_mesh=loader.loadModel(file)
+            self.collision_mesh.reparentTo(render)  
+        if guiEvent!=None:     
+            self.gui.dialog.hide()   
+            if yes:
+                self.gui.okDialog(text="Collision mesh saved to:\n"+file, command=self.hideDialog)
+            
     def flipBrushColor(self):        
         if self.mode in (MODE_HEIGHT, MODE_EXTRA):
             print "TAB!"

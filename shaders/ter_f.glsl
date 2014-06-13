@@ -21,27 +21,27 @@ void main()
     vec4 me_tex=texture2D(height,texUV);
     //get the details    
     float me_detail=dot(texture2D(atr, texUV).rgb, texture2D(p3d_Texture1, texUV*repeat).rgb); 
-    float me=mix (me_tex.a, me_detail, detail_mul);
+    float me=mix (me_tex.r, me_detail, detail_mul);
     
     vec4 n_tex=texture2D(height, vec2(texUV.x,texUV.y+pixel));
     //get the details
     float n_detail=dot(texture2D(atr, vec2(texUV.x,texUV.y+pixel)).rgb, texture2D(p3d_Texture1, vec2(texUV.x,texUV.y+pixel)*repeat).rgb); 
-    float n=mix (n_tex.a, n_detail, detail_mul);
+    float n=mix (n_tex.r, n_detail, detail_mul);
     
     vec4 s_tex=texture2D(height, vec2(texUV.x,texUV.y-pixel));
     //get the details
     float s_detail=dot(texture2D(atr, vec2(texUV.x,texUV.y-pixel)).rgb, texture2D(p3d_Texture1, vec2(texUV.x,texUV.y-pixel)*repeat).rgb); 
-    float s=mix (s_tex.a, s_detail, detail_mul);
+    float s=mix (s_tex.r, s_detail, detail_mul);
 
     vec4 e_tex=texture2D(height, vec2(texUV.x+pixel,texUV.y));
     //get the details
     float e_detail=dot(texture2D(atr, vec2(texUV.x+pixel,texUV.y)).rgb, texture2D(p3d_Texture1, vec2(texUV.x+pixel,texUV.y)*repeat).rgb); 
-    float e=mix (e_tex.a, e_detail, detail_mul);
+    float e=mix (e_tex.r, e_detail, detail_mul);
    
     vec4 w_tex=texture2D(height, vec2(texUV.x-pixel,texUV.y));
     //get the details
     float w_detail=dot(texture2D(atr, vec2(texUV.x-pixel,texUV.y)).rgb, texture2D(p3d_Texture1, vec2(texUV.x-pixel,texUV.y)*repeat).rgb); 
-    float w=mix (w_tex.a, w_detail, detail_mul);
+    float w=mix (w_tex.r, w_detail, detail_mul);
        
     //find perpendicular vector to norm:        
     vec3 temp = norm; //a temporary vector that is not parallel to norm    

@@ -19,6 +19,239 @@
   <Scalar> envtype { modulate }
 }
 <Group> "Scene Root" {
+<Group> collision {
+  <Collide> object { Polyset descend }
+    <VertexPool> rock9_coll.verts {
+      <Vertex> 0 {
+        -0.559157 1.81262 3.77887
+        <Normal> { -0.217674 0.248845 0.943766 }
+      }
+      <Vertex> 1 {
+        -1.58373 -2.14891 2.83532
+        <Normal> { -0.461445 -0.391732 0.795999 }
+      }
+      <Vertex> 2 {
+        1.06051 -2.69536 3.38733
+        <Normal> { 0.0683361 -0.570444 0.818489 }
+      }
+      <Vertex> 3 {
+        3.74276 0.283942 -0.0633346
+        <Normal> { 0.58651 -0.134433 -0.798708 }
+      }
+      <Vertex> 4 {
+        3.34691 -2.3953 0.449365
+        <Normal> { 0.492548 -0.418397 -0.763112 }
+      }
+      <Vertex> 5 {
+        -1.71545 -1.22293 0.0644797
+        <Normal> { -0.226384 -0.196498 -0.954012 }
+      }
+      <Vertex> 6 {
+        2.23781 3.34078 2.01134
+        <Normal> { 0.36992 0.838131 0.400869 }
+      }
+      <Vertex> 7 {
+        2.10905 1.39415 3.79945
+        <Normal> { 0.377089 0.255294 0.890297 }
+      }
+      <Vertex> 8 {
+        -2.83551 1.65826 0.626956
+        <Normal> { -0.679636 0.374985 -0.630461 }
+      }
+      <Vertex> 9 {
+        -1.22245 3.60069 1.47213
+        <Normal> { -0.349728 0.930346 -0.110216 }
+      }
+      <Vertex> 10 {
+        0.954981 2.82765 -0.174566
+        <Normal> { -0.0611547 0.421798 -0.904625 }
+      }
+      <Vertex> 11 {
+        3.54787 -3.13526 1.40072
+        <Normal> { 0.647956 -0.761611 -0.010142 }
+      }
+      <Vertex> 12 {
+        4.0196 1.64238 0.123346
+        <Normal> { 0.84275 0.233461 -0.485046 }
+      }
+      <Vertex> 13 {
+        4.14792 -1.49788 2.13658
+        <Normal> { 0.902121 -0.206557 0.378829 }
+      }
+      <Vertex> 14 {
+        -1.37835 2.70455 3.13637
+        <Normal> { -0.410826 0.544508 0.731255 }
+      }
+      <Vertex> 15 {
+        -3.55814 0.250051 1.2711
+        <Normal> { -0.999816 0.00751906 0.0176268 }
+      }
+      <Vertex> 16 {
+        -2.29372 2.81994 1.68145
+        <Normal> { -0.757352 0.64631 0.0932839 }
+      }
+      <Vertex> 17 {
+        -2.46884 -2.71173 1.7048
+        <Normal> { -0.738955 -0.639381 0.212457 }
+      }
+      <Vertex> 18 {
+        0.655533 -3.73605 1.24793
+        <Normal> { -0.0406329 -0.964377 -0.261393 }
+      }
+      <Vertex> 19 {
+        3.29775 2.71894 1.52026
+        <Normal> { 0.750284 0.594637 0.288931 }
+      }
+      <Vertex> 20 {
+        3.32528 2.66554 0.0676193
+        <Normal> { 0.508174 0.598195 -0.619615 }
+      }
+      <Vertex> 21 {
+        0.542221 3.95432 1.09007
+        <Normal> { -0.0421276 0.992728 -0.11277 }
+      }
+      <Vertex> 22 {
+        -1.79518 -3.04437 0.889427
+        <Normal> { -0.378501 -0.77191 -0.510776 }
+      }
+      <Vertex> 23 {
+        -2.69929 -1.09323 0.529576
+        <Normal> { -0.675984 -0.241796 -0.696118 }
+      }
+    }
+    <Polygon> {
+      <VertexRef> { 0 1 2 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 3 4 5 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 6 0 7 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 8 9 10 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 7 0 2 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 11 12 13 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 14 15 1 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 5 8 10 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 14 16 15 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 14 6 9 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 17 18 2 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 2 11 13 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 13 12 19 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 20 21 6 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 5 22 23 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 5 18 22 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 7 13 19 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 2 13 7 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 19 12 20 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 3 5 10 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 18 5 4 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 2 18 11 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 9 6 21 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 21 10 9 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 8 5 23 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 15 16 8 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 17 23 22 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 18 17 22 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 6 19 20 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 19 6 7 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 10 21 20 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 3 10 20 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 9 16 14 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 8 16 9 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 8 23 15 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 17 15 23 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 2 1 17 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 1 15 17 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 3 20 12 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 3 12 11 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 4 11 18 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 4 3 11 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 0 14 1 <Ref> { rock9_coll.verts } }
+    }
+    <Polygon> {
+      <VertexRef> { 6 14 0 <Ref> { rock9_coll.verts } }
+    }
+  }
   <Group> rock9 {
     <VertexPool> rock9.verts {
       <Vertex> 0 {
