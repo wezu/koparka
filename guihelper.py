@@ -307,11 +307,11 @@ class GuiHelper():
         
         self.SaveLoadFrame.hide()
     
-    def grayOutButtons(self, toolbar, from_to, but_not):
+    def grayOutButtons(self, toolbar, from_to, but_not, on_color=(1,1,1, 1), off_color=(0.4,0.4,0.4, 1)):
         for i in range(from_to[0], from_to[1]):
-            self.elements[toolbar]['buttons'][i]['frameColor']=(0.4,0.4,0.4, 1)
-        if but_not:
-            self.elements[toolbar]['buttons'][but_not]['frameColor']=(1,1,1, 1)
+            self.elements[toolbar]['buttons'][i]['frameColor']=off_color
+        if but_not!=None:
+            self.elements[toolbar]['buttons'][but_not]['frameColor']=on_color
             
     def switchFlag(self, flag_id, event=None):
         if self.flags[flag_id]:
@@ -342,9 +342,40 @@ class GuiHelper():
     def showElement(self, id):
         self.elements[id]['frame'].show()
     
-    def addToolbar(self, parent, size, icon_size=32, x_offset=0, y_offset=0, hover_command=False):         
+    def addScrolledToolbar(self, parent, width, canvas_size, x_offset=0, y_offset=0, hover_command=False, color=(1,0,0, 0)):         
+        wp=base.win.getProperties()        
+        height=wp.getYSize()-y_offset-16
+        frame=DirectScrolledFrame(canvasSize = _rec2d(canvas_size[0],canvas_size[1]),
+                                  frameSize = _rec2d(width,height),                              
+                                  verticalScroll_frameSize=_rec2d(16,height), 
+                                  verticalScroll_frameColor=(0, 0, 1, 0),
+                                  frameColor=color,
+                                  manageScrollBars=False,
+                                  autoHideScrollBars=False, 
+                                  verticalScroll_thumb_frameColor=(1, 1, 1, 0.8),                              
+                                  parent=parent                              
+                                )         
+        frame.verticalScroll['value']=0
+        frame.verticalScroll['incButton_relief']=None
+        frame.verticalScroll['incButton_state'] = DGG.DISABLED
+        frame.verticalScroll['decButton_relief']=None
+        frame.verticalScroll['decButton_state'] = DGG.DISABLED
+        _resetPivot(frame)
+        frame.setTransparency(TransparencyAttrib.MDual)
+        frame.setX(frame, x_offset)
+        frame.setZ(frame, -y_offset)
+        if hover_command:
+            frame['state']=DGG.NORMAL
+            frame.bind(DGG.WITHOUT, hover_command,[False])  
+            frame.bind(DGG.WITHIN, hover_command, [True]) 
+        data={'size':canvas_size[0], 'frame':frame, 'buttons':[]}
+        id=len(self.elements)
+        self.elements.append(data)
+        return id
+    
+    def addToolbar(self, parent, size, icon_size=32, x_offset=0, y_offset=0, hover_command=False, color=(1,0,0, 0)):         
         frame=DirectFrame( frameSize=_rec2d(size[0],size[1]),
-                        frameColor=(1,0,0, 0),                        
+                        frameColor=color,                        
                         state=DGG.NORMAL,   
                         parent=parent)
         _resetPivot(frame)
@@ -499,4 +530,3 @@ class GuiHelper():
         id=len(self.elements)
         self.elements.append(data)
         return id
-        

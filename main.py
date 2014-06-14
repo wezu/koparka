@@ -65,6 +65,7 @@ class Editor (DirectObject):
         self.tempColor=1
         self.ignoreHover=False
         self.collision_mesh=None
+        self.winsize=[0,0]
         
         #camera control
         base.disableMouse()  
@@ -101,7 +102,7 @@ class Editor (DirectObject):
         self.tooltip=self.gui.addTooltip(self.gui.BottomLeft, (564, 32),y_offset=-96)
         self.tooltip.hide()
         #the toolbar_id here is just an int, not a 'toolbar object'!
-        self.toolbar_id=self.gui.addToolbar(self.gui.TopLeft, (512, 32),hover_command=self.onToolbarHover)        
+        self.toolbar_id=self.gui.addToolbar(self.gui.TopLeft, (512, 32),hover_command=self.onToolbarHover, color=(1,1,1, 0.8))        
         id=0
         for brush in self.brushList:            
             self.gui.addButton(self.toolbar_id,brush, self.setBrush, [id],tooltip=self.tooltip, tooltip_text='Set Brush Shape')
@@ -118,10 +119,10 @@ class Editor (DirectObject):
         self.gui.addSaveLoadDialog(self.save, self.load, self.hideSaveMenu)
         
         #extra tools and info at the bottom
-        self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (1024, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover)
+        self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (576, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))
         self.size_info=self.gui.addInfoIcon(self.statusbar, 'icon/resize.png', '1.0', tooltip=self.tooltip, tooltip_text='Brush Size or Object Scale:   [A]-Decrease    [D]-Increase')
         self.color_info=self.gui.addInfoIcon(self.statusbar, 'icon/color.png', '0.05',tooltip=self.tooltip, tooltip_text='Brush Strength or Object Z offset:   [W]-Increase   [S]-Decrease')
-        self.heading_info=self.gui.addInfoIcon(self.statusbar, 'icon/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Brush Rotation ([Tab] to change axis in Object Mode):   [Q]-Left   [E]-Right')
+        self.heading_info=self.gui.addInfoIcon(self.statusbar, 'icon/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Brush Rotation ([1][2][3] to change axis in Object Mode):   [Q]-Left   [E]-Right')
         self.gui.addInfoIcon(self.statusbar, 'icon/blank.png', '')#empty space
         self.gui.addButton(self.statusbar, 'icon/hm_icon.png', self.setMode, [MODE_HEIGHT], self.tooltip, 'Paint Heightmap Mode [F1]')
         self.gui.addButton(self.statusbar, 'icon/tex_icon.png', self.setMode, [MODE_TEXTURE], self.tooltip, 'Paint Texture Mode [F2]')
@@ -131,6 +132,15 @@ class Editor (DirectObject):
         #gray out buttons
         self.gui.grayOutButtons(self.statusbar, (4,8), None)
         
+        #object toolbar (scrollable)
+        self.object_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 256,(246, 6000), x_offset=-256, y_offset=88, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
+        #object-mode toolbar
+        self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (256, 64), icon_size=64, x_offset=-256, y_offset=24, hover_command=self.onToolbarHover)
+        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_object.png', self.setObjectMode,[0],tooltip=self.tooltip, tooltip_text='Place single objects')
+        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_multi.png', self.setObjectMode,[1],tooltip=self.tooltip, tooltip_text='Place multiple, similar objects')
+        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_wall.png', self.setObjectMode,[2],tooltip=self.tooltip, tooltip_text='Place walls')
+        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_actor.png', self.setObjectMode,[3],tooltip=self.tooltip, tooltip_text='Place actors (models with animations)')
+        self.gui.grayOutButtons(self.mode_toolbar_id, (0,4), 0)
         
         #terrain mesh
         self.mesh=loader.loadModel('data/mesh3k.egg')
@@ -165,8 +175,6 @@ class Editor (DirectObject):
         self.Ambient.setP(-45)
         self.Ambient.wrtReparentTo(base.camera)
         render.setLight(self.Ambient)
-        
-        
         
         self.keyMap = {'paint': False,
                        'rotate_l':False, 
@@ -206,7 +214,11 @@ class Editor (DirectObject):
         #tasks
         taskMgr.doMethodLater(0.1, self.update,'update_task')
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task')
-        
+
+    def setObjectMode(self, mode, guiEvent=None): 
+        print mode
+        self.gui.grayOutButtons(self.mode_toolbar_id, (0,4), mode)
+    
     def hideDialog(self, guiEvent=None): 
         self.gui.dialog.hide()
    
@@ -358,63 +370,74 @@ class Editor (DirectObject):
         self.painter.setBrushTex(id)
         for button in self.gui.elements[0]['buttons']:
             button.setColor(0,0,0, 1)
-        self.gui.elements[0]['buttons'][id].setColor(1,1,1, 1)
+        self.gui.elements[0]['buttons'][id].setColor(0,0,1, 1)
      
     def paint(self):
         self.painter.paint(BUFFER_ATR)
         self.painter.paint(BUFFER_COLOR)
         
-    def setMode(self, mode, guiEvent=None):
+    def setMode(self, mode, guiEvent=None):        
         if mode==MODE_HEIGHT:
+            if guiEvent!=None:
+                self.painter.brushAlpha=0.05
+                self.color_info['text']='%.2f'%self.painter.brushAlpha
             self.gui.grayOutButtons(self.statusbar, (4,8), 4)
-            #self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v.glsl", "shaders/ter_f1.glsl"))
             self.painter.brushes[BUFFER_HEIGHT].show()
             self.painter.brushes[BUFFER_HEIGHT].setColor(1, 1, 1, self.painter.brushAlpha)
             self.painter.brushes[BUFFER_ATR].hide()
             self.painter.brushes[BUFFER_COLOR].hide()
-            self.painter.brushes[BUFFER_EXTRA].hide()
-            #self.painter.brushAlpha=0.05
-            #self.color_info['text']='%.2f'%self.painter.brushAlpha
+            self.painter.brushes[BUFFER_EXTRA].hide()            
             self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
             self.accept('mouse1-up', self.keyMap.__setitem__, ['paint', False])
             self.gui.hideElement(self.composer_id)
-            self.gui.hideElement(self.palette_id)
-            #self.grass.hide()
+            self.gui.hideElement(self.palette_id)            
+            self.gui.showElement(self.toolbar_id)
+            self.gui.hideElement(self.mode_toolbar_id)
+            self.gui.hideElement(self.object_toolbar_id)
         elif mode==MODE_TEXTURE:
+            if guiEvent!=None:    
+                self.painter.brushAlpha=1.0
+                self.color_info['text']='%.2f'%self.painter.brushAlpha
             self.gui.grayOutButtons(self.statusbar, (4,8), 5)
-            #self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v.glsl", "shaders/ter_f.glsl")) 
             self.painter.brushes[BUFFER_HEIGHT].hide()
             self.painter.brushes[BUFFER_ATR].show()
             self.painter.brushes[BUFFER_EXTRA].hide()
-            #self.painter.brushes[BUFFER_ATR].setColor(1,0,0,1.0)
             self.painter.brushes[BUFFER_COLOR].show()
-            self.painter.brushes[BUFFER_COLOR].setColor(1, 1, 1, self.painter.brushAlpha)
-            #self.painter.brushAlpha=1.0
-            #self.color_info['text']='%.2f'%self.painter.brushAlpha
+            self.painter.brushes[BUFFER_COLOR].setColor(1, 1, 1, self.painter.brushAlpha)            
             self.accept('mouse1', self.paint)                
             self.ignore('mouse1-up')
             self.gui.showElement(self.composer_id)
-            self.gui.showElement(self.palette_id)
-            #self.grass.show()
+            self.gui.showElement(self.palette_id)            
+            self.gui.showElement(self.toolbar_id)
+            self.gui.hideElement(self.mode_toolbar_id)
+            self.gui.hideElement(self.object_toolbar_id)
         elif mode==MODE_EXTRA:
+            if guiEvent!=None:
+                self.painter.brushAlpha=1.0
+                self.color_info['text']='%.2f'%self.painter.brushAlpha
             self.gui.grayOutButtons(self.statusbar, (4,8), 6)
-            #self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v.glsl", "shaders/ter_f.glsl")) 
             self.painter.brushes[BUFFER_HEIGHT].hide()
             self.painter.brushes[BUFFER_ATR].hide()
             self.painter.brushes[BUFFER_COLOR].hide()
             self.painter.brushes[BUFFER_EXTRA].show()
-            self.painter.brushes[BUFFER_EXTRA].setColor(1,0,0, self.painter.brushAlpha)
-            #self.painter.brushAlpha=1.0
-            #self.color_info['text']='%.2f'%self.painter.brushAlpha
+            self.painter.brushes[BUFFER_EXTRA].setColor(1,0,0, self.painter.brushAlpha)            
             self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
             self.accept('mouse1-up', self.keyMap.__setitem__, ['paint', False])
             self.gui.hideElement(self.composer_id)
             self.gui.hideElement(self.palette_id)
-            #self.grass.show()
+            self.gui.showElement(self.toolbar_id)
+            self.gui.hideElement(self.mode_toolbar_id)
+            self.gui.hideElement(self.object_toolbar_id)
         elif mode==MODE_OBJECT:
-            self.gui.yesNoDialog("To place objects a collision mesh is needed.\nGenerate Collision Mesh?", self.genCollision,['temp/collision.egg'])
-            self.painter.hideBrushes()            
-            return
+            if self.collision_mesh==None: 
+                self.gui.yesNoDialog("To place objects a collision mesh is needed.\nGenerate Collision Mesh?", self.genCollision,['temp/collision.egg'])
+            self.painter.hideBrushes() 
+            self.gui.grayOutButtons(self.statusbar, (4,8), 7) 
+            self.gui.hideElement(self.composer_id)
+            self.gui.hideElement(self.palette_id)
+            self.gui.hideElement(self.toolbar_id)
+            self.gui.showElement(self.mode_toolbar_id)
+            self.gui.showElement(self.object_toolbar_id)
         self.mode=mode
         
     def genCollision(self, yes, file, guiEvent=None):
@@ -480,9 +503,13 @@ class Editor (DirectObject):
         
     def windowEventHandler( self, window=None ):    
         if window is not None: # window is none if panda3d is not started
-            self.gui.updateBaseNodes()   
-            #resizing the window breaks the filter manager, so I just make a new one
-            self.fxaaManager.cleanup()
-            self.fxaaManager=makeFXAA(self.fxaaManager)
+            wp=window.getProperties()       
+            newsize=[wp.getXSize(),wp.getYSize()]
+            if self.winsize!=newsize:            
+                self.gui.updateBaseNodes()   
+                #resizing the window breaks the filter manager, so I just make a new one
+                self.fxaaManager.cleanup()
+                self.fxaaManager=makeFXAA(self.fxaaManager)
+                self.winsize=newsize
 app=Editor()
 run()    
