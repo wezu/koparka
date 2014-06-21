@@ -25,6 +25,7 @@ from buffpaint import BufferPainter
 from guihelper import GuiHelper
 from fxaa import makeFXAA
 from collisiongen import GenerateCollisionEgg
+from objectpainter import ObjectPainter
 import os, sys
 from random import uniform 
 
@@ -37,6 +38,14 @@ MODE_HEIGHT=0
 MODE_TEXTURE=1
 MODE_EXTRA=2
 MODE_OBJECT=3
+
+OBJECT_MODE_ONE=0
+OBJECT_MODE_MULTI=1
+OBJECT_MODE_WALL=2
+OBJECT_MODE_SELECT=3
+OBJECT_MODE_ACTOR=4
+OBJECT_MODE_COLLISION=5
+
 
 class Editor (DirectObject):
     def __init__(self):
@@ -66,6 +75,8 @@ class Editor (DirectObject):
         self.ignoreHover=False
         self.collision_mesh=None
         self.winsize=[0,0]
+        self.object_mode=OBJECT_MODE_ONE
+        self.hpr_axis='H: '
         
         #camera control
         base.disableMouse()  
@@ -132,15 +143,32 @@ class Editor (DirectObject):
         #gray out buttons
         self.gui.grayOutButtons(self.statusbar, (4,8), None)
         
-        #object toolbar (scrollable)
-        self.object_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 256,(246, 6000), x_offset=-256, y_offset=88, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
+        #object toolbars (scrollable)
+        #each object paint mode has its own
+        self.object_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=152, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
+        self.multi_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=152, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
+        self.wall_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=152, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
+        self.actor_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=152, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
+        self.collision_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=152, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
+        
+        #get models
+        dirList=os.listdir(Filename(path+"models/").toOsSpecific())
+        for fname in dirList:
+            if  Filename(fname).getExtension() in ('egg', 'bam'):
+                self.gui.addListButton(self.object_toolbar_id, fname[:-4], command=self.setObject, arg=["models/"+fname])
+        
         #object-mode toolbar
-        self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (256, 64), icon_size=64, x_offset=-256, y_offset=24, hover_command=self.onToolbarHover)
-        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_object.png', self.setObjectMode,[0],tooltip=self.tooltip, tooltip_text='Place single objects')
-        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_multi.png', self.setObjectMode,[1],tooltip=self.tooltip, tooltip_text='Place multiple, similar objects')
-        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_wall.png', self.setObjectMode,[2],tooltip=self.tooltip, tooltip_text='Place walls')
-        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_actor.png', self.setObjectMode,[3],tooltip=self.tooltip, tooltip_text='Place actors (models with animations)')
-        self.gui.grayOutButtons(self.mode_toolbar_id, (0,4), 0)
+        self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 64), icon_size=64, x_offset=-192, y_offset=24, hover_command=self.onToolbarHover)
+        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_object.png', self.setObjectMode,[OBJECT_MODE_ONE],tooltip=self.tooltip, tooltip_text='Place single objects')
+        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_multi.png', self.setObjectMode,[OBJECT_MODE_MULTI],tooltip=self.tooltip, tooltip_text='Place multiple, similar objects')
+        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_wall.png', self.setObjectMode,[OBJECT_MODE_WALL],tooltip=self.tooltip, tooltip_text='Place walls')
+        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_pointer.png', self.setObjectMode,[OBJECT_MODE_SELECT],tooltip=self.tooltip, tooltip_text='Pickup placed objects')
+        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_actor.png', self.setObjectMode,[OBJECT_MODE_ACTOR],tooltip=self.tooltip, tooltip_text='Place actors (models with animations)')
+        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_collision.png', self.setObjectMode,[OBJECT_MODE_COLLISION],tooltip=self.tooltip, tooltip_text='Place Collision solids')
+        self.gui.grayOutButtons(self.mode_toolbar_id, (0,6), 0)
+        
+        #object painter
+        self.objectPainter=ObjectPainter()
         
         #terrain mesh
         self.mesh=loader.loadModel('data/mesh3k.egg')
@@ -204,6 +232,9 @@ class Editor (DirectObject):
         self.accept('f3', self.setMode,[MODE_EXTRA])        
         self.accept('f4', self.setMode,[MODE_OBJECT])        
         self.accept('f5',self.showSaveMenu)
+        self.accept('1', self.setAxis,['H: '])
+        self.accept('2', self.setAxis,['P: '])
+        self.accept('3', self.setAxis,['R: '])
         self.accept( 'window-event', self.windowEventHandler) 
         
         #make sure things have some/any starting value
@@ -214,11 +245,64 @@ class Editor (DirectObject):
         #tasks
         taskMgr.doMethodLater(0.1, self.update,'update_task')
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task')
-
-    def setObjectMode(self, mode, guiEvent=None): 
-        print mode
-        self.gui.grayOutButtons(self.mode_toolbar_id, (0,4), mode)
     
+    def setObject(self, model, id=None, guiEvent=None): 
+        if id!=None:
+            self.gui.blink(self.object_toolbar_id, id)
+            self.objectPainter.loadModel(model)
+            
+    def setAxis(self, axis):        
+        if self.mode==MODE_OBJECT:
+            self.hpr_axis=axis  
+            self.heading_info['text']=self.objectPainter.adjustHpr(0,axis)
+        else:
+            return
+        
+    def setObjectMode(self, mode, guiEvent=None): 
+        self.gui.grayOutButtons(self.mode_toolbar_id, (0,6), mode)
+        self.object_mode=mode
+        if mode==OBJECT_MODE_ONE:
+            self.gui.showElement(self.object_toolbar_id)
+            self.gui.hideElement(self.multi_toolbar_id)
+            self.gui.hideElement(self.wall_toolbar_id)
+            self.gui.hideElement(self.actor_toolbar_id)
+            self.gui.hideElement(self.collision_toolbar_id)
+            self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))
+        if mode==OBJECT_MODE_MULTI:
+            self.gui.showElement(self.multi_toolbar_id)
+            self.gui.hideElement(self.object_toolbar_id)
+            self.gui.hideElement(self.wall_toolbar_id)
+            self.gui.hideElement(self.actor_toolbar_id)
+            self.gui.hideElement(self.collision_toolbar_id)
+            self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))
+        if mode==OBJECT_MODE_WALL:
+            self.gui.showElement(self.wall_toolbar_id)
+            self.gui.hideElement(self.object_toolbar_id)
+            self.gui.hideElement(self.multi_toolbar_id)
+            self.gui.hideElement(self.actor_toolbar_id)
+            self.gui.hideElement(self.collision_toolbar_id)
+            self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))
+        if mode==OBJECT_MODE_SELECT:
+            self.gui.hideElement(self.object_toolbar_id)
+            self.gui.hideElement(self.multi_toolbar_id)
+            self.gui.hideElement(self.wall_toolbar_id)
+            self.gui.hideElement(self.actor_toolbar_id)
+            self.gui.hideElement(self.collision_toolbar_id)            
+            self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(2))
+        if mode==OBJECT_MODE_ACTOR:
+            self.gui.showElement(self.actor_toolbar_id)
+            self.gui.hideElement(self.object_toolbar_id)
+            self.gui.hideElement(self.multi_toolbar_id)
+            self.gui.hideElement(self.wall_toolbar_id)
+            self.gui.hideElement(self.collision_toolbar_id)
+            self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))
+        if mode==OBJECT_MODE_COLLISION:
+            self.gui.showElement(self.collision_toolbar_id)
+            self.gui.hideElement(self.object_toolbar_id)
+            self.gui.hideElement(self.multi_toolbar_id)
+            self.gui.hideElement(self.wall_toolbar_id)
+            self.gui.hideElement(self.actor_toolbar_id)  
+            self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))
     def hideDialog(self, guiEvent=None): 
         self.gui.dialog.hide()
    
@@ -304,6 +388,7 @@ class Editor (DirectObject):
                     self.collision_mesh.removeNode()
                 self.collision_mesh=loader.loadModel(file)
                 self.collision_mesh.reparentTo(render)
+                self.collision_mesh.setCollideMask(BitMask32.bit(1))
                 print "done"
             else:
                 print "FILE NOT FOUND!"  
@@ -373,8 +458,21 @@ class Editor (DirectObject):
         self.gui.elements[0]['buttons'][id].setColor(0,0,1, 1)
      
     def paint(self):
-        self.painter.paint(BUFFER_ATR)
-        self.painter.paint(BUFFER_COLOR)
+        if self.mode==MODE_OBJECT:
+            if self.object_mode in(OBJECT_MODE_ONE,OBJECT_MODE_COLLISION):
+                self.objectPainter.drop()
+            elif self.object_mode==OBJECT_MODE_SELECT:
+                if self.objectPainter.pickup():
+                    self.setObjectMode(OBJECT_MODE_ONE)
+            elif self.object_mode==OBJECT_MODE_MULTI: 
+                print "not implemented!"
+            elif self.object_mode==OBJECT_MODE_WALL:
+                print "not implemented!"
+            elif self.object_mode==OBJECT_MODE_ACTOR:            
+                print "not implemented!"
+        else:
+            self.painter.paint(BUFFER_ATR)
+            self.painter.paint(BUFFER_COLOR)
         
     def setMode(self, mode, guiEvent=None):        
         if mode==MODE_HEIGHT:
@@ -386,7 +484,9 @@ class Editor (DirectObject):
             self.painter.brushes[BUFFER_HEIGHT].setColor(1, 1, 1, self.painter.brushAlpha)
             self.painter.brushes[BUFFER_ATR].hide()
             self.painter.brushes[BUFFER_COLOR].hide()
-            self.painter.brushes[BUFFER_EXTRA].hide()            
+            self.painter.brushes[BUFFER_EXTRA].hide()  
+            self.painter.pointer.show()
+            self.hpr_axis=''
             self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
             self.accept('mouse1-up', self.keyMap.__setitem__, ['paint', False])
             self.gui.hideElement(self.composer_id)
@@ -394,6 +494,11 @@ class Editor (DirectObject):
             self.gui.showElement(self.toolbar_id)
             self.gui.hideElement(self.mode_toolbar_id)
             self.gui.hideElement(self.object_toolbar_id)
+            self.gui.hideElement(self.multi_toolbar_id)
+            self.gui.hideElement(self.wall_toolbar_id)
+            self.gui.hideElement(self.actor_toolbar_id)
+            self.gui.hideElement(self.collision_toolbar_id)
+            self.objectPainter.stop()
         elif mode==MODE_TEXTURE:
             if guiEvent!=None:    
                 self.painter.brushAlpha=1.0
@@ -403,7 +508,9 @@ class Editor (DirectObject):
             self.painter.brushes[BUFFER_ATR].show()
             self.painter.brushes[BUFFER_EXTRA].hide()
             self.painter.brushes[BUFFER_COLOR].show()
-            self.painter.brushes[BUFFER_COLOR].setColor(1, 1, 1, self.painter.brushAlpha)            
+            self.painter.brushes[BUFFER_COLOR].setColor(1, 1, 1, self.painter.brushAlpha) 
+            self.painter.pointer.show()     
+            self.hpr_axis=''        
             self.accept('mouse1', self.paint)                
             self.ignore('mouse1-up')
             self.gui.showElement(self.composer_id)
@@ -411,6 +518,11 @@ class Editor (DirectObject):
             self.gui.showElement(self.toolbar_id)
             self.gui.hideElement(self.mode_toolbar_id)
             self.gui.hideElement(self.object_toolbar_id)
+            self.gui.hideElement(self.multi_toolbar_id)
+            self.gui.hideElement(self.wall_toolbar_id)
+            self.gui.hideElement(self.actor_toolbar_id)
+            self.gui.hideElement(self.collision_toolbar_id)
+            self.objectPainter.stop()
         elif mode==MODE_EXTRA:
             if guiEvent!=None:
                 self.painter.brushAlpha=1.0
@@ -420,7 +532,9 @@ class Editor (DirectObject):
             self.painter.brushes[BUFFER_ATR].hide()
             self.painter.brushes[BUFFER_COLOR].hide()
             self.painter.brushes[BUFFER_EXTRA].show()
-            self.painter.brushes[BUFFER_EXTRA].setColor(1,0,0, self.painter.brushAlpha)            
+            self.painter.brushes[BUFFER_EXTRA].setColor(1,0,0, self.painter.brushAlpha)  
+            self.painter.pointer.show() 
+            self.hpr_axis=''      
             self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
             self.accept('mouse1-up', self.keyMap.__setitem__, ['paint', False])
             self.gui.hideElement(self.composer_id)
@@ -428,17 +542,29 @@ class Editor (DirectObject):
             self.gui.showElement(self.toolbar_id)
             self.gui.hideElement(self.mode_toolbar_id)
             self.gui.hideElement(self.object_toolbar_id)
+            self.gui.hideElement(self.multi_toolbar_id)
+            self.gui.hideElement(self.wall_toolbar_id)
+            self.gui.hideElement(self.actor_toolbar_id)
+            self.gui.hideElement(self.collision_toolbar_id)
+            self.objectPainter.stop()            
         elif mode==MODE_OBJECT:
-            if self.collision_mesh==None: 
-                self.gui.yesNoDialog("To place objects a collision mesh is needed.\nGenerate Collision Mesh?", self.genCollision,['temp/collision.egg'])
+            if guiEvent!=None:                
+                self.hpr_axis='H: '
+                if self.collision_mesh==None: 
+                    self.gui.yesNoDialog("To place objects a collision mesh is needed.\nGenerate Collision Mesh?", self.genCollision,['temp/collision.egg'])
             self.painter.hideBrushes() 
+            self.painter.pointer.hide()            
             self.gui.grayOutButtons(self.statusbar, (4,8), 7) 
             self.gui.hideElement(self.composer_id)
             self.gui.hideElement(self.palette_id)
             self.gui.hideElement(self.toolbar_id)
             self.gui.showElement(self.mode_toolbar_id)
-            self.gui.showElement(self.object_toolbar_id)
+            self.setObjectMode(self.object_mode)
+            self.accept('mouse1', self.paint)                
+            self.ignore('mouse1-up')
+            
         self.mode=mode
+        self.heading_info['text']=self.hpr_axis+'%.0f'%self.painter.brushes[0].getH()
         
     def genCollision(self, yes, file, guiEvent=None):
         if yes:
@@ -450,6 +576,7 @@ class Editor (DirectObject):
                 self.collision_mesh.removeNode()
             self.collision_mesh=loader.loadModel(file)
             self.collision_mesh.reparentTo(render)  
+            self.collision_mesh.setCollideMask(BitMask32.bit(1))
         if guiEvent!=None:     
             self.gui.dialog.hide()   
             if yes:
@@ -475,13 +602,32 @@ class Editor (DirectObject):
         elif self.mode==MODE_EXTRA:
             if self.keyMap['paint']:      
                 self.painter.paint(BUFFER_EXTRA) 
-                
+        elif self.mode==MODE_OBJECT:   
+            if self.keyMap['rotate_l']:                
+                self.heading_info['text']=self.objectPainter.adjustHpr(5,self.hpr_axis)
+            if self.keyMap['rotate_r']:                    
+                self.heading_info['text']=self.objectPainter.adjustHpr(-5,self.hpr_axis)
+            if self.keyMap['scale_up']:
+                self.objectPainter.adjustScale(0.05)
+                self.size_info['text']='%.2f'%self.objectPainter.currentScale
+            if self.keyMap['scale_down']:
+                self.objectPainter.adjustScale(-0.05) 
+                self.size_info['text']='%.2f'%self.objectPainter.currentScale
+            if self.keyMap['alpha_up']:
+                self.objectPainter.adjustZ(0.1)  
+                self.color_info['text']='%.2f'%self.objectPainter.currentZ    
+            if self.keyMap['alpha_down']:
+                self.objectPainter.adjustZ(-0.1) 
+                self.color_info['text']='%.2f'%self.objectPainter.currentZ 
+            return task.again
+            
+        #if self.mode in (MODE_HEIGHT,MODE_TEXTURE,MODE_EXTRA):    
         if self.keyMap['rotate_l']:
             self.painter.adjustBrushHeading(5)
-            self.heading_info['text']='%.0f'%self.painter.brushes[0].getH()
+            self.heading_info['text']=self.hpr_axis+'%.0f'%self.painter.brushes[0].getH()
         if self.keyMap['rotate_r']:
             self.painter.adjustBrushHeading(-5)    
-            self.heading_info['text']='%.0f'%self.painter.brushes[0].getH()
+            self.heading_info['text']=self.hpr_axis+'%.0f'%self.painter.brushes[0].getH()
         if self.keyMap['scale_up']:
             self.painter.adjustBrushSize(0.01)
             self.size_info['text']='%.2f'%self.painter.brushSize
@@ -498,7 +644,9 @@ class Editor (DirectObject):
         
     def perFrameUpdate(self, task): 
         time=globalClock.getFrameTime()    
-        self.grass.setShaderInput('time', time)    
+        self.grass.setShaderInput('time', time) 
+        if self.mode==MODE_OBJECT:
+            self.objectPainter.update()
         return task.cont    
         
     def windowEventHandler( self, window=None ):    

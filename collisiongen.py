@@ -13,13 +13,13 @@ def GenerateCollisionEgg(heightmap, output, input='data\collision3k.egg', scale=
             x= int(float(vertex[0]))
             y= int(float(vertex[1]))
             if x==512:
-                x=1
+                x=511
             if x==0:
-                x=511    
+                x=1    
             if y==512:
-                y=1
+                y=511
             if y==0:
-                y=511     
+                y=1     
             vertex[2]=heightmap.getBright(x,512-y)*scale
             output_egg.write('    '+vertex[0]+' '+vertex[1]+' '+str(vertex[2])+'\n')
             isVertexPos=False

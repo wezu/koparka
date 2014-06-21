@@ -1,6 +1,4 @@
 from panda3d.core import *
-from direct.interval.IntervalGlobal import *
-from direct.filter.FilterManager import FilterManager
 
 class BufferPainter ():
     def __init__(self, brushList, showBuff=False):        

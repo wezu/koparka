@@ -307,6 +307,18 @@ class GuiHelper():
         
         self.SaveLoadFrame.hide()
     
+    def _setColor(self, frame, color):
+        frame['frameColor']=color
+        
+    def blink(self, element, button=None):
+        if button==None:
+            frame=self.elements[element]['frame']        
+        else:
+            frame=self.elements[element]['buttons'][button]
+        old_color=frame['frameColor']
+        new_color=(1-old_color[0],1-old_color[1], 1-old_color[2], 1-old_color[3])
+        Sequence(Func(self._setColor,frame,new_color), Wait(0.1),Func(self._setColor,frame,old_color)).start()
+        
     def grayOutButtons(self, toolbar, from_to, but_not, on_color=(1,1,1, 1), off_color=(0.4,0.4,0.4, 1)):
         for i in range(from_to[0], from_to[1]):
             self.elements[toolbar]['buttons'][i]['frameColor']=off_color
@@ -368,11 +380,36 @@ class GuiHelper():
             frame['state']=DGG.NORMAL
             frame.bind(DGG.WITHOUT, hover_command,[False])  
             frame.bind(DGG.WITHIN, hover_command, [True]) 
-        data={'size':canvas_size[0], 'frame':frame, 'buttons':[]}
+        data={'size':canvas_size[1], 'frame':frame, 'buttons':[]}
         id=len(self.elements)
         self.elements.append(data)
         return id
-    
+        
+    def addListButton(self, parent_id, text, command, arg=[], tooltip=None, tooltip_text=None):
+        parent=self.elements[parent_id]['frame'].getCanvas()
+        id=len(self.elements[parent_id]['buttons'])
+        y_offset=self.elements[parent_id]['size']-20
+        frame= DirectFrame( frameSize=_rec2d(174,20),
+                        frameColor=(0,0,0,0.6),
+                        state=DGG.NORMAL,                        
+                        text=text,
+                        text_scale=16,
+                        text_pos=(-172,7),
+                        text_fg=(1,1,1,1),
+                        text_align=TextNode.ALeft,
+                        parent=parent)
+        #_resetPivot(frame)        
+        frame.setTransparency(TransparencyAttrib.MDual)
+        frame.setPos(_pos2d(-10,-y_offset+21*id))        
+        self.elements[parent_id]['buttons'].append(frame)
+        arg.append(id)
+        frame.bind(DGG.B1PRESS, command, arg)        
+        if tooltip:            
+            frame.bind(DGG.WITHIN, self.setTooltip,[tooltip, tooltip_text])  
+            frame.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])  
+        
+        
+        
     def addToolbar(self, parent, size, icon_size=32, x_offset=0, y_offset=0, hover_command=False, color=(1,0,0, 0)):         
         frame=DirectFrame( frameSize=_rec2d(size[0],size[1]),
                         frameColor=color,                        
