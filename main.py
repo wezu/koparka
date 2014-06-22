@@ -26,6 +26,7 @@ from guihelper import GuiHelper
 from fxaa import makeFXAA
 from collisiongen import GenerateCollisionEgg
 from objectpainter import ObjectPainter
+from jsonloader import SaveScene, LoadScene
 import os, sys
 from random import uniform 
 
@@ -379,7 +380,14 @@ class Editor (DirectObject):
                 print "FILE NOT FOUND!"  
                 feedback+=file+' '
         if self.gui.flags[4]:
-            print "Object loading not implemented!"  
+            print "loading objects",
+            file=path+save_dir+"/"+self.gui.entry6.get()
+            if os.path.exists(file):
+                LoadScene(file, self.objectPainter.quadtree)
+                print "done"
+            else:
+                print "FILE NOT FOUND!"  
+                feedback+=file+' '    
         if self.gui.flags[5]:
             print "loading collision mesh...",
             file=path+save_dir+"/"+self.gui.entry7.get()
@@ -429,7 +437,9 @@ class Editor (DirectObject):
             self.painter.write(BUFFER_EXTRA, path+save_dir+"/"+self.gui.entry5.get())          
             print "done"
         if self.gui.flags[4]:
-            print "Object saving not implemented!"        
+            print "saving objects...",
+            SaveScene(path+save_dir+"/"+self.gui.entry6.get(), self.objectPainter.quadtree)
+            print "done"        
         if self.gui.flags[5]:
             print "saving collision mesh...",
             self.genCollision(True, path+save_dir+"/"+self.gui.entry7.get())    
@@ -464,6 +474,9 @@ class Editor (DirectObject):
             elif self.object_mode==OBJECT_MODE_SELECT:
                 if self.objectPainter.pickup():
                     self.setObjectMode(OBJECT_MODE_ONE)
+                    self.heading_info['text']=self.objectPainter.adjustHpr(0,self.hpr_axis)
+                    self.size_info['text']='%.2f'%self.objectPainter.currentScale
+                    self.color_info['text']='%.2f'%self.objectPainter.currentZ    
             elif self.object_mode==OBJECT_MODE_MULTI: 
                 print "not implemented!"
             elif self.object_mode==OBJECT_MODE_WALL:
