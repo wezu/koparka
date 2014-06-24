@@ -11,8 +11,8 @@ else:
 
 from panda3d.core import WindowProperties
 wp = WindowProperties.getDefault() 
-#wp.setFixedSize(True)  #needed for fxaa
 wp.setOrigin(-2,-2)  
+#wp.setUndecorated(True) 
 wp.setTitle("Koparka - Panda3D Level Editor")  
 WindowProperties.setDefault(wp)
 
