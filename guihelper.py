@@ -408,8 +408,49 @@ class GuiHelper():
             frame.bind(DGG.WITHIN, self.setTooltip,[tooltip, tooltip_text])  
             frame.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])  
         
-        
-        
+    def addPropPanel(self):   
+        mainFrame=DirectFrame( frameSize=_rec2d(512,96),
+                        frameColor=(0, 0, 0, 0.8),  
+                        text="PROPERTIES:",
+                        text_scale=16,
+                        text_pos=(-460,82),
+                        text_fg=(1,1,1,1),                        
+                        parent=self.TopLeft)
+        _resetPivot(mainFrame)                
+        frame=DirectScrolledFrame(canvasSize = _rec2d(512,1000),
+                                  frameSize = _rec2d(512,78),                              
+                                  verticalScroll_frameSize=_rec2d(16,78), 
+                                  verticalScroll_frameColor=(0, 0, 1, 0),
+                                  frameColor=(0,0,0, 0.8),
+                                  manageScrollBars=False,
+                                  autoHideScrollBars=False, 
+                                  verticalScroll_thumb_frameColor=(1, 1, 1, 0.8),                              
+                                  parent=mainFrame                              
+                                )         
+        frame.verticalScroll['value']=0
+        frame.verticalScroll['incButton_relief']=None
+        frame.verticalScroll['incButton_state'] = DGG.DISABLED
+        frame.verticalScroll['decButton_relief']=None
+        frame.verticalScroll['decButton_state'] = DGG.DISABLED           
+        _resetPivot(frame)
+        frame.setZ(frame, -16)
+        entry = DirectEntry(frameSize=_rec2d(508,1000),
+                        frameColor=(1,1,1, 0.4),
+                        text ="",
+                        text_scale=16,
+                        text_pos=(-508,984),
+                        text_fg=(1,1,1,1),
+                        initialText="",
+                        numLines = 60,
+                        width=30,
+                        focus=0,
+                        suppressKeys=True,
+                        parent=frame.getCanvas()
+                        )            
+        id=len(self.elements)
+        self.elements.append({'frame':mainFrame, 'entry':entry})                    
+        return id
+                
     def addToolbar(self, parent, size, icon_size=32, x_offset=0, y_offset=0, hover_command=False, color=(1,0,0, 0)):         
         frame=DirectFrame( frameSize=_rec2d(size[0],size[1]),
                         frameColor=color,                        

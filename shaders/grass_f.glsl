@@ -28,7 +28,7 @@ void main()
         color += gl_LightSource[i].diffuse * NdotL;        
         }    
 
-    gl_FragColor = vec4(color.rgb *color_tex.rgb, 1.0); 
+    gl_FragColor = vec4(color.rgb *color_tex.rgb, color_tex.a); 
 
     }
     

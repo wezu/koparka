@@ -1,7 +1,7 @@
 from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
-#loadPrcFileData('','win-size 1024 768')
-loadPrcFileData('','win-size 1280 720')
+loadPrcFileData('','win-size 1024 768')
+#loadPrcFileData('','win-size 1280 720')
 #loadPrcFileData("", "dump-generated-shaders 1")
 from direct.showbase.AppRunnerGlobal import appRunner
 from panda3d.core import Filename
@@ -13,7 +13,7 @@ else:
 from panda3d.core import WindowProperties
 wp = WindowProperties.getDefault() 
 wp.setOrigin(-2,-2)  
-wp.setUndecorated(True) 
+#wp.setUndecorated(True) 
 wp.setTitle("Koparka - Panda3D Level Editor")  
 WindowProperties.setDefault(wp)
 
@@ -177,6 +177,10 @@ class Editor (DirectObject):
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_collision.png', self.setObjectMode,[OBJECT_MODE_COLLISION],tooltip=self.tooltip, tooltip_text='Place Collision solids')
         self.gui.grayOutButtons(self.mode_toolbar_id, (0,6), 0)
         
+        #properties panel
+        self.prop_panel_id=self.gui.addPropPanel()
+        self.props=self.gui.elements[self.prop_panel_id]['entry']
+        
         #object painter
         self.objectPainter=ObjectPainter()
         
@@ -200,7 +204,7 @@ class Editor (DirectObject):
         self.CreateGrassTile(uv_offset=Vec2(0,0.5), pos=(0, 256, 0), parent=self.grass)
         self.CreateGrassTile(uv_offset=Vec2(0.5,0), pos=(256, 0, 0), parent=self.grass)
         self.CreateGrassTile(uv_offset=Vec2(0.5,0.5), pos=(256, 256, 0), parent=self.grass)  
-               
+        self.grass.setBin("background", 11)       
         #light
         self.dlight = DirectionalLight('dlight') 
         self.dlight.setColor(VBase4(0.7, 0.7, 0.5, 1))     
@@ -251,7 +255,8 @@ class Editor (DirectObject):
         self.accept('1', self.setAxis,['H: '])
         self.accept('2', self.setAxis,['P: '])
         self.accept('3', self.setAxis,['R: '])
-        self.accept('escape', self.objectPainter.stop)
+        self.accept('escape', self.objectPainter.stop)        
+        self.accept('enter', self.focusOnProperties)  
         self.accept( 'window-event', self.windowEventHandler) 
         
         #make sure things have some/any starting value
@@ -262,7 +267,10 @@ class Editor (DirectObject):
         #tasks
         taskMgr.doMethodLater(0.1, self.update,'update_task')
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task')
-    
+        
+    def focusOnProperties(self):
+        self.props['focus']=1
+        
     def setRandomWall(self, model_path=None, id=None, guiEvent=None):        
         if id!=None:
             self.gui.blink(self.multi_toolbar_id, id)
@@ -303,6 +311,8 @@ class Editor (DirectObject):
         self.objectPainter.loadModel(random.choice(models))              
         self.objectPainter.adjustHpr(random.randint(0,72)*5,axis='H: ')
         self.objectPainter.adjustScale(random.randint(-1,1)*0.05)
+        self.heading_info['text']=self.objectPainter.adjustHpr(0,self.hpr_axis)
+        self.size_info['text']='%.2f'%self.objectPainter.currentScale
         self.last_model_path=model_path
         
     def setObject(self, model, id=None, guiEvent=None): 
@@ -529,19 +539,23 @@ class Editor (DirectObject):
      
     def paint(self):
         if self.mode==MODE_OBJECT:
+            self.props['focus']=0
+            props=self.props.get()
             if self.object_mode in(OBJECT_MODE_ONE,OBJECT_MODE_COLLISION):
-                self.objectPainter.drop()
+                self.objectPainter.drop(props)
+                self.props.set('')                
             elif self.object_mode==OBJECT_MODE_SELECT:
                 if self.objectPainter.pickup():
                     self.setObjectMode(OBJECT_MODE_ONE)
                     self.heading_info['text']=self.objectPainter.adjustHpr(0,self.hpr_axis)
                     self.size_info['text']='%.2f'%self.objectPainter.currentScale
-                    self.color_info['text']='%.2f'%self.objectPainter.currentZ    
+                    self.color_info['text']='%.2f'%self.objectPainter.currentZ   
+                    self.props.set(self.objectPainter.currentObject.getPythonTag('props'))
             elif self.object_mode==OBJECT_MODE_MULTI: 
-                self.objectPainter.drop()
+                self.objectPainter.drop(props)
                 self.setRandomObject()
             elif self.object_mode==OBJECT_MODE_WALL:
-                self.objectPainter.drop()
+                self.objectPainter.drop(props)
                 self.objectPainter.currentObject=render.attachNewNode('temp')
                 self.setRandomWall()
             elif self.object_mode==OBJECT_MODE_ACTOR:            
@@ -574,6 +588,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.wall_toolbar_id)
             self.gui.hideElement(self.actor_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)
+            self.gui.hideElement(self.prop_panel_id)
             self.objectPainter.stop()
         elif mode==MODE_TEXTURE:
             if guiEvent!=None:    
@@ -598,6 +613,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.wall_toolbar_id)
             self.gui.hideElement(self.actor_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)
+            self.gui.hideElement(self.prop_panel_id)
             self.objectPainter.stop()
         elif mode==MODE_EXTRA:
             if guiEvent!=None:
@@ -622,6 +638,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.wall_toolbar_id)
             self.gui.hideElement(self.actor_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)
+            self.gui.hideElement(self.prop_panel_id)
             self.objectPainter.stop()            
         elif mode==MODE_OBJECT:
             if guiEvent!=None:                
@@ -635,6 +652,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.palette_id)
             self.gui.hideElement(self.toolbar_id)
             self.gui.showElement(self.mode_toolbar_id)
+            self.gui.showElement(self.prop_panel_id)
             self.setObjectMode(self.object_mode)
             self.accept('mouse1', self.paint)                
             self.ignore('mouse1-up')

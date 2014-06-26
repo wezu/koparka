@@ -123,8 +123,7 @@ class ObjectPainter():
     def loadWall(self, model, change_model=False):
         pos=self.hit_pos   
         if self.currentWall!=None:
-            pos=self.currentWall.find('**/next').getPos(render)
-            #self.currentWall.removeNode()
+            pos=self.currentWall.find('**/next').getPos(render)            
         if change_model:            
             pos=self.currentWall.getPos(render)
             self.currentWall.removeNode()
@@ -135,12 +134,11 @@ class ObjectPainter():
         self.currentWall.find('**/collision').setCollideMask(BitMask32.bit(2))        
         self.currentWall.find('**/collision').setPythonTag('object', self.currentWall)
         self.currentWall.setPythonTag('model_file', model)
-        self.currentWall.setPythonTag('props', '')        
+        self.currentWall.setPythonTag('props', '')
         self.currentWall.setPos(render,pos)
-        self.currentWall.setScale(self.currentScale)  
+        self.currentWall.setScale(self.currentScale)
         
-        
-    def drop(self):
+    def drop(self, props=''):
         if self.currentWall:
             best_node=None
             best_distance=725.0
@@ -149,7 +147,8 @@ class ObjectPainter():
                 if distance < best_distance:
                     best_distance=distance
                     best_node=node
-            self.currentWall.wrtReparentTo(best_node)  
+            self.currentWall.wrtReparentTo(best_node) 
+            self.currentWall.setPythonTag('props', props)            
         elif self.currentObject:
             best_node=None
             best_distance=725.0
@@ -159,6 +158,7 @@ class ObjectPainter():
                     best_distance=distance
                     best_node=node
             self.currentObject.wrtReparentTo(best_node)
+            self.currentObject.setPythonTag('props', props)
             next=self.currentObject.find('**/next')  
             if next:
                 self.hit_pos =next.getPos(render)

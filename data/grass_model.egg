@@ -1,13 +1,14 @@
 <CoordinateSystem> { Z-Up }
 
 <Texture> Tex1 {
-  grass.png
-  <Scalar> format { rgb }
+  grass.dds
+  <Scalar> format { rgba }
   <Scalar> wrapu { repeat }
   <Scalar> wrapv { repeat }
   <Scalar> minfilter { linear_mipmap_linear }
   <Scalar> magfilter { linear }
   <Scalar> envtype { modulate }
+  <Scalar> alpha { binary }
 }
 <Group> Grass_02 {
   <VertexPool> Grass_02.verts {
