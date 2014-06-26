@@ -125,7 +125,7 @@ class ObjectPainter():
         if self.currentWall!=None:
             pos=self.currentWall.find('**/next').getPos(render)
             #self.currentWall.removeNode()
-        if change_model:
+        if change_model:            
             pos=self.currentWall.getPos(render)
             self.currentWall.removeNode()
         self.currentWall=loader.loadModel(model)

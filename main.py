@@ -1,6 +1,7 @@
 from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
-loadPrcFileData('','win-size 1024 768')
+#loadPrcFileData('','win-size 1024 768')
+loadPrcFileData('','win-size 1280 720')
 #loadPrcFileData("", "dump-generated-shaders 1")
 from direct.showbase.AppRunnerGlobal import appRunner
 from panda3d.core import Filename
@@ -12,7 +13,7 @@ else:
 from panda3d.core import WindowProperties
 wp = WindowProperties.getDefault() 
 wp.setOrigin(-2,-2)  
-#wp.setUndecorated(True) 
+wp.setUndecorated(True) 
 wp.setTitle("Koparka - Panda3D Level Editor")  
 WindowProperties.setDefault(wp)
 
@@ -275,7 +276,7 @@ class Editor (DirectObject):
         self.objectPainter.loadWall(random.choice(models))                      
         self.last_model_path=model_path
         
-    def nextWall(self, model_path=None):
+    def nextWall(self, model_path=None):        
         if model_path==None:
             model_path=self.last_model_path
         models=[]
@@ -283,7 +284,10 @@ class Editor (DirectObject):
         for fname in dirList:
             if  Filename(fname).getExtension() in ('egg', 'bam'):
                 models.append(model_path+fname)
-        self.objectPainter.loadWall(random.choice(models), True)
+        if self.objectPainter.currentWall:
+            self.objectPainter.loadWall(random.choice(models), True)
+        else:
+            self.objectPainter.loadModel(random.choice(models))
         self.last_model_path=model_path
     
     def setRandomObject(self, model_path=None, id=None, guiEvent=None):
