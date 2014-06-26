@@ -66,7 +66,7 @@ void main()
         lightDir = vec3(gl_LightSource[i].position);   
         NdotL = max(dot(norm,lightDir),0.0);
         color += gl_LightSource[i].diffuse * NdotL;        
-        } 
+       } 
     
     gl_FragColor = vec4(color.rgb *(color_tex.rgb-me_detail*0.4), 1.0); 
     }

@@ -24,10 +24,11 @@ def LoadScene(file, quad_tree, flatten=False):
         for node in quad_tree:
             flat=render.attachNewNode('flatten')
             for child in node.getChildren():
-                child.clearPythonTag('model_file')
-                child.clearPythonTag('props')
-                child.clearModelNodes()
-                child.wrtReparentTo(flat)
+                if child.getPythonTag('props')=='': #objects with SOME properties should be keept alone
+                    child.clearPythonTag('model_file')
+                    child.clearPythonTag('props')
+                    child.clearModelNodes()
+                    child.wrtReparentTo(flat)
             flat.flattenStrong()
             flat.wrtReparentTo(node)            
         

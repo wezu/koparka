@@ -1,7 +1,7 @@
 from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
 loadPrcFileData('','win-size 1024 768')
-
+#loadPrcFileData("", "dump-generated-shaders 1")
 from direct.showbase.AppRunnerGlobal import appRunner
 from panda3d.core import Filename
 if appRunner: 
@@ -28,7 +28,7 @@ from collisiongen import GenerateCollisionEgg
 from objectpainter import ObjectPainter
 from jsonloader import SaveScene, LoadScene
 import os, sys
-from random import uniform 
+import random
 
 BUFFER_HEIGHT=0
 BUFFER_ATR=1
@@ -60,11 +60,12 @@ class Editor (DirectObject):
         self.grid=render.attachNewNode(cm.generate())
         self.grid.lookAt(0, 0, -1)
         self.grid.setTexture(loader.loadTexture('data/grid.png'))
-        self.grid.setTransparency(TransparencyAttrib.MAlpha)
+        self.grid.setTransparency(TransparencyAttrib.MDual)
         self.grid.setTexScale(TextureStage.getDefault(), 16, 16, 1)
         self.grid.setZ(1)
         self.grid.setLightOff()
-        self.grid.setColor(0,0,0,0.5)  
+        self.grid.setColor(0,0,0,0.5) 
+        #self.grid.hide()
         #axis to help orient the scene
         self.axis=loader.loadModel('data/axis.egg')
         self.axis.reparentTo(render)
@@ -78,6 +79,7 @@ class Editor (DirectObject):
         self.winsize=[0,0]
         self.object_mode=OBJECT_MODE_ONE
         self.hpr_axis='H: '
+        self.last_model_path=''
         
         #camera control
         base.disableMouse()  
@@ -155,9 +157,12 @@ class Editor (DirectObject):
         #get models
         dirList=os.listdir(Filename(path+"models/").toOsSpecific())
         for fname in dirList:
+            print fname
             if  Filename(fname).getExtension() in ('egg', 'bam'):
                 self.gui.addListButton(self.object_toolbar_id, fname[:-4], command=self.setObject, arg=["models/"+fname])
-        
+            elif os.path.isdir(path+"models/"+fname):
+                print "is dir"
+                self.gui.addListButton(self.multi_toolbar_id, fname, command=self.setRandomObject, arg=["models/"+fname+"/"])
         #object-mode toolbar
         self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 64), icon_size=64, x_offset=-192, y_offset=24, hover_command=self.onToolbarHover)
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_object.png', self.setObjectMode,[OBJECT_MODE_ONE],tooltip=self.tooltip, tooltip_text='Place single objects')
@@ -174,14 +179,17 @@ class Editor (DirectObject):
         #terrain mesh
         self.mesh=loader.loadModel('data/mesh3k.egg')
         self.mesh.setTexture(self.painter.textures[BUFFER_COLOR], 1)
-        gradient=loader.loadTexture('data/gradient.png')
-        gradient.setWrapU(Texture.WMClamp)
-        gradient.setWrapV(Texture.WMClamp  )
+        #gradient=loader.loadTexture('data/gradient.png')
+        #gradient.setWrapU(Texture.WMClamp)
+        #gradient.setWrapV(Texture.WMClamp  )        
         self.mesh.reparentTo(render)
-        self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v.glsl", "shaders/ter_f.glsl"))
+        self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v.glsl", "shaders/ter_f.glsl"))        
         self.mesh.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
         self.mesh.setShaderInput("atr", self.painter.textures[BUFFER_ATR]) 
-        self.mesh.setShaderInput("gradient", gradient)
+        self.mesh.setTransparency(TransparencyAttrib.MNone)
+        self.mesh.node().setBounds(OmniBoundingVolume())
+        self.mesh.node().setFinal(1)
+        #self.mesh.setShaderInput("gradient", gradient)
         #grass
         self.grass=render.attachNewNode('grass')
         self.CreateGrassTile(uv_offset=Vec2(0,0), pos=(0,0,0), parent=self.grass)
@@ -204,6 +212,9 @@ class Editor (DirectObject):
         self.Ambient.setP(-45)
         self.Ambient.wrtReparentTo(base.camera)
         render.setLight(self.Ambient)
+        
+        render.setShaderInput("dlight0", self.mainLight)
+        render.setShaderInput("dlight1", self.Ambient)
         
         self.keyMap = {'paint': False,
                        'rotate_l':False, 
@@ -247,6 +258,21 @@ class Editor (DirectObject):
         taskMgr.doMethodLater(0.1, self.update,'update_task')
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task')
     
+    def setRandomObject(self, model_path=None, id=None, guiEvent=None):
+        if id!=None:
+            self.gui.blink(self.multi_toolbar_id, id)
+        if model_path==None:
+            model_path=self.last_model_path
+        models=[]
+        dirList=os.listdir(Filename(model_path).toOsSpecific())
+        for fname in dirList:
+            if  Filename(fname).getExtension() in ('egg', 'bam'):
+                models.append(model_path+fname)
+        self.objectPainter.loadModel(random.choice(models))              
+        self.objectPainter.adjustHpr(random.randint(0,72)*5,axis='H: ')
+        self.objectPainter.adjustScale(random.randint(-1,1)*0.05)
+        self.last_model_path=model_path
+        
     def setObject(self, model, id=None, guiEvent=None): 
         if id!=None:
             self.gui.blink(self.object_toolbar_id, id)
@@ -262,6 +288,8 @@ class Editor (DirectObject):
     def setObjectMode(self, mode, guiEvent=None): 
         self.gui.grayOutButtons(self.mode_toolbar_id, (0,6), mode)
         self.object_mode=mode
+        if guiEvent!=None:
+            self.objectPainter.stop()
         if mode==OBJECT_MODE_ONE:
             self.gui.showElement(self.object_toolbar_id)
             self.gui.hideElement(self.multi_toolbar_id)
@@ -478,7 +506,8 @@ class Editor (DirectObject):
                     self.size_info['text']='%.2f'%self.objectPainter.currentScale
                     self.color_info['text']='%.2f'%self.objectPainter.currentZ    
             elif self.object_mode==OBJECT_MODE_MULTI: 
-                print "not implemented!"
+                self.objectPainter.drop()
+                self.setRandomObject()
             elif self.object_mode==OBJECT_MODE_WALL:
                 print "not implemented!"
             elif self.object_mode==OBJECT_MODE_ACTOR:            

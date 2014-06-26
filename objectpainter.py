@@ -65,7 +65,7 @@ class ObjectPainter():
                        nodeB1,nodeB2,nodeB3,nodeB4,
                        nodeC1,nodeC2,nodeC3,nodeC4,
                        nodeD1,nodeD2,nodeD3,nodeD4]
-                       
+        
     def adjustHpr(self, amount, axis):
         if axis=='H: ':
             i=0
@@ -105,8 +105,9 @@ class ObjectPainter():
             self.currentObject.removeNode()
         self.currentObject=loader.loadModel(model)
         self.currentObject.reparentTo(render)
-        self.currentObject.setCollideMask(BitMask32.allOff())
-        self.currentObject.setShaderAuto()
+        self.currentObject.setCollideMask(BitMask32.allOff())        
+        self.currentObject.setShaderAuto() 
+        #self.currentObject.setShader(loader.loadShader("shaders/default.cg"))
         self.currentObject.find('**/collision').setCollideMask(BitMask32.bit(2))        
         self.currentObject.find('**/collision').setPythonTag('object', self.currentObject)
         self.currentObject.setPythonTag('model_file', model)
