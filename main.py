@@ -189,7 +189,7 @@ class Editor (DirectObject):
         self.mesh.setTransparency(TransparencyAttrib.MNone)
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
-        #self.mesh.setShaderInput("gradient", gradient)
+        self.mesh.setBin("background", 11)
         #grass
         self.grass=render.attachNewNode('grass')
         self.CreateGrassTile(uv_offset=Vec2(0,0), pos=(0,0,0), parent=self.grass)
