@@ -19,6 +19,8 @@ class ObjectPainter():
         self.currentHPR=[0,0,0]
         self.currentZ=0.0
         self.currentScale=1.0
+        self.currentWall=None
+        self.hit_pos=(0,0,0)
         
         #quadtree structure
         nodeA=render.attachNewNode('quadA')
@@ -99,6 +101,9 @@ class ObjectPainter():
         if self.currentObject!=None:
             self.currentObject.removeNode()
             self.currentObject=None
+        if self.currentWall:
+            self.currentWall.removeNode()
+            self.currentWall=None
             
     def loadModel(self, model):
         if self.currentObject!=None:
@@ -115,8 +120,37 @@ class ObjectPainter():
         self.currentObject.setZ(self.currentZ)
         self.currentObject.setScale(self.currentScale)
         
+    def loadWall(self, model, change_model=False):
+        pos=self.hit_pos   
+        if self.currentWall!=None:
+            pos=self.currentWall.find('**/next').getPos(render)
+            #self.currentWall.removeNode()
+        if change_model:
+            pos=self.currentWall.getPos(render)
+            self.currentWall.removeNode()
+        self.currentWall=loader.loadModel(model)
+        self.currentWall.reparentTo(render)
+        self.currentWall.setCollideMask(BitMask32.allOff())        
+        self.currentWall.setShaderAuto()        
+        self.currentWall.find('**/collision').setCollideMask(BitMask32.bit(2))        
+        self.currentWall.find('**/collision').setPythonTag('object', self.currentWall)
+        self.currentWall.setPythonTag('model_file', model)
+        self.currentWall.setPythonTag('props', '')        
+        self.currentWall.setPos(render,pos)
+        self.currentWall.setScale(self.currentScale)  
+        
+        
     def drop(self):
-        if self.currentObject:
+        if self.currentWall:
+            best_node=None
+            best_distance=725.0
+            for node in self.quadtree:
+                distance=node.getDistance(self.currentWall)
+                if distance < best_distance:
+                    best_distance=distance
+                    best_node=node
+            self.currentWall.wrtReparentTo(best_node)  
+        elif self.currentObject:
             best_node=None
             best_distance=725.0
             for node in self.quadtree:
@@ -124,7 +158,10 @@ class ObjectPainter():
                 if distance < best_distance:
                     best_distance=distance
                     best_node=node
-            self.currentObject.wrtReparentTo(best_node)  
+            self.currentObject.wrtReparentTo(best_node)
+            next=self.currentObject.find('**/next')  
+            if next:
+                self.hit_pos =next.getPos(render)
             self.currentObject=None
             
     def pickup(self): 
@@ -146,8 +183,10 @@ class ObjectPainter():
             self.traverser.traverse(render)
             if self.queue.getNumEntries() > 0:        
                 self.queue.sortEntries()                
-                hit_pos=self.queue.getEntry(0).getSurfacePoint(render)
+                self.hit_pos=self.queue.getEntry(0).getSurfacePoint(render)
                 self.hitNode=self.queue.getEntry(0).getIntoNodePath()
                 if self.currentObject:                
-                    self.currentObject.setPos(hit_pos)
-                    self.currentObject.setZ(hit_pos[2]+self.currentZ)
+                    self.currentObject.setPos(self.hit_pos)
+                    self.currentObject.setZ(self.hit_pos[2]+self.currentZ)
+                    if self.currentWall:
+                        self.currentWall.lookAt(self.currentObject)

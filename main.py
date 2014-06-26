@@ -156,13 +156,16 @@ class Editor (DirectObject):
         
         #get models
         dirList=os.listdir(Filename(path+"models/").toOsSpecific())
-        for fname in dirList:
-            print fname
+        for fname in dirList:            
             if  Filename(fname).getExtension() in ('egg', 'bam'):
                 self.gui.addListButton(self.object_toolbar_id, fname[:-4], command=self.setObject, arg=["models/"+fname])
-            elif os.path.isdir(path+"models/"+fname):
-                print "is dir"
+            elif os.path.isdir(path+"models/"+fname):                
                 self.gui.addListButton(self.multi_toolbar_id, fname, command=self.setRandomObject, arg=["models/"+fname+"/"])
+        dirList=os.listdir(Filename(path+"models_walls/").toOsSpecific())
+        for fname in dirList:                        
+            if os.path.isdir(path+"models_walls/"+fname):                
+                self.gui.addListButton(self.wall_toolbar_id, fname, command=self.setRandomObject, arg=["models_walls/"+fname+"/"])        
+                
         #object-mode toolbar
         self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 64), icon_size=64, x_offset=-192, y_offset=24, hover_command=self.onToolbarHover)
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_object.png', self.setObjectMode,[OBJECT_MODE_ONE],tooltip=self.tooltip, tooltip_text='Place single objects')
@@ -247,6 +250,7 @@ class Editor (DirectObject):
         self.accept('1', self.setAxis,['H: '])
         self.accept('2', self.setAxis,['P: '])
         self.accept('3', self.setAxis,['R: '])
+        self.accept('escape', self.objectPainter.stop)
         self.accept( 'window-event', self.windowEventHandler) 
         
         #make sure things have some/any starting value
@@ -257,6 +261,30 @@ class Editor (DirectObject):
         #tasks
         taskMgr.doMethodLater(0.1, self.update,'update_task')
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task')
+    
+    def setRandomWall(self, model_path=None, id=None, guiEvent=None):        
+        if id!=None:
+            self.gui.blink(self.multi_toolbar_id, id)
+        if model_path==None:
+            model_path=self.last_model_path
+        models=[]
+        dirList=os.listdir(Filename(model_path).toOsSpecific())
+        for fname in dirList:
+            if  Filename(fname).getExtension() in ('egg', 'bam'):
+                models.append(model_path+fname)
+        self.objectPainter.loadWall(random.choice(models))                      
+        self.last_model_path=model_path
+        
+    def nextWall(self, model_path=None):
+        if model_path==None:
+            model_path=self.last_model_path
+        models=[]
+        dirList=os.listdir(Filename(model_path).toOsSpecific())
+        for fname in dirList:
+            if  Filename(fname).getExtension() in ('egg', 'bam'):
+                models.append(model_path+fname)
+        self.objectPainter.loadWall(random.choice(models), True)
+        self.last_model_path=model_path
     
     def setRandomObject(self, model_path=None, id=None, guiEvent=None):
         if id!=None:
@@ -304,13 +332,13 @@ class Editor (DirectObject):
             self.gui.hideElement(self.actor_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)
             self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))
-        if mode==OBJECT_MODE_WALL:
+        if mode==OBJECT_MODE_WALL:        
             self.gui.showElement(self.wall_toolbar_id)
             self.gui.hideElement(self.object_toolbar_id)
             self.gui.hideElement(self.multi_toolbar_id)
             self.gui.hideElement(self.actor_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)
-            self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))
+            self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))            
         if mode==OBJECT_MODE_SELECT:
             self.gui.hideElement(self.object_toolbar_id)
             self.gui.hideElement(self.multi_toolbar_id)
@@ -509,7 +537,9 @@ class Editor (DirectObject):
                 self.objectPainter.drop()
                 self.setRandomObject()
             elif self.object_mode==OBJECT_MODE_WALL:
-                print "not implemented!"
+                self.objectPainter.drop()
+                self.objectPainter.currentObject=render.attachNewNode('temp')
+                self.setRandomWall()
             elif self.object_mode==OBJECT_MODE_ACTOR:            
                 print "not implemented!"
         else:
@@ -625,8 +655,7 @@ class Editor (DirectObject):
                 self.gui.okDialog(text="Collision mesh saved to:\n"+file, command=self.hideDialog)
             
     def flipBrushColor(self):        
-        if self.mode in (MODE_HEIGHT, MODE_EXTRA):
-            print "TAB!"
+        if self.mode in (MODE_HEIGHT, MODE_EXTRA):            
             if self.tempColor==1:
                 self.tempColor=0
             else:    
@@ -636,7 +665,12 @@ class Editor (DirectObject):
             self.painter.brushes[BUFFER_HEIGHT].setColor(c,c,c,self.painter.brushAlpha) 
             if self.mode==MODE_EXTRA:
                 self.painter.brushes[BUFFER_EXTRA].setColor(c,0,0,self.painter.brushAlpha)
-             
+        elif self.mode==MODE_OBJECT:
+            if self.object_mode==OBJECT_MODE_MULTI:
+                self.setRandomObject()
+            if self.object_mode==OBJECT_MODE_WALL:
+                self.nextWall()
+        
     def update(self, task):
         if self.mode==MODE_HEIGHT:
             if self.keyMap['paint']:      
