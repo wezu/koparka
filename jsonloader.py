@@ -16,8 +16,8 @@ def LoadScene(file, quad_tree, flatten=False):
         model.find('**/collision').setPythonTag('object', model)
         model.setPythonTag('model_file', object['model'])
         model.setPythonTag('props', object['props'])
-        model.setHpr(render,object['hpr'][0],object['hpr'][1],object['hpr'][2])
-        model.setPos(render,object['pos'][0],object['pos'][1],object['pos'][2])
+        model.setHpr(render,object['rotation_h'],object['rotation_p'],object['rotation_r'])
+        model.setPos(render,object['position_x'],object['position_y'],object['position_z'])
         model.setScale(object['scale'])
     
     if flatten:
@@ -38,12 +38,16 @@ def SaveScene(file, quad_tree):
         for child in node.getChildren():
             temp={}
             temp['model']=str(child.getPythonTag('model_file'))
-            temp['hpr']=(child.getH(render), child.getP(render),child.getR(render))
-            temp['pos']=(child.getX(render), child.getY(render),child.getZ(render))
+            temp['rotation_h']=child.getH(render)
+            temp['rotation_p']=child.getP(render)
+            temp['rotation_r']=child.getR(render)            
+            temp['position_x']=child.getX(render)
+            temp['position_y']=child.getY(render)
+            temp['position_z']=child.getZ(render)
             temp['scale']=child.getScale()[0]            
             temp['parent_name']=node.getName()
             temp['parent_index']=quad_tree.index(node)
             temp['props']=str(child.getPythonTag('props'))
             export_data.append(temp)
     with open(file, 'w') as outfile:
-        json.dump(export_data, outfile, indent=4, separators=(',', ': '))        
+        json.dump(export_data, outfile, indent=4, separators=(',', ': '), sort_keys=True)        
