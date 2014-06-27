@@ -176,7 +176,18 @@ class ObjectPainter():
                 self.currentScales=self.currentObject.getScale()[0]
                 return True  
                 
-    def update(self):
+    def _stringToFloat(self, string):
+        f=0.001
+        if string:
+            try:
+                f=float(string)
+            except ValueError:
+                pass
+        if f==0.0:
+            f=0.001
+        return f
+        
+    def update(self, snap):
         if base.mouseWatcherNode.hasMouse():      
             mpos = base.mouseWatcherNode.getMouse()
             self.pickerRay.setFromLens(base.camNode, mpos.getX(), mpos.getY())            
@@ -185,7 +196,10 @@ class ObjectPainter():
                 self.queue.sortEntries()                
                 self.hit_pos=self.queue.getEntry(0).getSurfacePoint(render)
                 self.hitNode=self.queue.getEntry(0).getIntoNodePath()
-                if self.currentObject:                
+                if self.currentObject: 
+                    snap=self._stringToFloat(snap)                    
+                    self.hit_pos[0]=snap*round(self.hit_pos[0]/snap)
+                    self.hit_pos[1]=snap*round(self.hit_pos[1]/snap)
                     self.currentObject.setPos(self.hit_pos)
                     self.currentObject.setZ(self.hit_pos[2]+self.currentZ)
                     if self.currentWall:

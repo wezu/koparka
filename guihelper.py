@@ -356,7 +356,7 @@ class GuiHelper():
     
     def addScrolledToolbar(self, parent, width, canvas_size, x_offset=0, y_offset=0, hover_command=False, color=(1,0,0, 0)):         
         wp=base.win.getProperties()        
-        height=wp.getYSize()-y_offset-16
+        height=wp.getYSize()-y_offset-256
         frame=DirectScrolledFrame(canvasSize = _rec2d(canvas_size[0],canvas_size[1]),
                                   frameSize = _rec2d(width,height),                              
                                   verticalScroll_frameSize=_rec2d(16,height), 
@@ -409,19 +409,21 @@ class GuiHelper():
             frame.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])  
         
     def addPropPanel(self):   
-        mainFrame=DirectFrame( frameSize=_rec2d(512,96),
+        mainFrame=DirectFrame( frameSize=_rec2d(192,256),
                         frameColor=(0, 0, 0, 0.8),  
-                        text="PROPERTIES:",
+                        text=" GRID SNAP:\n\n         PROPERTIES:",
+                        text_align=TextNode.ALeft,
                         text_scale=16,
-                        text_pos=(-460,82),
+                        text_pos=(-192,240),
                         text_fg=(1,1,1,1),                        
-                        parent=self.TopLeft)
+                        parent=self.BottomRight)
         _resetPivot(mainFrame)                
-        frame=DirectScrolledFrame(canvasSize = _rec2d(512,1000),
-                                  frameSize = _rec2d(512,78),                              
-                                  verticalScroll_frameSize=_rec2d(16,78), 
+        mainFrame.setPos(_pos2d(-192, -256))
+        frame=DirectScrolledFrame(canvasSize = _rec2d(192,500),
+                                  frameSize = _rec2d(192,200),                              
+                                  verticalScroll_frameSize=_rec2d(16,200), 
                                   verticalScroll_frameColor=(0, 0, 1, 0),
-                                  frameColor=(0,0,0, 0.8),
+                                  frameColor=(0,0,0, 0.0),
                                   manageScrollBars=False,
                                   autoHideScrollBars=False, 
                                   verticalScroll_thumb_frameColor=(1, 1, 1, 0.8),                              
@@ -433,22 +435,38 @@ class GuiHelper():
         frame.verticalScroll['decButton_relief']=None
         frame.verticalScroll['decButton_state'] = DGG.DISABLED           
         _resetPivot(frame)
-        frame.setZ(frame, -16)
-        entry = DirectEntry(frameSize=_rec2d(508,1000),
+        frame.setZ(frame, -56)
+        #frame.setX(frame, 16)
+        snap = DirectEntry(frameSize=_rec2d(80,18),
+                        frameColor=(1,1,1, 0.4),
+                        text ="0.5",
+                        text_scale=16,
+                        text_pos=(-80,6),
+                        text_align=TextNode.ALeft,
+                        text_fg=(1,1,1,1),
+                        initialText="0.5",
+                        width=5,
+                        focus=0,
+                        suppressKeys=True,
+                        parent=mainFrame
+                        )    
+        _resetPivot(snap)
+        snap.setPos(_pos2d(112, 4))
+        props = DirectEntry(frameSize=_rec2d(190,500),
                         frameColor=(1,1,1, 0.4),
                         text ="",
                         text_scale=16,
-                        text_pos=(-508,984),
+                        text_pos=(-190,484),
                         text_fg=(1,1,1,1),
                         initialText="",
-                        numLines = 60,
-                        width=30,
+                        numLines = 30,
+                        width=11,
                         focus=0,
                         suppressKeys=True,
                         parent=frame.getCanvas()
-                        )            
+                        )                    
         id=len(self.elements)
-        self.elements.append({'frame':mainFrame, 'entry':entry})                    
+        self.elements.append({'frame':mainFrame, 'entry_props':props, 'entry_snap':snap})                    
         return id
                 
     def addToolbar(self, parent, size, icon_size=32, x_offset=0, y_offset=0, hover_command=False, color=(1,0,0, 0)):         

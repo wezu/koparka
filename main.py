@@ -1,6 +1,7 @@
 from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
 loadPrcFileData('','win-size 1024 768')
+loadPrcFileData('','show-frame-rate-meter  0')
 #loadPrcFileData('','win-size 1280 720')
 #loadPrcFileData("", "dump-generated-shaders 1")
 from direct.showbase.AppRunnerGlobal import appRunner
@@ -117,13 +118,13 @@ class Editor (DirectObject):
         self.tooltip=self.gui.addTooltip(self.gui.BottomLeft, (564, 32),y_offset=-96)
         self.tooltip.hide()
         #the toolbar_id here is just an int, not a 'toolbar object'!
-        self.toolbar_id=self.gui.addToolbar(self.gui.TopLeft, (512, 32),hover_command=self.onToolbarHover, color=(1,1,1, 0.8))        
+        self.toolbar_id=self.gui.addToolbar(self.gui.TopLeft, (864, 32),hover_command=self.onToolbarHover, color=(1,1,1, 0.8))        
         id=0
         for brush in self.brushList:            
             self.gui.addButton(self.toolbar_id,brush, self.setBrush, [id],tooltip=self.tooltip, tooltip_text='Set Brush Shape')
             id+=1
         #texture palette    
-        self.palette_id=self.gui.addToolbar(self.gui.TopRight, (160, 512), x_offset=-160, y_offset=22, hover_command=self.onToolbarHover)
+        self.palette_id=self.gui.addToolbar(self.gui.TopRight, (192, 512), x_offset=-160, y_offset=0, hover_command=self.onToolbarHover)
         id=0
         for tex in self.textureList:            
             self.gui.addButton(self.palette_id, tex, self.setColorTexture, [id],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
@@ -149,11 +150,11 @@ class Editor (DirectObject):
         
         #object toolbars (scrollable)
         #each object paint mode has its own
-        self.object_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=152, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
-        self.multi_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=152, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
-        self.wall_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=152, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
-        self.actor_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=152, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
-        self.collision_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=152, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
+        self.object_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=128, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
+        self.multi_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=128, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
+        self.wall_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=128, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
+        self.actor_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=128, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
+        self.collision_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=128, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
         
         #get models
         dirList=os.listdir(Filename(path+"models/").toOsSpecific())
@@ -168,7 +169,7 @@ class Editor (DirectObject):
                 self.gui.addListButton(self.wall_toolbar_id, fname, command=self.setRandomObject, arg=["models_walls/"+fname+"/"])        
                 
         #object-mode toolbar
-        self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 64), icon_size=64, x_offset=-192, y_offset=24, hover_command=self.onToolbarHover)
+        self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 64), icon_size=64, x_offset=-192, y_offset=0, hover_command=self.onToolbarHover)
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_object.png', self.setObjectMode,[OBJECT_MODE_ONE],tooltip=self.tooltip, tooltip_text='Place single objects')
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_multi.png', self.setObjectMode,[OBJECT_MODE_MULTI],tooltip=self.tooltip, tooltip_text='Place multiple, similar objects')
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_wall.png', self.setObjectMode,[OBJECT_MODE_WALL],tooltip=self.tooltip, tooltip_text='Place walls')
@@ -179,7 +180,8 @@ class Editor (DirectObject):
         
         #properties panel
         self.prop_panel_id=self.gui.addPropPanel()
-        self.props=self.gui.elements[self.prop_panel_id]['entry']
+        self.props=self.gui.elements[self.prop_panel_id]['entry_props']
+        self.snap=self.gui.elements[self.prop_panel_id]['entry_snap']
         
         #object painter
         self.objectPainter=ObjectPainter()
@@ -540,6 +542,7 @@ class Editor (DirectObject):
     def paint(self):
         if self.mode==MODE_OBJECT:
             self.props['focus']=0
+            self.snap['focus']=0
             props=self.props.get()
             if self.object_mode in(OBJECT_MODE_ONE,OBJECT_MODE_COLLISION):
                 self.objectPainter.drop(props)
@@ -668,7 +671,7 @@ class Editor (DirectObject):
             GenerateCollisionEgg(heightmap, file)
             if self.collision_mesh:
                 self.collision_mesh.removeNode()
-            self.collision_mesh=loader.loadModel(file)
+            self.collision_mesh=loader.loadModel(file, noCache=True)
             self.collision_mesh.reparentTo(render)  
             self.collision_mesh.setCollideMask(BitMask32.bit(1))
         if guiEvent!=None:     
@@ -744,7 +747,7 @@ class Editor (DirectObject):
         time=globalClock.getFrameTime()    
         self.grass.setShaderInput('time', time) 
         if self.mode==MODE_OBJECT:
-            self.objectPainter.update()
+            self.objectPainter.update(self.snap.get())
         return task.cont    
         
     def windowEventHandler( self, window=None ):    
