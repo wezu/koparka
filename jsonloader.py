@@ -1,20 +1,36 @@
 from panda3d.core import *
 import json
+from direct.actor.Actor import Actor
 
-def LoadScene(file, quad_tree, flatten=False):
+def LoadScene(file, quad_tree, actors, flatten=False):
     json_data=None
     with open(file) as f:  
         json_data=json.load(f)
         
     for object in json_data:
         print ".",
-        model=loader.loadModel(object['model'])
+        if 'model' in object:
+            model=loader.loadModel(object['model'])
+            model.setPythonTag('model_file', object['model'])
+        elif 'actor' in object:
+            model=Actor(object['actor'], object['actor_anims'])
+            collision=loader.loadModel(object['actor_collision'])            
+            collision.reparentTo(model)
+            actors.append(model)
+            model.setPythonTag('actor_files', [object['actor'],object['actor_anims'],object['actor_collision']])            
+            #default anim
+            if 'default' in object['actor_anims']:
+                model.loop('default')
+            elif 'idle' in object['actor_anims']:
+                model.loop('idle')
+            else: #some random anim
+                model.loop(object['actor_anims'].items()[0])
         model.reparentTo(quad_tree[object['parent_index']])
         model.setCollideMask(BitMask32.allOff())
         model.setShaderAuto()
         model.find('**/collision').setCollideMask(BitMask32.bit(2))        
         model.find('**/collision').setPythonTag('object', model)
-        model.setPythonTag('model_file', object['model'])
+        
         model.setPythonTag('props', object['props'])
         model.setHpr(render,object['rotation_h'],object['rotation_p'],object['rotation_r'])
         model.setPos(render,object['position_x'],object['position_y'],object['position_z'])
@@ -37,7 +53,12 @@ def SaveScene(file, quad_tree):
     for node in quad_tree:
         for child in node.getChildren():
             temp={}
-            temp['model']=str(child.getPythonTag('model_file'))
+            if child.hasPythonTag('model_file'):
+                temp['model']=str(child.getPythonTag('model_file'))
+            elif child.hasPythonTag('actor_files'):
+                temp['actor']=str(child.getPythonTag('actor_files')[0])
+                temp['actor_anims']=child.getPythonTag('actor_files')[1]
+                temp['actor_collision']=child.getPythonTag('actor_files')[2]
             temp['rotation_h']=child.getH(render)
             temp['rotation_p']=child.getP(render)
             temp['rotation_r']=child.getR(render)            

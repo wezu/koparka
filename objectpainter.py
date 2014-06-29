@@ -1,4 +1,6 @@
 from panda3d.core import *
+from direct.actor.Actor import Actor
+import os
 
 class ObjectPainter():
     def __init__(self): 
@@ -21,6 +23,7 @@ class ObjectPainter():
         self.currentScale=1.0
         self.currentWall=None
         self.hit_pos=(0,0,0)
+        self.actors=[]
         
         #quadtree structure
         nodeA=render.attachNewNode('quadA')
@@ -99,12 +102,48 @@ class ObjectPainter():
             
     def stop(self):
         if self.currentObject!=None:
+            if self.currentObject in self.actors:
+                self.actors.pop(self.actors.index(self.currentObject)).cleanup() 
             self.currentObject.removeNode()
             self.currentObject=None
         if self.currentWall:
             self.currentWall.removeNode()
             self.currentWall=None
-            
+
+    def loadActor(self, model):
+        temp=model.split('_m_')
+        path=temp[0]
+        anim_name='_a_'+temp[1][:-4]
+        name_len=len(anim_name)
+        anim_dict={}
+        dirList=os.listdir(Filename(path).toOsSpecific())
+        for fname in dirList:                        
+            if Filename(fname).getExtension() in ('egg', 'bam'): 
+                if fname.startswith(anim_name):
+                    anim_dict[fname[name_len:-4]]=path+fname
+        self.actors.append(Actor(model,anim_dict))
+        #default anim
+        if anim_dict:
+            if 'default' in anim_dict:
+                self.actors[-1].loop('default')
+            elif 'idle' in anim_dict:
+                self.actors[-1].loop('idle')
+            else: #some random anim
+                self.actors[-1].loop(anim_dict.items()[0])
+        self.currentObject=self.actors[-1]
+        self.currentObject.reparentTo(render)
+        collision=loader.loadModel(path+"_c_"+temp[1][:-4])
+        collision.reparentTo(self.currentObject)
+        self.currentObject.setCollideMask(BitMask32.allOff())        
+        self.currentObject.setShaderAuto()          
+        self.currentObject.find('**/collision').setCollideMask(BitMask32.bit(2))        
+        self.currentObject.find('**/collision').setPythonTag('object', self.currentObject)
+        self.currentObject.setPythonTag('actor_files', [model,anim_dict, path+"_c_"+temp[1][:-4]])
+        self.currentObject.setPythonTag('props', '')
+        self.currentObject.setHpr(self.currentHPR[0],self.currentHPR[1],self.currentHPR[2])
+        self.currentObject.setZ(self.currentZ)
+        self.currentObject.setScale(self.currentScale)
+        
     def loadModel(self, model):
         if self.currentObject!=None:
             self.currentObject.removeNode()

@@ -124,6 +124,7 @@ class GuiHelper():
                         numLines = 2,
                         width=19,
                         focus=0,
+                        suppressKeys=True,
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry1)
@@ -138,6 +139,7 @@ class GuiHelper():
                         numLines = 2,
                         width=19,
                         focus=0,
+                        suppressKeys=True,
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry2)
@@ -152,6 +154,7 @@ class GuiHelper():
                         numLines = 2,
                         width=19,
                         focus=0,
+                        suppressKeys=True,
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry3)
@@ -166,6 +169,7 @@ class GuiHelper():
                         numLines = 2,
                         width=19,
                         focus=0,
+                        suppressKeys=True,
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry4)
@@ -180,6 +184,7 @@ class GuiHelper():
                         numLines = 2,
                         width=19,
                         focus=0,
+                        suppressKeys=True,
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry5)
@@ -194,6 +199,7 @@ class GuiHelper():
                         numLines = 2,
                         width=19,
                         focus=0,
+                        suppressKeys=True,
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry6)
@@ -207,7 +213,8 @@ class GuiHelper():
                         initialText="collision.egg",
                         numLines = 2,
                         width=19,
-                        focus=0,
+                        focus=0, 
+                        suppressKeys=True,
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry7)

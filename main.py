@@ -163,11 +163,16 @@ class Editor (DirectObject):
                 self.gui.addListButton(self.object_toolbar_id, fname[:-4], command=self.setObject, arg=["models/"+fname])
             elif os.path.isdir(path+"models/"+fname):                
                 self.gui.addListButton(self.multi_toolbar_id, fname, command=self.setRandomObject, arg=["models/"+fname+"/"])
+        #get walls
         dirList=os.listdir(Filename(path+"models_walls/").toOsSpecific())
         for fname in dirList:                        
             if os.path.isdir(path+"models_walls/"+fname):                
                 self.gui.addListButton(self.wall_toolbar_id, fname, command=self.setRandomObject, arg=["models_walls/"+fname+"/"])        
-                
+        #get actors
+        dirList=os.listdir(Filename(path+"models_actor/").toOsSpecific())
+        for fname in dirList:                        
+            if Filename(fname).getExtension() in ('egg', 'bam') and fname.startswith('_m_'):                    
+                self.gui.addListButton(self.actor_toolbar_id, fname[3:-4], command=self.setActor, arg=["models_actor/"+fname])        
         #object-mode toolbar
         self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 64), icon_size=64, x_offset=-192, y_offset=0, hover_command=self.onToolbarHover)
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_object.png', self.setObjectMode,[OBJECT_MODE_ONE],tooltip=self.tooltip, tooltip_text='Place single objects')
@@ -311,12 +316,17 @@ class Editor (DirectObject):
             if  Filename(fname).getExtension() in ('egg', 'bam'):
                 models.append(model_path+fname)
         self.objectPainter.loadModel(random.choice(models))              
-        self.objectPainter.adjustHpr(random.randint(0,72)*5,axis='H: ')
-        self.objectPainter.adjustScale(random.randint(-1,1)*0.05)
-        self.heading_info['text']=self.objectPainter.adjustHpr(0,self.hpr_axis)
-        self.size_info['text']='%.2f'%self.objectPainter.currentScale
+        #self.objectPainter.adjustHpr(random.randint(0,72)*5,axis='H: ')
+        #self.objectPainter.adjustScale(random.randint(-1,1)*0.05)
+        #self.heading_info['text']=self.objectPainter.adjustHpr(0,self.hpr_axis)
+        #self.size_info['text']='%.2f'%self.objectPainter.currentScale
         self.last_model_path=model_path
         
+    def setActor(self, model, id=None, guiEvent=None): 
+        if id!=None:
+            self.gui.blink(self.object_toolbar_id, id)
+            self.objectPainter.loadActor(model)
+            
     def setObject(self, model, id=None, guiEvent=None): 
         if id!=None:
             self.gui.blink(self.object_toolbar_id, id)
@@ -455,7 +465,7 @@ class Editor (DirectObject):
             print "loading objects",
             file=path+save_dir+"/"+self.gui.entry6.get()
             if os.path.exists(file):
-                LoadScene(file, self.objectPainter.quadtree)
+                LoadScene(file, self.objectPainter.quadtree, self.objectPainter.actors)
                 print "done"
             else:
                 print "FILE NOT FOUND!"  
@@ -544,7 +554,7 @@ class Editor (DirectObject):
             self.props['focus']=0
             self.snap['focus']=0
             props=self.props.get()
-            if self.object_mode in(OBJECT_MODE_ONE,OBJECT_MODE_COLLISION):
+            if self.object_mode in(OBJECT_MODE_ONE,OBJECT_MODE_COLLISION, OBJECT_MODE_ACTOR):
                 self.objectPainter.drop(props)
                 self.props.set('')                
             elif self.object_mode==OBJECT_MODE_SELECT:
@@ -561,8 +571,6 @@ class Editor (DirectObject):
                 self.objectPainter.drop(props)
                 self.objectPainter.currentObject=render.attachNewNode('temp')
                 self.setRandomWall()
-            elif self.object_mode==OBJECT_MODE_ACTOR:            
-                print "not implemented!"
         else:
             self.painter.paint(BUFFER_ATR)
             self.painter.paint(BUFFER_COLOR)
