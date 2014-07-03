@@ -173,6 +173,13 @@ class Editor (DirectObject):
         for fname in dirList:                        
             if Filename(fname).getExtension() in ('egg', 'bam') and fname.startswith('_m_'):                    
                 self.gui.addListButton(self.actor_toolbar_id, fname[3:-4], command=self.setActor, arg=["models_actor/"+fname])        
+        #get collision-models
+        #these hava a part named 'editor', when loading these 'editor' parts should be hidden
+        #appart from that collision-models are just like normal models
+        dirList=os.listdir(Filename(path+"models_collision/").toOsSpecific())
+        for fname in dirList:            
+            if  Filename(fname).getExtension() in ('egg', 'bam'):
+                self.gui.addListButton(self.collision_toolbar_id, fname[:-4], command=self.setObject, arg=["models_collision/"+fname])        
         #object-mode toolbar
         self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 64), icon_size=64, x_offset=-192, y_offset=0, hover_command=self.onToolbarHover)
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_object.png', self.setObjectMode,[OBJECT_MODE_ONE],tooltip=self.tooltip, tooltip_text='Place single objects')
