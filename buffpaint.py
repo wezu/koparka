@@ -110,8 +110,8 @@ class BufferPainter ():
         for brush in self.brushes:  
             new_size=min(5.00, max(0.11, self.brushSize+size))
             #make 'sticky' around 1.0
-            if new_size> 0.99 and new_size< 1.01:
-                new_size=1            
+            #if new_size> 0.99 and new_size< 1.01:
+            #    new_size=1            
             self.brushSize=new_size            
             brush.setScale(new_size)
             brush.setShaderInput('brushSize', new_size)

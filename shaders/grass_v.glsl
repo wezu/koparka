@@ -8,10 +8,11 @@ uniform mat4 p3d_ModelViewProjectionMatrix;
 uniform sampler2D height;
 uniform sampler2D grass;
 uniform vec2 uv_offset;
+uniform vec3 fogcenter;
 
 varying float mask;
 varying vec3 normal;
-
+varying float fogFactor;
 
 void main()
     {   
@@ -36,7 +37,12 @@ void main()
     float h= texture2DLod(height,uv, 0.0).r;    
     v.x += animation;    
     v.y += animation;
-    v.z+=h*128.0;
-    gl_Position = p3d_ModelViewProjectionMatrix * v;     
-        
+    v.z+=h*128.0; 
+    gl_Position = p3d_ModelViewProjectionMatrix * v;  
+    
+    vec4 cs_position = gl_ModelViewMatrix * v;  
+    float distToEdge=clamp(pow(distance(v.xyz, fogcenter)/256.0, 4.0), 0.0, 1.0);
+    float distToCamera =clamp(-cs_position.z*0.003-0.5, 0.0, 1.0);
+    //fogFactor=distToCamera;
+    fogFactor=clamp(distToCamera+distToEdge, 0.0, 1.0);    
     }

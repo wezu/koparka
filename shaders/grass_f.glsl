@@ -5,7 +5,7 @@ uniform sampler2D p3d_Texture0; //rgb color texture
 
 varying float mask;
 varying vec3 normal;
-
+varying float fogFactor;
 
 void main()
     {    
@@ -13,7 +13,7 @@ void main()
     vec3 norm = normalize(normal);
     
     vec4 color_tex =texture2D(p3d_Texture0,texUV);
-    vec4 color =vec4(0.4,0.4,0.5, 1.0); 
+    vec4 color =vec4(0.5,0.5,0.5, 1.0); 
 
     if(mask < 0.5)
         discard;
@@ -28,7 +28,8 @@ void main()
         color += gl_LightSource[i].diffuse * NdotL;        
         }    
 
-    gl_FragColor = vec4(color.rgb *color_tex.rgb, color_tex.a); 
-
+    vec4 final = vec4(color.rgb *color_tex.rgb, color_tex.a); 
+    vec4 fog=vec4(0.4,0.4,0.4,1.0);          
+    gl_FragColor = mix(final,fog ,fogFactor);
     }
     
