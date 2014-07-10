@@ -122,7 +122,7 @@ class Editor (DirectObject):
             self.gui.addButton(self.toolbar_id,brush, self.setBrush, [id],tooltip=self.tooltip, tooltip_text='Set Brush Shape')
             id+=1
         #texture palette    
-        self.palette_id=self.gui.addToolbar(self.gui.TopRight, (64, 512),icon_size=64, x_offset=-64, y_offset=0, hover_command=self.onToolbarHover)
+        self.palette_id=self.gui.addToolbar(self.gui.TopRight, (90, 512),icon_size=90, x_offset=-90, y_offset=0, hover_command=self.onToolbarHover)
         self.gui.addButton(self.palette_id, 'tex/diffuse/0.jpg', self.setColorMask, [Vec4(0,1,1,1)],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
         self.gui.addButton(self.palette_id, 'tex/diffuse/1.jpg', self.setColorMask, [Vec4(0.25,1,1,1)],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
         self.gui.addButton(self.palette_id, 'tex/diffuse/2.jpg', self.setColorMask, [Vec4(0.5,1,1,1)],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
@@ -464,15 +464,15 @@ class Editor (DirectObject):
             else:
                 print "FILE NOT FOUND!"            
                 feedback+=file+' '
-        if self.gui.flags[2]:
-            print "loading color map...",
-            file=path+save_dir+"/"+self.gui.entry4.get()
-            if os.path.exists(file):
+        #if self.gui.flags[2]:
+        #    print "loading color map...",
+        #    file=path+save_dir+"/"+self.gui.entry4.get()
+        #    if os.path.exists(file):
                 #self.painter.paintPlanes[BUFFER_COLOR].setTexture(loader.loadTexture(file))
-                print "done"
-            else:
-                print "FILE NOT FOUND!" 
-                feedback+=file+' '
+        #        print "done"
+        #    else:
+        #        print "FILE NOT FOUND!" 
+        #        feedback+=file+' '
         if self.gui.flags[3]:
             print "loading grass map...",
             file=path+save_dir+"/"+self.gui.entry5.get()
@@ -486,7 +486,7 @@ class Editor (DirectObject):
             print "loading objects",
             file=path+save_dir+"/"+self.gui.entry6.get()
             if os.path.exists(file):
-                LoadScene(file, self.objectPainter.quadtree, self.objectPainter.actors)
+                LoadScene(file, self.objectPainter.quadtree, self.objectPainter.actors,self.mesh,self.textures)
                 print "done"
             else:
                 print "FILE NOT FOUND!"  
@@ -531,17 +531,17 @@ class Editor (DirectObject):
             print "saving detail map...",
             self.painter.write(BUFFER_ATR, path+save_dir+"/"+self.gui.entry3.get())  
             print "done"
-        if self.gui.flags[2]:
-            print "saving color map...",
+        #if self.gui.flags[2]:
+        #    print "saving color map...",
             #self.painter.write(BUFFER_COLOR, path+save_dir+"/"+self.gui.entry4.get())
-            print "done"
+        #    print "done"
         if self.gui.flags[3]:
             print "saving grass map...",
             self.painter.write(BUFFER_EXTRA, path+save_dir+"/"+self.gui.entry5.get())          
             print "done"
         if self.gui.flags[4]:
             print "saving objects...",
-            SaveScene(path+save_dir+"/"+self.gui.entry6.get(), self.objectPainter.quadtree)
+            SaveScene(path+save_dir+"/"+self.gui.entry6.get(), self.objectPainter.quadtree, self.textures)
             print "done"        
         if self.gui.flags[5]:
             print "saving collision mesh...",

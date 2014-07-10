@@ -2,14 +2,22 @@ from panda3d.core import *
 import json
 from direct.actor.Actor import Actor
 
-def LoadScene(file, quad_tree, actors, flatten=False):
+def LoadScene(file, quad_tree, actors, terrain, textures, flatten=False):
     json_data=None
     with open(file) as f:  
         json_data=json.load(f)
         
     for object in json_data:
         print ".",
-        if 'model' in object:
+        if 'textures' in object:
+            i=1
+            for tex in object['textures']:
+                terrain.setTexture(terrain.findTextureStage('tex'+str(i)), loader.loadTexture('tex/diffuse/'+str(tex)+'.jpg'), 1 )
+                terrain.setTexture(terrain.findTextureStage('tex'+str(i)+'n'), loader.loadTexture('tex/normal/'+str(tex)+'.jpg'), 1 )
+                textures[i-1]=tex
+                i+=1
+            continue    
+        elif 'model' in object:
             model=loader.loadModel(object['model'])
             model.setPythonTag('model_file', object['model'])
         elif 'actor' in object:
@@ -48,8 +56,9 @@ def LoadScene(file, quad_tree, actors, flatten=False):
             flat.flattenStrong()
             flat.wrtReparentTo(node)            
         
-def SaveScene(file, quad_tree):
+def SaveScene(file, quad_tree, textures):
     export_data=[]
+    export_data.append({'textures':textures})
     for node in quad_tree:
         for child in node.getChildren():
             temp={}
