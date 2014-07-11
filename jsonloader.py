@@ -63,9 +63,9 @@ def SaveScene(file, quad_tree, textures):
         for child in node.getChildren():
             temp={}
             if child.hasPythonTag('model_file'):
-                temp['model']=str(child.getPythonTag('model_file'))
+                temp['model']=unicode(child.getPythonTag('model_file'))
             elif child.hasPythonTag('actor_files'):
-                temp['actor']=str(child.getPythonTag('actor_files')[0])
+                temp['actor']=unicode(child.getPythonTag('actor_files')[0])
                 temp['actor_anims']=child.getPythonTag('actor_files')[1]
                 temp['actor_collision']=child.getPythonTag('actor_files')[2]
             temp['rotation_h']=child.getH(render)
@@ -77,7 +77,7 @@ def SaveScene(file, quad_tree, textures):
             temp['scale']=child.getScale()[0]            
             temp['parent_name']=node.getName()
             temp['parent_index']=quad_tree.index(node)
-            temp['props']=str(child.getPythonTag('props'))
+            temp['props']=unicode(child.getPythonTag('props'))
             export_data.append(temp)
     with open(file, 'w') as outfile:
         json.dump(export_data, outfile, indent=4, separators=(',', ': '), sort_keys=True)        

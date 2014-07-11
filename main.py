@@ -82,8 +82,16 @@ class Editor (DirectObject):
         self.object_mode=OBJECT_MODE_ONE
         self.hpr_axis='H: '
         self.last_model_path=''
+        self.currentTexLayer=0
         self.textures=[0,1,2,3,4,5,6,7]
-        
+        self.colorMasks=[Vec4(0,1,1,1),
+                        Vec4(0.25,1,1,1),
+                        Vec4(0.5,1,1,1),
+                        Vec4(1,0,1,1),
+                        Vec4(0.75,1,1,1),
+                        Vec4(1,1,0,1),
+                        Vec4(1,1,0.25,1),
+                        Vec4(1,1,0.5,1)]
         #camera control
         base.disableMouse()  
         controler=CameraControler()
@@ -94,7 +102,6 @@ class Editor (DirectObject):
         for fname in dirList:
             if  Filename(fname).getExtension() in ('png', 'tga', 'dds'):
                 self.brushList.append("brush/"+fname)
-        print self.brushList
         self.painter=BufferPainter(self.brushList, showBuff=False)
         #2 buffers should do, but painting in an alpha channel is strange, so I use 3 (+1 for grass)
         #BUFFER_HEIGHT
@@ -105,7 +112,7 @@ class Editor (DirectObject):
                                 shader_inputs={'hardbrush':loader.loadTexture('brush/b12.png'),
                                                'softbrush':loader.loadTexture('brush/b13.png'),
                                                'softness':1.0, 
-                                               'colormask':Vec4(1,1,0.25,1)}) 
+                                               'colormask':Vec4(0,1,1,1)}) 
         
         #BUFFER_EXTRA (grass for now)
         self.painter.addCanvas() 
@@ -123,14 +130,17 @@ class Editor (DirectObject):
             id+=1
         #texture palette    
         self.palette_id=self.gui.addToolbar(self.gui.TopRight, (90, 512),icon_size=90, x_offset=-90, y_offset=0, hover_command=self.onToolbarHover)
-        self.gui.addButton(self.palette_id, 'tex/diffuse/0.jpg', self.setColorMask, [Vec4(0,1,1,1)],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/1.jpg', self.setColorMask, [Vec4(0.25,1,1,1)],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/2.jpg', self.setColorMask, [Vec4(0.5,1,1,1)],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/3.jpg', self.setColorMask, [Vec4(1,0,1,1)],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/4.jpg', self.setColorMask, [Vec4(0.75,1,1,1)],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/5.jpg', self.setColorMask, [Vec4(1,1,0,1)],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/6.jpg', self.setColorMask, [Vec4(1,1,0.25,1)],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/7.jpg', self.setColorMask, [Vec4(1,1,0.5,1)],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/0.jpg', self.setColorMask, [0],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/1.jpg', self.setColorMask, [1],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/2.jpg', self.setColorMask, [2],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/3.jpg', self.setColorMask, [3],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/4.jpg', self.setColorMask, [4],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/5.jpg', self.setColorMask, [5],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/6.jpg', self.setColorMask, [6],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/7.jpg', self.setColorMask, [7],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        
+        self.TexSelector=self.gui.addFloatingButton(self.palette_id, [32,128], 'data/arrow.png', self.changeTex,tooltip=self.tooltip, tooltip_text='Change texture')   
+        self.TexSelector.setX(self.TexSelector, -32)
         #id=0
         #for tex in self.textureList:            
         #    self.gui.addButton(self.palette_id, tex, self.setColorTexture, [id],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
@@ -553,9 +563,25 @@ class Editor (DirectObject):
         
     
     def setColorMask(self, mask, guiEvent=None):
-        self.painter.brushes[BUFFER_ATR].setShaderInput('colormask', mask)
+        color=self.colorMasks[mask]
+        self.painter.brushes[BUFFER_ATR].setShaderInput('colormask', color)
+        self.currentTexLayer=mask
         
-    
+        self.TexSelector.setZ(-90*mask)
+        
+    def changeTex(self, guiEvent=None): 
+        id=self.currentTexLayer 
+        diff='tex/diffuse/'+str(self.textures[id]+1)+'.jpg'
+        norm='tex/normal/'+str(self.textures[id]+1)+'.jpg'
+        self.textures[id]+=1
+        if not os.path.exists(diff):
+            diff='tex/diffuse/0.jpg'
+            norm='tex/normal/0.jpg'
+            self.textures[id]=0
+        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(id+1)), loader.loadTexture(diff), 1)
+        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(id+1)+'n'), loader.loadTexture(norm), 1)
+        self.gui.elements[self.palette_id]['buttons'][id]['frameTexture']=diff
+                    
     def setBrush(self, id, guiEvent=None):
         self.painter.setBrushTex(id)
         for button in self.gui.elements[0]['buttons']:
@@ -622,7 +648,7 @@ class Editor (DirectObject):
             self.painter.brushes[BUFFER_ATR].show()
             self.painter.brushes[BUFFER_EXTRA].hide()
             #self.painter.brushes[BUFFER_COLOR].show()
-            self.painter.brushes[BUFFER_ATR].setColor(1, 1, 0.25, 1.0) 
+            #self.painter.brushes[BUFFER_ATR].setColor(0,1,1,1) 
             self.painter.pointer.show()     
             self.hpr_axis=''        
             self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                

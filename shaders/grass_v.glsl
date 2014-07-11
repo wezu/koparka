@@ -41,7 +41,7 @@ void main()
     gl_Position = p3d_ModelViewProjectionMatrix * v;  
     
     vec4 cs_position = gl_ModelViewMatrix * v;  
-    float distToEdge=clamp(pow(distance(v.xyz, fogcenter)/256.0, 4.0), 0.0, 1.0);
+    float distToEdge=clamp(pow(distance(v.xy, fogcenter.xy)/256.0, 4.0), 0.0, 1.0);
     float distToCamera =clamp(-cs_position.z*0.003-0.5, 0.0, 1.0);
     //fogFactor=distToCamera;
     fogFactor=clamp(distToCamera+distToEdge, 0.0, 1.0);    

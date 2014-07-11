@@ -497,6 +497,22 @@ class GuiHelper():
             frame.bind(DGG.WITHIN, self.setTooltip,[tooltip, tooltip_text])  
             frame.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])  
             
+    def addFloatingButton(self, parent_id, size, icon, command, arg=[], tooltip=None, tooltip_text=None):  
+        parent=self.elements[parent_id]['frame']
+        frame= DirectFrame( frameSize=_rec2d(size[0],size[1]),
+                        frameColor=(1,1,1,1),
+                        state=DGG.NORMAL,                        
+                        frameTexture=icon,
+                        parent=parent)
+        _resetPivot(frame)
+        frame.setTransparency(TransparencyAttrib.MDual)        
+        frame.bind(DGG.B1PRESS, command, arg)
+        self.elements.append({'frame':frame})
+        if tooltip:            
+            frame.bind(DGG.WITHIN, self.setTooltip,[tooltip, tooltip_text])  
+            frame.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None]) 
+        return frame
+        
     def addInfoIcon(self, toolbar, icon, text, tooltip=None, tooltip_text=None):       
         parent=self.elements[toolbar]['frame']
         x=len(self.elements[toolbar]['buttons'])*64
