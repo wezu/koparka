@@ -34,8 +34,8 @@ def LoadScene(file, quad_tree, actors, terrain, textures, flatten=False):
             else: #some random anim
                 model.loop(object['actor_anims'].items()[0])
         model.reparentTo(quad_tree[object['parent_index']])
-        model.setCollideMask(BitMask32.allOff())
-        model.setShaderAuto()
+        model.setCollideMask(BitMask32.allOff())        
+        model.setShader(loader.loadShader("shaders/default.cg")) 
         model.find('**/collision').setCollideMask(BitMask32.bit(2))        
         model.find('**/collision').setPythonTag('object', model)
         

@@ -258,7 +258,7 @@ class Editor (DirectObject):
         #render.setLight(self.Ambient)        
         #self.Ambient.wrtReparentTo(base.camera)
         
-        #render.setShaderInput("dlight0", self.mainLight)
+        render.setShaderInput("dlight0", self.mainLight)
         #render.setShaderInput("dlight1", self.Ambient)
         
         self.keyMap = {'paint': False,
@@ -497,6 +497,10 @@ class Editor (DirectObject):
             file=path+save_dir+"/"+self.gui.entry6.get()
             if os.path.exists(file):
                 LoadScene(file, self.objectPainter.quadtree, self.objectPainter.actors,self.mesh,self.textures)
+                i=0
+                for id in self.textures:
+                    self.gui.elements[self.palette_id]['buttons'][i]['frameTexture']='tex/diffuse/'+str(id)+'.jpg'
+                    i+=1
                 print "done"
             else:
                 print "FILE NOT FOUND!"  
@@ -565,8 +569,7 @@ class Editor (DirectObject):
     def setColorMask(self, mask, guiEvent=None):
         color=self.colorMasks[mask]
         self.painter.brushes[BUFFER_ATR].setShaderInput('colormask', color)
-        self.currentTexLayer=mask
-        
+        self.currentTexLayer=mask        
         self.TexSelector.setZ(-90*mask)
         
     def changeTex(self, guiEvent=None): 
