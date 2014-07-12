@@ -99,4 +99,5 @@ void fshader(
 	 result.rgb = result.rgb + tot_specular.rgb;
      float4 fog=float4(0.4, 0.4, 0.4, 1);
 	 o_color =lerp(result, fog,l_fogfactor);
+     o_color.a=result.a;
 }

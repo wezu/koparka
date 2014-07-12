@@ -1,12 +1,12 @@
 <CoordinateSystem> { Z-Up }
 <Texture> Tex2 {
   "../models/arch_ns.png"
-  <Scalar> format { rgb }
+  <Scalar> format { rgba }
   <Scalar> wrapu { repeat }
   <Scalar> wrapv { repeat }
   <Scalar> minfilter { linear_mipmap_linear }
   <Scalar> magfilter { linear }
-  <Scalar> envtype { normal }
+  <Scalar> envtype { normal_gloss }
 }
 <Texture> Tex1 {
   "../models/arch.png"
