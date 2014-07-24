@@ -9,14 +9,13 @@ varying float fogFactor;
 
 void main()
     {    
-    vec2 texUV=gl_TexCoord[0].xy;
-    vec3 norm = normalize(normal);
-    
-    vec4 color_tex =texture2D(p3d_Texture0,texUV);
-    vec4 color =vec4(0.5,0.5,0.5, 1.0); 
-
     if(mask < 0.5)
         discard;
+        
+    vec2 texUV=gl_TexCoord[0].xy;        
+    vec4 color_tex =texture2D(p3d_Texture0,texUV);
+    vec3 norm = normalize(normal);    
+    vec4 color =vec4(0.5,0.5,0.5, 1.0); 
 
     //lights
     vec3 lightDir;

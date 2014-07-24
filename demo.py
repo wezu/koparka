@@ -2,6 +2,7 @@ from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
 loadPrcFileData('','win-size 1024 768')
 loadPrcFileData('','show-frame-rate-meter  1')
+loadPrcFileData('','threading-model Cull/Draw')
 #loadPrcFileData('','sync-video 1')
 #loadPrcFileData('','win-size 1280 720')
 from direct.showbase.AppRunnerGlobal import appRunner
@@ -23,11 +24,8 @@ import direct.directbase.DirectStart
 from direct.showbase.DirectObject import DirectObject
 from direct.filter.FilterManager import FilterManager
 from direct.actor.Actor import Actor
-from camcon import CameraControler
-from fxaa import makeFXAA
-from jsonloader import SaveScene, LoadScene
-import os, sys
-import random
+import json
+import sys
 
 class Demo (DirectObject):
     def __init__(self, directory):
@@ -43,8 +41,7 @@ class Demo (DirectObject):
         self.fxaaManager=FilterManager(base.win, base.cam)
                        
         #some needed variables...
-        self.actors=[]
-        self.textures=[0,1,2,3,4,5,6,7] #this is not used in a game-like-enviroment but needed for the jsonloader                         
+        self.actors=[]                       
         self.winsize=[0,0]        
         #quadtree structure - TODO:could this be loaded from a bam file?
         nodeA=render.attachNewNode('quadA')
@@ -100,7 +97,7 @@ class Demo (DirectObject):
         self.collision.reparentTo(render)
         
         #load the objects and textures from a file
-        LoadScene(objects, self.quadtree, self.actors, self.mesh, self.textures,flatten=True)
+        self.LoadScene(objects, self.quadtree, self.actors, self.mesh, flatten=True)
         
         #setup terrain part2
         self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v.glsl", "shaders/ter_f.glsl"))        
@@ -175,13 +172,15 @@ class Demo (DirectObject):
         base.camera.setPos(self.ralph.getX(),self.ralph.getY()+30, 50)
         
         # collisions...
+        mask=BitMask32.bit(0)
+        mask.setBit(2)
         self.cTrav = CollisionTraverser()
         self.ralphGroundRay = CollisionRay()
         self.ralphGroundRay.setOrigin(0,0,1000)
         self.ralphGroundRay.setDirection(0,0,-1)
         self.ralphGroundCol = CollisionNode('ralphRay')
         self.ralphGroundCol.addSolid(self.ralphGroundRay)
-        self.ralphGroundCol.setFromCollideMask(BitMask32.bit(0))
+        self.ralphGroundCol.setFromCollideMask(mask)
         self.ralphGroundCol.setIntoCollideMask(BitMask32.allOff())
         self.ralphGroundColNp = self.ralph.attachNewNode(self.ralphGroundCol)
         self.ralphGroundHandler = CollisionHandlerQueue()
@@ -210,7 +209,7 @@ class Demo (DirectObject):
             if self.winsize!=newsize:    
                 #resizing the window breaks the filter manager, so I just make a new one
                 self.fxaaManager.cleanup()
-                self.fxaaManager=makeFXAA(self.fxaaManager)
+                self.fxaaManager=self.makeFXAA(self.fxaaManager)
                 self.winsize=newsize
                 
     def CreateGrassTile(self, uv_offset, pos, parent, fogcenter, grass_map, height_map, count=256):
@@ -226,6 +225,65 @@ class Demo (DirectObject):
         grass.setShaderInput('fogcenter', fogcenter)
         grass.setPos(pos)
         return grass
+        
+    def LoadScene(self, file, quad_tree, actors, terrain, flatten=False):
+        json_data=None
+        with open(file) as f:  
+            json_data=json.load(f)
+        print 'Loading'    
+        for object in json_data:
+            print ".",
+            if 'textures' in object:
+                i=1
+                for tex in object['textures']:
+                    terrain.setTexture(terrain.findTextureStage('tex'+str(i)), loader.loadTexture('tex/diffuse/'+str(tex)+'.jpg'), 1 )
+                    terrain.setTexture(terrain.findTextureStage('tex'+str(i)+'n'), loader.loadTexture('tex/normal/'+str(tex)+'.jpg'), 1 )                    
+                    i+=1
+                continue    
+            elif 'model' in object:
+                model=loader.loadModel(object['model'])
+                model.setPythonTag('model_file', object['model'])
+            elif 'actor' in object:
+                model=Actor(object['actor'], object['actor_anims'])
+                collision=loader.loadModel(object['actor_collision'])            
+                collision.reparentTo(model)
+                actors.append(model)
+                model.setPythonTag('actor_files', [object['actor'],object['actor_anims'],object['actor_collision']])            
+                #default anim
+                if 'default' in object['actor_anims']:
+                    model.loop('default')
+                elif 'idle' in object['actor_anims']:
+                    model.loop('idle')
+                else: #some random anim
+                    model.loop(object['actor_anims'].items()[0])
+            model.reparentTo(quad_tree[object['parent_index']])
+            model.setCollideMask(BitMask32.allOff())        
+            model.setShader(loader.loadShader("shaders/default.cg")) 
+            model.find('**/collision').setCollideMask(BitMask32.bit(2))        
+            model.find('**/collision').setPythonTag('object', model)
+            
+            model.setPythonTag('props', object['props'])
+            model.setHpr(render,object['rotation_h'],object['rotation_p'],object['rotation_r'])
+            model.setPos(render,object['position_x'],object['position_y'],object['position_z'])
+            model.setScale(object['scale'])
+            
+    def makeFXAA(self, manager=None, span_max=8.0, reduce_mul=8.0, subpixel_shift=4.0):
+        wp=base.win.getProperties()
+        winX = wp.getXSize()
+        winY = wp.getYSize()
+        tex = Texture()
+        if manager==None:
+            manager = FilterManager(base.win, base.cam)
+        quad = manager.renderSceneInto(colortex=tex)
+        quad.setShader(Shader.load(Shader.SLGLSL, "shaders/fxaa_v.glsl", "shaders/fxaa_f.glsl"))
+        quad.setShaderInput("tex0", tex)
+        quad.setShaderInput("rt_w",winX)
+        quad.setShaderInput("rt_h",winY)
+        quad.setShaderInput("FXAA_SPAN_MAX" , span_max)
+        quad.setShaderInput("FXAA_REDUCE_MUL", 1.0/reduce_mul)
+        quad.setShaderInput("FXAA_SUBPIX_SHIFT", 1.0/subpixel_shift)  
+        return manager  
+        
     #RR 
     #Records the state of the arrow keys
     def setKey(self, key, value):
