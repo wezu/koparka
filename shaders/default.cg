@@ -14,6 +14,7 @@ void vshader(
 	 in float4 vtx_texcoord1 : TEXCOORD1,
 	 out float4 l_texcoord1 : TEXCOORD1,
 	 uniform float4x4 trans_model_to_view,
+     uniform float4 fog,
      uniform float4x4 trans_model_to_world,
 	 out float4 l_eye_position : TEXCOORD2,
 	 uniform float4x4 tpose_view_to_model,
@@ -38,7 +39,7 @@ void vshader(
 	 l_tangent.w = 0;
 	 l_binormal.xyz = mul((float3x3)tpose_view_to_model, -vtx_binormal1.xyz);
 	 l_binormal.w = 0;     
-     float distToCamera =saturate(l_position.z*0.003-0.5);
+     float distToCamera =saturate(l_position.z*fog.a-0.5);
      float4 wpos=mul(trans_model_to_world, vtx_position);
      float distToEdge=saturate(pow(distance(wpos.xy, float2(256,256))/256.0, 4.0));
      l_fogfactor=saturate(distToCamera+distToEdge);
@@ -57,6 +58,7 @@ void fshader(
 	 uniform float4 row1_view_to_model,
 	 out float4 o_color : COLOR0,
 	 uniform float4 attr_color,
+     uniform float4 fog,
      in float l_fogfactor : TEXCOORD6,
 	 uniform float4 attr_colorscale
 ) {
@@ -96,8 +98,7 @@ void fshader(
 	 result.rgba *= tex0.rgba;
 	 result *= attr_colorscale;
 	 tot_specular *= tex1.a;
-	 result.rgb = result.rgb + tot_specular.rgb;
-     float4 fog=float4(0.4, 0.4, 0.4, 1);
+	 result.rgb = result.rgb + tot_specular.rgb;     
 	 o_color =lerp(result, fog,l_fogfactor);
      o_color.a=result.a;
 }

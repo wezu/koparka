@@ -90,7 +90,7 @@ class Demo (DirectObject):
                        nodeD1,nodeD2,nodeD3,nodeD4]
         
         #setup terrain part1
-        self.mesh=loader.loadModel('data/mesh3k.egg')             
+        self.mesh=loader.loadModel('data/mesh35k')             
         self.mesh.reparentTo(render)
         #collision mesh
         self.collision=loader.loadModel(collision)             
@@ -100,7 +100,7 @@ class Demo (DirectObject):
         self.LoadScene(objects, self.quadtree, self.actors, self.mesh, flatten=True)
         
         #setup terrain part2
-        self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v.glsl", "shaders/ter_f.glsl"))        
+        self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v2.glsl", "shaders/ter_f2.glsl"))        
         self.mesh.setShaderInput("height", loader.loadTexture(height_map)) 
         self.mesh.setShaderInput("atr",  loader.loadTexture(detail_map))
         self.mesh.setTransparency(TransparencyAttrib.MNone)
@@ -121,16 +121,24 @@ class Demo (DirectObject):
         self.mainLight.setP(-60)       
         self.mainLight.setH(90)        
         render.setLight(self.mainLight)        
-        #TODO: ambient light is hardcoded into shaders...for now        
+        #ambient
         ambientLight = AmbientLight("ambientLight")
-        ambientLight.setColor(Vec4(.5, .5, .5, 1))
+        ambientLight.setColor(Vec4(.2, .2, .3, 1))
         self.Ambient=render.attachNewNode(ambientLight)
         render.setLight(self.Ambient)        
         self.mesh.setLightOff(self.Ambient)
-        render.setShaderInput("dlight0", self.mainLight) #needed for the default.cg shader
+        render.setShaderInput("dlight0", self.mainLight) #needed for the default.cg shader        
+        render.setShaderInput("ambient", Vec4(.2, .2, .3, 1))
+        
+        
+        #fog
+        render.setShaderInput("fog",  Vec4(0.8, 0.8, 0.8, 0.007))
         
         #resize event (resets fxaa)
-        self.accept( 'window-event', self.windowEventHandler)         
+        self.accept( 'window-event', self.windowEventHandler)
+        
+        #the task updates a 'time' shader input for the grass shader
+        #in a future p3d version some sort of time imput should be provided by the c/c++ side(?)
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task')  
         
         #####################
@@ -209,7 +217,7 @@ class Demo (DirectObject):
             if self.winsize!=newsize:    
                 #resizing the window breaks the filter manager, so I just make a new one
                 self.fxaaManager.cleanup()
-                self.fxaaManager=self.makeFXAA(self.fxaaManager)
+                self.fxaaManager=self.makeFXAADOF(self.fxaaManager)
                 self.winsize=newsize
                 
     def CreateGrassTile(self, uv_offset, pos, parent, fogcenter, grass_map, height_map, count=256):
@@ -236,8 +244,12 @@ class Demo (DirectObject):
             if 'textures' in object:
                 i=1
                 for tex in object['textures']:
-                    terrain.setTexture(terrain.findTextureStage('tex'+str(i)), loader.loadTexture('tex/diffuse/'+str(tex)+'.jpg'), 1 )
-                    terrain.setTexture(terrain.findTextureStage('tex'+str(i)+'n'), loader.loadTexture('tex/normal/'+str(tex)+'.jpg'), 1 )                    
+                    diff=loader.loadTexture('tex/diffuse/'+str(tex)+'.png')
+                    diff.setAnisotropicDegree(2)
+                    norm=loader.loadTexture('tex/normal/'+str(tex)+'.png')
+                    norm.setAnisotropicDegree(2)
+                    terrain.setTexture(terrain.findTextureStage('tex'+str(i)), diff, 1 )
+                    terrain.setTexture(terrain.findTextureStage('tex'+str(i)+'n'), norm, 1 )
                     i+=1
                 continue    
             elif 'model' in object:
@@ -267,21 +279,23 @@ class Demo (DirectObject):
             model.setPos(render,object['position_x'],object['position_y'],object['position_z'])
             model.setScale(object['scale'])
             
-    def makeFXAA(self, manager=None, span_max=8.0, reduce_mul=8.0, subpixel_shift=4.0):
+    def makeFXAADOF(self, manager=None, span_max=8.0, reduce_mul=8.0, subpixel_shift=4.0):
         wp=base.win.getProperties()
         winX = wp.getXSize()
         winY = wp.getYSize()
         tex = Texture()
+        fog= Texture()
         if manager==None:
             manager = FilterManager(base.win, base.cam)
-        quad = manager.renderSceneInto(colortex=tex)
-        quad.setShader(Shader.load(Shader.SLGLSL, "shaders/fxaa_v.glsl", "shaders/fxaa_f.glsl"))
+        quad = manager.renderSceneInto(colortex=tex, auxtex=fog)
+        quad.setShader(Shader.load(Shader.SLGLSL, "shaders/fxaa_v.glsl", "shaders/fxaadof_f.glsl"))
         quad.setShaderInput("tex0", tex)
         quad.setShaderInput("rt_w",winX)
         quad.setShaderInput("rt_h",winY)
         quad.setShaderInput("FXAA_SPAN_MAX" , span_max)
         quad.setShaderInput("FXAA_REDUCE_MUL", 1.0/reduce_mul)
         quad.setShaderInput("FXAA_SUBPIX_SHIFT", 1.0/subpixel_shift)  
+        quad.setShaderInput("fog", fog)
         return manager  
         
     #RR 
@@ -386,5 +400,5 @@ class Demo (DirectObject):
 
         return task.cont
         
-app=Demo('save/default1')
+app=Demo('save/default3')
 run()      

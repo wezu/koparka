@@ -130,14 +130,14 @@ class Editor (DirectObject):
             id+=1
         #texture palette    
         self.palette_id=self.gui.addToolbar(self.gui.TopRight, (90, 512),icon_size=90, x_offset=-90, y_offset=0, hover_command=self.onToolbarHover)
-        self.gui.addButton(self.palette_id, 'tex/diffuse/0.jpg', self.setColorMask, [0],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/1.jpg', self.setColorMask, [1],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/2.jpg', self.setColorMask, [2],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/3.jpg', self.setColorMask, [3],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/4.jpg', self.setColorMask, [4],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/5.jpg', self.setColorMask, [5],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/6.jpg', self.setColorMask, [6],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/7.jpg', self.setColorMask, [7],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/0.png', self.setColorMask, [0],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/1.png', self.setColorMask, [1],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/2.png', self.setColorMask, [2],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/3.png', self.setColorMask, [3],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/4.png', self.setColorMask, [4],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/5.png', self.setColorMask, [5],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/6.png', self.setColorMask, [6],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/7.png', self.setColorMask, [7],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
         
         self.TexSelector=self.gui.addFloatingButton(self.palette_id, [32,128], 'data/arrow.png', self.changeTex,tooltip=self.tooltip, tooltip_text='Change texture')   
         self.TexSelector.setX(self.TexSelector, -32)
@@ -215,13 +215,13 @@ class Editor (DirectObject):
         self.objectPainter=ObjectPainter()
         
         #terrain mesh
-        self.mesh=loader.loadModel('data/mesh3k.egg')
+        self.mesh=loader.loadModel('data/mesh35k.egg')
         #self.mesh.setTexture(self.painter.textures[BUFFER_COLOR], 1)
         #gradient=loader.loadTexture('data/gradient.png')
         #gradient.setWrapU(Texture.WMClamp)
         #gradient.setWrapV(Texture.WMClamp  )        
         self.mesh.reparentTo(render)
-        self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v.glsl", "shaders/ter_f.glsl"))        
+        self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v2.glsl", "shaders/ter_f2.glsl"))        
         self.mesh.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
         self.mesh.setShaderInput("atr", self.painter.textures[BUFFER_ATR]) 
         self.mesh.setTransparency(TransparencyAttrib.MNone)
@@ -237,7 +237,7 @@ class Editor (DirectObject):
         self.grass.setBin("background", 11)       
         #light
         self.dlight = DirectionalLight('dlight') 
-        self.dlight.setColor(VBase4(1, 1, 1, 1))     
+        self.dlight.setColor(VBase4(0.8, 0.8, 0.8, 1))     
         self.mainLight = render.attachNewNode(self.dlight)
         self.mainLight.setP(-60)       
         self.mainLight.setH(90)
@@ -259,7 +259,11 @@ class Editor (DirectObject):
         #self.Ambient.wrtReparentTo(base.camera)
         
         render.setShaderInput("dlight0", self.mainLight)
+        render.setShaderInput("ambient", Vec4(.2, .2, .3, 1))
         #render.setShaderInput("dlight1", self.Ambient)
+        
+        #fog
+        render.setShaderInput("fog",  Vec4(0.4, 0.4, 0.4, 0.002))
         
         self.keyMap = {'paint': False,
                        'rotate_l':False, 
@@ -499,7 +503,7 @@ class Editor (DirectObject):
                 LoadScene(file, self.objectPainter.quadtree, self.objectPainter.actors,self.mesh,self.textures)
                 i=0
                 for id in self.textures:
-                    self.gui.elements[self.palette_id]['buttons'][i]['frameTexture']='tex/diffuse/'+str(id)+'.jpg'
+                    self.gui.elements[self.palette_id]['buttons'][i]['frameTexture']='tex/diffuse/'+str(id)+'.png'
                     i+=1
                 print "done"
             else:
@@ -574,12 +578,12 @@ class Editor (DirectObject):
         
     def changeTex(self, guiEvent=None): 
         id=self.currentTexLayer 
-        diff='tex/diffuse/'+str(self.textures[id]+1)+'.jpg'
-        norm='tex/normal/'+str(self.textures[id]+1)+'.jpg'
+        diff='tex/diffuse/'+str(self.textures[id]+1)+'.png'
+        norm='tex/normal/'+str(self.textures[id]+1)+'.png'
         self.textures[id]+=1
         if not os.path.exists(diff):
-            diff='tex/diffuse/0.jpg'
-            norm='tex/normal/0.jpg'
+            diff='tex/diffuse/0.png'
+            norm='tex/normal/0.png'
             self.textures[id]=0
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(id+1)), loader.loadTexture(diff), 1)
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(id+1)+'n'), loader.loadTexture(norm), 1)
@@ -714,7 +718,7 @@ class Editor (DirectObject):
             heightmap=PNMImage(self.painter.buffSize[BUFFER_HEIGHT], self.painter.buffSize[BUFFER_HEIGHT],4)              
             base.graphicsEngine.extractTextureData(self.painter.textures[BUFFER_HEIGHT],base.win.getGsg())
             self.painter.textures[BUFFER_HEIGHT].store(heightmap)
-            GenerateCollisionEgg(heightmap, file)
+            GenerateCollisionEgg(heightmap, file, input='data/collision10k.egg')
             if self.collision_mesh:
                 self.collision_mesh.removeNode()
             self.collision_mesh=loader.loadModel(file, noCache=True)

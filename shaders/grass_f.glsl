@@ -7,6 +7,8 @@ varying float mask;
 varying vec3 normal;
 varying float fogFactor;
 
+uniform vec4 fog;
+
 void main()
     {    
     if(mask < 0.5)
@@ -27,8 +29,7 @@ void main()
         color += gl_LightSource[i].diffuse * NdotL;        
         }    
 
-    vec4 final = vec4(color.rgb *color_tex.rgb, color_tex.a); 
-    vec4 fog=vec4(0.4,0.4,0.4,1.0);          
+    vec4 final = vec4(color.rgb *color_tex.rgb, color_tex.a);
     gl_FragColor = mix(final,fog ,fogFactor);
     }
     
