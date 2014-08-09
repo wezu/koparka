@@ -662,6 +662,7 @@ class Editor (DirectObject):
             self.accept('mouse1-up', self.keyMap.__setitem__, ['paint', False])            
             self.gui.hideElement(self.palette_id)            
             self.gui.showElement(self.toolbar_id)
+            self.gui.showElement(self.heightmode_toolbar_id)
             self.gui.hideElement(self.mode_toolbar_id)
             self.gui.hideElement(self.object_toolbar_id)
             self.gui.hideElement(self.multi_toolbar_id)
@@ -693,6 +694,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.actor_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)
             self.gui.hideElement(self.prop_panel_id)
+            self.gui.hideElement(self.heightmode_toolbar_id)
             self.objectPainter.stop()
         elif mode==MODE_EXTRA:
             if guiEvent!=None:
@@ -717,6 +719,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.actor_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)
             self.gui.hideElement(self.prop_panel_id)
+            self.gui.hideElement(self.heightmode_toolbar_id)
             self.objectPainter.stop()            
         elif mode==MODE_OBJECT:
             if guiEvent!=None:                
@@ -728,6 +731,7 @@ class Editor (DirectObject):
             self.gui.grayOutButtons(self.statusbar, (4,8), 7) 
             self.gui.hideElement(self.palette_id)
             self.gui.hideElement(self.toolbar_id)
+            self.gui.hideElement(self.heightmode_toolbar_id)
             self.gui.showElement(self.mode_toolbar_id)
             self.gui.showElement(self.prop_panel_id)
             self.setObjectMode(self.object_mode)
