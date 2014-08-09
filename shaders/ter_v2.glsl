@@ -7,6 +7,8 @@ uniform vec4 fog;
 
 varying float fogFactor;
 varying vec3 halfVector;
+varying vec2 texUV;
+varying vec2 texUVrepeat;
 
 void main()
     {    
@@ -22,4 +24,7 @@ void main()
     fogFactor=clamp(distToCamera+distToEdge, 0.0, 1.0);
     //fogFactor=distToEdge;
     halfVector = gl_LightSource[0].halfVector.xyz;
+    
+    texUV=gl_TexCoord[0].xy;
+    texUVrepeat=gl_TexCoord[0].xy*30.0;
     }

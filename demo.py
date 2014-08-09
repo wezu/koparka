@@ -2,7 +2,7 @@ from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
 loadPrcFileData('','win-size 1024 768')
 loadPrcFileData('','show-frame-rate-meter  1')
-loadPrcFileData('','threading-model Cull/Draw')
+#loadPrcFileData('','threading-model Cull/Draw')
 #loadPrcFileData('','sync-video 1')
 #loadPrcFileData('','win-size 1280 720')
 from direct.showbase.AppRunnerGlobal import appRunner
@@ -116,14 +116,14 @@ class Demo (DirectObject):
         self.grass.setBin("background", 11)       
         #light
         self.dlight = DirectionalLight('dlight') 
-        self.dlight.setColor(VBase4(1, 1, 1, 1))     
+        self.dlight.setColor(VBase4(1, 1, 0.9, 1))     
         self.mainLight = render.attachNewNode(self.dlight)
         self.mainLight.setP(-60)       
         self.mainLight.setH(90)        
         render.setLight(self.mainLight)        
         #ambient
         ambientLight = AmbientLight("ambientLight")
-        ambientLight.setColor(Vec4(.2, .2, .3, 1))
+        ambientLight.setColor(Vec4(.3, .3, .35, 1))
         self.Ambient=render.attachNewNode(ambientLight)
         render.setLight(self.Ambient)        
         self.mesh.setLightOff(self.Ambient)
@@ -245,9 +245,9 @@ class Demo (DirectObject):
                 i=1
                 for tex in object['textures']:
                     diff=loader.loadTexture('tex/diffuse/'+str(tex)+'.png')
-                    diff.setAnisotropicDegree(2)
+                    #diff.setAnisotropicDegree(2)
                     norm=loader.loadTexture('tex/normal/'+str(tex)+'.png')
-                    norm.setAnisotropicDegree(2)
+                    #norm.setAnisotropicDegree(2)
                     terrain.setTexture(terrain.findTextureStage('tex'+str(i)), diff, 1 )
                     terrain.setTexture(terrain.findTextureStage('tex'+str(i)+'n'), norm, 1 )
                     i+=1

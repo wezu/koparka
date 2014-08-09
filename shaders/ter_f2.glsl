@@ -24,16 +24,18 @@ uniform vec4 ambient;
 
 varying float fogFactor;
 varying vec3 halfVector;
+varying vec2 texUV;
+varying vec2 texUVrepeat;
 
 void main()
     {
-    vec3 norm=vec3(0,0,1);    
-    vec3 vLeft=vec3(1,0,0); 
-    vec2 texUV=gl_TexCoord[0].xy;
+    vec3 norm=vec3(0.0,0.0,1.0);    
+    vec3 vLeft=vec3(1.0,0.0,0.0); 
+    //vec2 texUV=gl_TexCoord[0].xy;
     vec3 halfV = normalize(halfVector);
     float gloss=100.0;
     const float pixel=1.0/512.0;
-    const float repeat=24.0;
+    //const float repeat=24.0;
     const float height_scale=100.0;
     
     //normal vector...
@@ -72,16 +74,16 @@ void main()
     b3-=clamp(r3, 0.0, 1.0);
     float g2=1.0-clamp(r1, 0.0, 1.0)-r2-clamp(r3, 0.0, 1.0)-clamp(b1, 0.0, 1.0)-b2-clamp(b3, 0.0, 1.0)-clamp(g1, 0.0, 1.0);
     
-    vec4 tex1 = texture2D(p3d_Texture0, texUV*repeat);
-	vec4 tex2 = texture2D(p3d_Texture1, texUV*repeat);
-	vec4 tex3 = texture2D(p3d_Texture2, texUV*repeat);
-	vec4 tex4 = texture2D(p3d_Texture3, texUV*repeat);
-    vec4 tex5 = texture2D(p3d_Texture4, texUV*repeat);
-	vec4 tex6 = texture2D(p3d_Texture5, texUV*repeat);
-	vec4 tex7 = texture2D(p3d_Texture6, texUV*repeat);
-	vec4 tex8 = texture2D(p3d_Texture7, texUV*repeat);
+    vec4 tex1 = texture2D(p3d_Texture0, texUVrepeat);
+	vec4 tex2 = texture2D(p3d_Texture1, texUVrepeat);
+	vec4 tex3 = texture2D(p3d_Texture2, texUVrepeat);
+	vec4 tex4 = texture2D(p3d_Texture3, texUVrepeat);
+    vec4 tex5 = texture2D(p3d_Texture4, texUVrepeat);
+	vec4 tex6 = texture2D(p3d_Texture5, texUVrepeat);
+	vec4 tex7 = texture2D(p3d_Texture6, texUVrepeat);
+	vec4 tex8 = texture2D(p3d_Texture7, texUVrepeat);
     
-    vec4 detail=(0,0,0, 0);
+    vec4 detail=(0.0,0.0,0.0,0.0);
 	detail += tex1*clamp(r1, 0.0, 1.0);
     detail += tex2*r2;
     detail += tex3*clamp(r3, 0.0, 1.0);
@@ -91,14 +93,14 @@ void main()
     detail += tex7*b2;
     detail += tex8*clamp(b3, 0.0, 1.0);
     
-    vec4 tex1n = texture2D(p3d_Texture8, texUV*repeat);
-	vec4 tex2n = texture2D(p3d_Texture9, texUV*repeat);
-	vec4 tex3n = texture2D(p3d_Texture10, texUV*repeat);
-	vec4 tex4n = texture2D(p3d_Texture11, texUV*repeat);
-    vec4 tex5n = texture2D(p3d_Texture12, texUV*repeat);
-	vec4 tex6n = texture2D(p3d_Texture13, texUV*repeat);
-	vec4 tex7n = texture2D(p3d_Texture14, texUV*repeat);
-	vec4 tex8n = texture2D(p3d_Texture15, texUV*repeat);
+    vec4 tex1n = texture2D(p3d_Texture8, texUVrepeat);
+	vec4 tex2n = texture2D(p3d_Texture9, texUVrepeat);
+	vec4 tex3n = texture2D(p3d_Texture10, texUVrepeat);
+	vec4 tex4n = texture2D(p3d_Texture11, texUVrepeat);
+    vec4 tex5n = texture2D(p3d_Texture12, texUVrepeat);
+	vec4 tex6n = texture2D(p3d_Texture13, texUVrepeat);
+	vec4 tex7n = texture2D(p3d_Texture14, texUVrepeat);
+	vec4 tex8n = texture2D(p3d_Texture15, texUVrepeat);
     
     vec4 normap=(0,0,0, 0);
 	normap += tex1n*clamp(r1, 0.0, 1.0);
@@ -110,8 +112,8 @@ void main()
     normap += tex7n*b2;
     normap += tex8n*clamp(b3, 0.0, 1.0);
     float glossmap=normap.a;
-    normap*=2;
-    normap-=1;
+    normap*=2.0;
+    normap-=1.0;
     
     norm.xyz *= normap.z;
 	norm.xyz += tangent * normap.x;
@@ -132,6 +134,6 @@ void main()
     
     vec4 final=vec4(color.rgb *detail, 1.0);       
     gl_FragData[0] = mix(final,fog ,fogFactor);    
-    gl_FragData[1]=vec4(fogFactor, 0,0,0);    
+    gl_FragData[1]=vec4(fogFactor, 0.0,0.0,0.0);    
     }
     

@@ -49,6 +49,9 @@ OBJECT_MODE_SELECT=3
 OBJECT_MODE_ACTOR=4
 OBJECT_MODE_COLLISION=5
 
+HEIGHT_MODE_UP=0
+HEIGHT_MODE_DOWN=1
+HEIGHT_MODE_LEVEL=2
 
 class Editor (DirectObject):
     def __init__(self):
@@ -75,7 +78,9 @@ class Editor (DirectObject):
         
         #store variables needed for diferent classes 
         self.mode=MODE_HEIGHT
+        self.height_mode=HEIGHT_MODE_UP
         self.tempColor=1
+        self.tempAlpha=0.05
         self.ignoreHover=False
         self.collision_mesh=None
         self.winsize=[0,0]
@@ -206,6 +211,13 @@ class Editor (DirectObject):
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_collision.png', self.setObjectMode,[OBJECT_MODE_COLLISION],tooltip=self.tooltip, tooltip_text='Place Collision solids')
         self.gui.grayOutButtons(self.mode_toolbar_id, (0,6), 0)
         
+        #extra buttons for height paint mode (up/down/level)
+        self.heightmode_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (192, 64), icon_size=64, y_offset=-64,x_offset=-192, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))        
+        self.gui.addButton(self.heightmode_toolbar_id, 'icon/up.png', self.changeHeightMode,[HEIGHT_MODE_UP],tooltip=self.tooltip, tooltip_text='Raise terrain mode (click to set mode or [TAB] to cycle)')
+        self.gui.addButton(self.heightmode_toolbar_id, 'icon/down.png', self.changeHeightMode,[HEIGHT_MODE_DOWN],tooltip=self.tooltip, tooltip_text='Lower terrain mode (click to set mode or [TAB] to cycle)')
+        self.gui.addButton(self.heightmode_toolbar_id, 'icon/level.png', self.changeHeightMode,[HEIGHT_MODE_LEVEL],tooltip=self.tooltip, tooltip_text='Level terrain mode (click to set mode or [TAB] to cycle)')
+        self.gui.grayOutButtons(self.heightmode_toolbar_id, (0,3), 0)
+        
         #properties panel
         self.prop_panel_id=self.gui.addPropPanel()
         self.props=self.gui.elements[self.prop_panel_id]['entry_props']
@@ -215,11 +227,7 @@ class Editor (DirectObject):
         self.objectPainter=ObjectPainter()
         
         #terrain mesh
-        self.mesh=loader.loadModel('data/mesh35k.egg')
-        #self.mesh.setTexture(self.painter.textures[BUFFER_COLOR], 1)
-        #gradient=loader.loadTexture('data/gradient.png')
-        #gradient.setWrapU(Texture.WMClamp)
-        #gradient.setWrapV(Texture.WMClamp  )        
+        self.mesh=loader.loadModel('data/mesh35k.egg') #there's also a 3k and 10k mesh
         self.mesh.reparentTo(render)
         self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v2.glsl", "shaders/ter_f2.glsl"))        
         self.mesh.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
@@ -237,29 +245,21 @@ class Editor (DirectObject):
         self.grass.setBin("background", 11)       
         #light
         self.dlight = DirectionalLight('dlight') 
-        self.dlight.setColor(VBase4(0.8, 0.8, 0.8, 1))     
+        self.dlight.setColor(VBase4(1, 1, 0.95, 1))     
         self.mainLight = render.attachNewNode(self.dlight)
         self.mainLight.setP(-60)       
         self.mainLight.setH(90)
         render.setLight(self.mainLight)
         
         ambientLight = AmbientLight("ambientLight")
-        ambientLight.setColor(Vec4(.5, .5, .5, 1))
+        ambientLight.setColor(Vec4(.5, .5, .6, 1))
         self.Ambient=render.attachNewNode(ambientLight)
         render.setLight(self.Ambient)        
         self.mesh.setLightOff(self.Ambient)
         
-        #self.dlight2 = DirectionalLight('dlight2') 
-        #self.dlight2.setColor(VBase4(1.0, 1.0, 1.0, 1))  
-        #self.Ambient = render.attachNewNode( self.dlight2)        
-        #self.Ambient.setPos(base.camera.getPos(render))
-        #self.Ambient.setP(-45)        
-        #self.Ambient.setH(0)
-        #render.setLight(self.Ambient)        
-        #self.Ambient.wrtReparentTo(base.camera)
         
         render.setShaderInput("dlight0", self.mainLight)
-        render.setShaderInput("ambient", Vec4(.2, .2, .3, 1))
+        render.setShaderInput("ambient", Vec4(.5, .5, .6, 1))
         #render.setShaderInput("dlight1", self.Ambient)
         
         #fog
@@ -308,6 +308,30 @@ class Editor (DirectObject):
         #tasks
         #taskMgr.doMethodLater(0.1, self.update,'update_task')
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task')        
+    
+    def changeHeightMode(self, mode=None, guiEvent=None):
+        if mode==None:
+            mode=self.height_mode+1
+        if mode>HEIGHT_MODE_LEVEL:
+            mode=HEIGHT_MODE_UP
+        if mode==HEIGHT_MODE_UP:
+            self.tempColor=1            
+            self.painter.brushAlpha=self.tempAlpha
+            self.painter.brushes[BUFFER_HEIGHT].setColor(1,1,1,self.painter.brushAlpha)
+            self.color_info['text']='%.2f'%self.tempAlpha
+        if mode==HEIGHT_MODE_DOWN:
+            self.tempColor=0
+            self.painter.brushAlpha=self.tempAlpha
+            self.painter.brushes[BUFFER_HEIGHT].setColor(0,0,0,self.painter.brushAlpha)
+            self.color_info['text']='%.2f'%self.tempAlpha
+        if mode==HEIGHT_MODE_LEVEL:
+            self.tempColor=self.painter.brushAlpha
+            self.tempAlpha=self.painter.brushAlpha
+            self.painter.brushAlpha=1
+            self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
+            self.color_info['text']='%.2f'%self.tempColor
+        self.gui.grayOutButtons(self.heightmode_toolbar_id, (0,3), mode)
+        self.height_mode=mode        
         
     def focusOnProperties(self):
         self.props['focus']=1
@@ -628,7 +652,7 @@ class Editor (DirectObject):
                 self.color_info['text']='%.2f'%self.painter.brushAlpha
             self.gui.grayOutButtons(self.statusbar, (4,8), 4)
             self.painter.brushes[BUFFER_HEIGHT].show()
-            self.painter.brushes[BUFFER_HEIGHT].setColor(1, 1, 1, self.painter.brushAlpha)
+            self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor, self.tempColor, self.tempColor, self.painter.brushAlpha)
             self.painter.brushes[BUFFER_ATR].hide()
             #self.painter.brushes[BUFFER_COLOR].hide()
             self.painter.brushes[BUFFER_EXTRA].hide()  
@@ -730,7 +754,9 @@ class Editor (DirectObject):
                 self.gui.okDialog(text="Collision mesh saved to:\n"+file, command=self.hideDialog)
             
     def flipBrushColor(self):        
-        if self.mode in (MODE_HEIGHT, MODE_EXTRA):            
+        if self.mode == MODE_HEIGHT:        
+            self.changeHeightMode()
+        elif self.mode == MODE_EXTRA:                
             if self.tempColor==1:
                 self.tempColor=0
             else:    
@@ -789,11 +815,21 @@ class Editor (DirectObject):
             self.painter.adjustBrushSize(-0.001) 
             self.size_info['text']='%.2f'%self.painter.brushSize
         if self.keyMap['alpha_up']:
-            self.painter.adjustBrushAlpha(0.001)  
-            self.color_info['text']='%.2f'%self.painter.brushAlpha 
+            if self.height_mode==HEIGHT_MODE_LEVEL:
+                self.tempColor=min(1.0, max(0.0, self.tempColor+0.001)) 
+                self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
+                self.color_info['text']='%.2f'%self.tempColor 
+            else:    
+                self.painter.adjustBrushAlpha(0.001)  
+                self.color_info['text']='%.2f'%self.painter.brushAlpha 
             self.painter.brushes[BUFFER_ATR].setShaderInput('softness', self.painter.brushAlpha)    
         if self.keyMap['alpha_down']:
-            self.painter.adjustBrushAlpha(-0.001) 
+            if self.height_mode==HEIGHT_MODE_LEVEL:
+                self.tempColor=min(1.0, max(0.0, self.tempColor-0.001)) 
+                self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
+                self.color_info['text']='%.2f'%self.tempColor
+            else:                    
+                self.painter.adjustBrushAlpha(-0.001) 
             self.color_info['text']='%.2f'%self.painter.brushAlpha 
             self.painter.brushes[BUFFER_ATR].setShaderInput('softness', self.painter.brushAlpha)
         return 
