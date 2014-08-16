@@ -1,6 +1,6 @@
 //GLSL
 #version 110
-#extension ARB_draw_instanced : enable
+#extension GL_ARB_draw_instanced : enable
 #extension GL_EXT_draw_instanced : enable
 
 uniform float time;

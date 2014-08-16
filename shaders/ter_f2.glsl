@@ -63,14 +63,14 @@ void main()
     float r1 =1.0001-(mask.r*4.0); //--REDO FROM START-- Out of chees error!
     float r2=clamp(1.0-r1, 0.0, 1.0)*(1.0-step(r1, 0.0));
     float r3=(mask.r-0.25)*4.0;
-    r2+=clamp(1.0-r3, 0.0, 1.0)*(1.0-step(r3, 0.0));        
-    r3*=1- clamp(mask.r-0.5, 0.0, 1.0)*4.0;     
+    r2 += clamp(1.0-r3, 0.0, 1.0)*(1.0-step(r3, 0.0));        
+    r3 *= 1.0 - clamp( mask.r-0.5, 0.0, 1.0) * 4.0;     
     float g1 =1.0001-(mask.g*4.0);    
     float b1 =1.0001-(mask.b*4.0);
     float b2=clamp(1.0-b1, 0.0, 1.0)*(1.0-step(b1, 0.0));
     float b3=(mask.b-0.25)*4.0;
     b2+=clamp(1.0-b3, 0.0, 1.0)*(1.0-step(b3, 0.0));        
-    b3*=1- clamp(mask.b-0.5, 0.0, 1.0)*4.0;
+    b3 *= 1.0 - clamp(mask.b-0.5, 0.0, 1.0)*4.0;
     b3-=clamp(r3, 0.0, 1.0);
     float g2=1.0-clamp(r1, 0.0, 1.0)-r2-clamp(r3, 0.0, 1.0)-clamp(b1, 0.0, 1.0)-b2-clamp(b3, 0.0, 1.0)-clamp(g1, 0.0, 1.0);
     
@@ -83,7 +83,7 @@ void main()
 	vec4 tex7 = texture2D(p3d_Texture6, texUVrepeat);
 	vec4 tex8 = texture2D(p3d_Texture7, texUVrepeat);
     
-    vec4 detail=(0.0,0.0,0.0,0.0);
+    vec4 detail = vec4(0.0,0.0,0.0,0.0);
 	detail += tex1*clamp(r1, 0.0, 1.0);
     detail += tex2*r2;
     detail += tex3*clamp(r3, 0.0, 1.0);
@@ -102,7 +102,7 @@ void main()
 	vec4 tex7n = texture2D(p3d_Texture14, texUVrepeat);
 	vec4 tex8n = texture2D(p3d_Texture15, texUVrepeat);
     
-    vec4 normap=(0,0,0, 0);
+    vec4 normap= vec4(0,0,0,0);
 	normap += tex1n*clamp(r1, 0.0, 1.0);
     normap += tex2n*r2;
     normap += tex3n*clamp(r3, 0.0, 1.0);
@@ -132,7 +132,7 @@ void main()
        color +=pow(NdotHV,gloss)*glossmap;
        } 
     
-    vec4 final=vec4(color.rgb *detail, 1.0);       
+    vec4 final= vec4(color.rgb * detail.xyz, 1.0);       
     gl_FragData[0] = mix(final,fog ,fogFactor);    
     gl_FragData[1]=vec4(fogFactor, 0.0,0.0,0.0);    
     }
