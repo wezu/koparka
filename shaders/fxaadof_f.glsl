@@ -1,11 +1,12 @@
+//GLSL
 #version 120
 #extension GL_EXT_gpu_shader4 : enable
 
 uniform sampler2D tex0; // 0
 uniform sampler2D fog; // fog-factor in R 
 uniform float vx_offset;
-uniform float rt_w; // GeeXLab built-in
-uniform float rt_h; // GeeXLab built-in
+uniform int rt_w; // GeeXLab built-in
+uniform int rt_h; // GeeXLab built-in
 uniform float FXAA_SPAN_MAX = 8.0;
 uniform float FXAA_REDUCE_MUL = 1.0/8.0;
 uniform float FXAA_SUBPIX_SHIFT = 1.0/4.0;
