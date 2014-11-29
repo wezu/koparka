@@ -30,17 +30,19 @@ class BufferPainter ():
         
         taskMgr.add(self.__getMousePos, "_Editor__getMousePos")
    
-    def write(self, id, file):
+    def write(self, id, file, returnPNMImage=False):
         p=PNMImage(self.buffSize[id], self.buffSize[id],4)              
         base.graphicsEngine.extractTextureData(self.textures[id],base.win.getGsg())
         self.textures[id].store(p) 
         p.removeAlpha()
         p.write(file)
-   
+        if returnPNMImage:
+            return p
+        
     def addCanvas(self, size=512, default_tex='data/black.png', brush_shader=None, shader_inputs=None):
         id=str(len(self.buffers))
         self.buffSize.append(size)        
-        self.roots.append(NodePath("bufferRender"+id))
+        self.roots.append(NodePath("bufferRender"+id))        
         self.textures.append(Texture())
         self.buffers.append(base.win.makeTextureBuffer("canvas"+id, size, size,self.textures[-1]))
         self.buffers[-1].setSort(-100)
@@ -70,11 +72,11 @@ class BufferPainter ():
         self.brushes[-1].setColor(1, 1, 1, 0.05) 
         if brush_shader:           
             self.brushes[-1].setShader(brush_shader)
-            for input in shader_inputs:
-                self.brushes[-1].setShaderInput(input, shader_inputs[input])
+            if shader_inputs:
+                for input in shader_inputs:
+                    self.brushes[-1].setShaderInput(input, shader_inputs[input])
             
     def paint(self, id):
-        #print "paint"
         p=PNMImage(self.buffSize[id], self.buffSize[id],4)              
         base.graphicsEngine.extractTextureData(self.textures[id],base.win.getGsg())
         self.textures[id].store(p) 
@@ -115,6 +117,7 @@ class BufferPainter ():
             self.brushSize=new_size            
             brush.setScale(new_size)
             brush.setShaderInput('brushSize', new_size)
+            
     def __getMousePos(self, task):
         if base.mouseWatcherNode.hasMouse():
             mpos = base.mouseWatcherNode.getMouse()

@@ -1,0 +1,15 @@
+//Cg
+void vshader(
+	 float4 vtx_position : POSITION,
+	 out float4 l_position : POSITION,
+	 uniform float4x4 mat_modelproj
+) {
+	 l_position = mul(mat_modelproj, vtx_position);
+}
+
+void fshader(
+	 out float4 o_color : COLOR0,
+     uniform float4 attr_color
+) {	 
+	 o_color = float4(attr_color.rgb, 1.0);   
+}

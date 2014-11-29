@@ -104,12 +104,12 @@ class GuiHelper():
 
     def addSaveLoadDialog(self, save_command, load_command, cancel_command):
         #save/load 
-        self.SaveLoadFrame=DirectFrame( frameSize=_rec2d(512,512),
+        self.SaveLoadFrame=DirectFrame( frameSize=_rec2d(512,540),
                                         frameColor=(0,0,0, 0.8),
-                                        text="Directory:\n\nHeight:\n\nDetail:\n\nGrass:\n\nObjects &\nTextures:\n\nCollision:",
+                                        text="Directory:\n\nHeight:\n\nDetail:\n\nGrass:\n\nObjects &\nTextures:\n\nCollision:\n\nWalkMap:",
                                         text_scale=32,
                                         text_font=self.fontBig,
-                                        text_pos=(-440,480),
+                                        text_pos=(-440,505),
                                         text_fg=(0.7,0.7,0.7,1),
                                         parent=self.Center)
         _resetPivot(self.SaveLoadFrame)
@@ -204,7 +204,23 @@ class GuiHelper():
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry7)
-        self.entry7.setPos(_pos2d(150,350))    
+        self.entry7.setPos(_pos2d(150,350))
+        self.entry8 = DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = "navmesh",
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText="navmesh",
+                        numLines = 2,
+                        width=19,
+                        focus=0, 
+                        suppressKeys=True,
+                        parent=self.SaveLoadFrame
+                        )
+        _resetPivot(self.entry8)
+        self.entry8.setPos(_pos2d(150,420))        
+        
         self.check1=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
                                 frameTexture='icon/yes.png',
@@ -242,15 +258,26 @@ class GuiHelper():
         _resetPivot(self.check6)
         self.check6.setPos(_pos2d(464,352))
         
+        self.check7=DirectFrame(frameSize=_rec2d(32,32),
+                                frameColor=(1,1,1,0.99),                      
+                                frameTexture='icon/yes.png',
+                                state=DGG.NORMAL, 
+                                parent=self.SaveLoadFrame)
+        _resetPivot(self.check7)
+        self.check7.setPos(_pos2d(464,422))
+        
         self.check1.bind(DGG.B1PRESS, self.switchFlag, [0])
         self.check2.bind(DGG.B1PRESS, self.switchFlag, [1])
         self.check3.bind(DGG.B1PRESS, self.switchFlag, [2])
         
         self.check5.bind(DGG.B1PRESS, self.switchFlag, [4])
         self.check6.bind(DGG.B1PRESS, self.switchFlag, [5])
+        self.check7.bind(DGG.B1PRESS, self.switchFlag, [6])
         
-        self.checkers=[self.check1,self.check2,self.check3,None,self.check5,self.check6]
-        self.flags=[True,True,True,True,True, True]
+        self.checkers=[self.check1,self.check2,self.check3,None,self.check5,self.check6,self.check7]        
+        self.flags=[]
+        for check in self.checkers:
+            self.flags.append(True)
         
         self.saveButton=DirectFrame(frameSize=_rec2d(128,32),
                                     frameColor=(1,1,1,0.5),  
@@ -262,7 +289,7 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.SaveLoadFrame)
         _resetPivot(self.saveButton)
-        self.saveButton.setPos(_pos2d(32,448))
+        self.saveButton.setPos(_pos2d(32,478))
         
         self.loadButton=DirectFrame(frameSize=_rec2d(128,32),
                                     frameColor=(1,1,1,0.5),  
@@ -274,7 +301,7 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.SaveLoadFrame)
         _resetPivot(self.loadButton)
-        self.loadButton.setPos(_pos2d(352,448))
+        self.loadButton.setPos(_pos2d(352,478))
         
         self.cancelButton=DirectFrame(frameSize=_rec2d(128,32),
                                     frameColor=(1,1,1,0.5),  
@@ -286,7 +313,7 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.SaveLoadFrame)
         _resetPivot(self.cancelButton)
-        self.cancelButton.setPos(_pos2d(192,448))
+        self.cancelButton.setPos(_pos2d(192,478))
         
         self.saveButton.bind(DGG.B1PRESS, save_command, ["ASK"])
         self.loadButton.bind(DGG.B1PRESS, load_command)

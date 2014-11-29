@@ -400,5 +400,5 @@ class Demo (DirectObject):
 
         return task.cont
         
-app=Demo('save/default3')
+app=Demo('save/test18')
 run()      

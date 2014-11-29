@@ -28,6 +28,7 @@ from buffpaint import BufferPainter
 from guihelper import GuiHelper
 from fxaa import makeFXAA
 from collisiongen import GenerateCollisionEgg
+from navmeshgen import GenerateNavmeshCSV
 from objectpainter import ObjectPainter
 from jsonloader import SaveScene, LoadScene
 import os, sys
@@ -35,12 +36,14 @@ import random
 
 BUFFER_HEIGHT=0
 BUFFER_ATR=1
-BUFFER_EXTRA=2 #used for grass (red)... maybe something extra in the future?
+BUFFER_GRASS=2 
+BUFFER_WALK=3 
 
 MODE_HEIGHT=0
 MODE_TEXTURE=1
-MODE_EXTRA=2
+MODE_GRASS=2
 MODE_OBJECT=3
+MODE_WALK=4
 
 OBJECT_MODE_ONE=0
 OBJECT_MODE_MULTI=1
@@ -52,6 +55,9 @@ OBJECT_MODE_COLLISION=5
 HEIGHT_MODE_UP=0
 HEIGHT_MODE_DOWN=1
 HEIGHT_MODE_LEVEL=2
+
+WALK_MODE_NOWALK=0
+WALK_MODE_WALK=1
 
 class Editor (DirectObject):
     def __init__(self):
@@ -119,8 +125,10 @@ class Editor (DirectObject):
                                                'softness':1.0, 
                                                'colormask':Vec4(0,1,1,1)}) 
         
-        #BUFFER_EXTRA (grass for now)
+        #BUFFER_GRASS
         self.painter.addCanvas() 
+        #BUFFER_WALK =3
+        self.painter.addCanvas(size=64,  brush_shader=loader.loadShader('shaders/brush3.cg'))       
         
         #GUI
         self.gui=GuiHelper(path)
@@ -156,18 +164,19 @@ class Editor (DirectObject):
         self.gui.addSaveLoadDialog(self.save, self.load, self.hideSaveMenu)
         
         #extra tools and info at the bottom
-        self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (576, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))
+        self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (640, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))
         self.size_info=self.gui.addInfoIcon(self.statusbar, 'icon/resize.png', '1.0', tooltip=self.tooltip, tooltip_text='Brush Size or Object Scale:   [A]-Decrease    [D]-Increase')
         self.color_info=self.gui.addInfoIcon(self.statusbar, 'icon/color.png', '0.05',tooltip=self.tooltip, tooltip_text='Brush Strength or Object Z offset:   [W]-Increase   [S]-Decrease')
         self.heading_info=self.gui.addInfoIcon(self.statusbar, 'icon/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Brush Rotation ([1][2][3] to change axis in Object Mode):   [Q]-Left   [E]-Right')
         self.gui.addInfoIcon(self.statusbar, 'icon/blank.png', '')#empty space
         self.gui.addButton(self.statusbar, 'icon/hm_icon.png', self.setMode, [MODE_HEIGHT], self.tooltip, 'Paint Heightmap Mode [F1]')
         self.gui.addButton(self.statusbar, 'icon/tex_icon.png', self.setMode, [MODE_TEXTURE], self.tooltip, 'Paint Texture Mode [F2]')
-        self.gui.addButton(self.statusbar, 'icon/grass.png', self.setMode, [MODE_EXTRA], self.tooltip, 'Paint Grass Mode [F3]')
+        self.gui.addButton(self.statusbar, 'icon/grass.png', self.setMode, [MODE_GRASS], self.tooltip, 'Paint Grass Mode [F3]')
         self.gui.addButton(self.statusbar, 'icon/place_icon.png', self.setMode, [MODE_OBJECT], self.tooltip, 'Paint Objects Mode [F4]')
-        self.gui.addButton(self.statusbar, 'icon/save.png', self.showSaveMenu, tooltip=self.tooltip, tooltip_text='Save/Load [F5]')
+        self.gui.addButton(self.statusbar, 'icon/walkmap_icon.png', self.setMode, [MODE_WALK], self.tooltip, 'Paint Walkmap Mode [F5]')
+        self.gui.addButton(self.statusbar, 'icon/save.png', self.showSaveMenu, tooltip=self.tooltip, tooltip_text='Save/Load [F6]')
         #gray out buttons
-        self.gui.grayOutButtons(self.statusbar, (4,8), None)
+        self.gui.grayOutButtons(self.statusbar, (4,9), None)
         
         #object toolbars (scrollable)
         #each object paint mode has its own
@@ -218,6 +227,13 @@ class Editor (DirectObject):
         self.gui.addButton(self.heightmode_toolbar_id, 'icon/level.png', self.changeHeightMode,[HEIGHT_MODE_LEVEL],tooltip=self.tooltip, tooltip_text='Level terrain mode (click to set mode or [TAB] to cycle)')
         self.gui.grayOutButtons(self.heightmode_toolbar_id, (0,3), 0)
         
+        #extra buttons for walkmap paint (walkable/unwealkable)
+        self.walkmap_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (128, 64), icon_size=64, y_offset=-64,x_offset=-128, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))        
+        self.gui.addButton(self.walkmap_toolbar_id, 'icon/icon_nowalk.png', self.changeWalkMode,[WALK_MODE_NOWALK],tooltip=self.tooltip, tooltip_text='Paint un-walkable area(marked RED)')
+        self.gui.addButton(self.walkmap_toolbar_id, 'icon/icon_walk.png', self.changeWalkMode,[WALK_MODE_WALK],tooltip=self.tooltip, tooltip_text='Paint walkable area')        
+        self.gui.grayOutButtons(self.walkmap_toolbar_id, (0,2), 0)
+        
+        
         #properties panel
         self.prop_panel_id=self.gui.addPropPanel()
         self.props=self.gui.elements[self.prop_panel_id]['entry_props']
@@ -229,9 +245,11 @@ class Editor (DirectObject):
         #terrain mesh
         self.mesh=loader.loadModel('data/mesh35k.egg') #there's also a 3k and 10k mesh
         self.mesh.reparentTo(render)
-        self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v2.glsl", "shaders/ter_f2.glsl"))        
+        self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v2.glsl", "shaders/ter_f3.glsl"))        
         self.mesh.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
         self.mesh.setShaderInput("atr", self.painter.textures[BUFFER_ATR]) 
+        #self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_GRASS])        
+        self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))                
         self.mesh.setTransparency(TransparencyAttrib.MNone)
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
@@ -288,11 +306,12 @@ class Editor (DirectObject):
         self.accept('s', self.keyMap.__setitem__, ['alpha_down', True])                
         self.accept('s-up', self.keyMap.__setitem__, ['alpha_down', False])        
         self.accept('tab', self.flipBrushColor)
-        self.accept('f1', self.setMode,[MODE_HEIGHT])
-        self.accept('f2', self.setMode,[MODE_TEXTURE])
-        self.accept('f3', self.setMode,[MODE_EXTRA])        
-        self.accept('f4', self.setMode,[MODE_OBJECT])        
-        self.accept('f5',self.showSaveMenu)
+        self.accept('f1', self.setMode,[MODE_HEIGHT,'hotkey']) 
+        self.accept('f2', self.setMode,[MODE_TEXTURE,'hotkey'])
+        self.accept('f3', self.setMode,[MODE_GRASS,'hotkey'])        
+        self.accept('f4', self.setMode,[MODE_OBJECT,'hotkey'])        
+        self.accept('f5', self.setMode,[MODE_WALK,'hotkey']) 
+        self.accept('f6',self.showSaveMenu)
         self.accept('1', self.setAxis,['H: '])
         self.accept('2', self.setAxis,['P: '])
         self.accept('3', self.setAxis,['R: '])
@@ -308,7 +327,14 @@ class Editor (DirectObject):
         #tasks
         #taskMgr.doMethodLater(0.1, self.update,'update_task')
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task')        
-    
+        
+    def changeWalkMode(self, mode=None, guiEvent=None):
+        self.gui.grayOutButtons(self.walkmap_toolbar_id, (0,2), mode)
+        if mode==WALK_MODE_NOWALK:
+            self.painter.brushes[BUFFER_WALK].setColor(1,0,0, 1.0)  
+        else:    
+            self.painter.brushes[BUFFER_WALK].setColor(0,0,0, 1.0)  
+        
     def changeHeightMode(self, mode=None, guiEvent=None):
         if mode==None:
             mode=self.height_mode+1
@@ -475,7 +501,7 @@ class Editor (DirectObject):
         grass.node().setFinal(1)
         grass.setShader(Shader.load(Shader.SLGLSL, "shaders/grass_v.glsl", "shaders/grass_f.glsl"))
         grass.setShaderInput('height', self.painter.textures[BUFFER_HEIGHT]) 
-        grass.setShaderInput('grass', self.painter.textures[BUFFER_EXTRA])
+        grass.setShaderInput('grass', self.painter.textures[BUFFER_GRASS])
         grass.setShaderInput('uv_offset', uv_offset)   
         grass.setShaderInput('fogcenter', fogcenter)
         grass.setPos(pos)
@@ -502,7 +528,7 @@ class Editor (DirectObject):
             else:
                 print "FILE NOT FOUND!"            
                 feedback+=file+' '
-        #if self.gui.flags[2]:
+        #if self.gui.flags[3]:
         #    print "loading color map...",
         #    file=path+save_dir+"/"+self.gui.entry4.get()
         #    if os.path.exists(file):
@@ -511,11 +537,11 @@ class Editor (DirectObject):
         #    else:
         #        print "FILE NOT FOUND!" 
         #        feedback+=file+' '
-        if self.gui.flags[3]:
+        if self.gui.flags[2]:
             print "loading grass map...",
             file=path+save_dir+"/"+self.gui.entry5.get()
             if os.path.exists(file):
-                self.painter.paintPlanes[BUFFER_EXTRA].setTexture(loader.loadTexture(file))
+                self.painter.paintPlanes[BUFFER_GRASS].setTexture(loader.loadTexture(file))
                 print "done"
             else:
                 print "FILE NOT FOUND!"  
@@ -545,7 +571,16 @@ class Editor (DirectObject):
                 print "done"
             else:
                 print "FILE NOT FOUND!"  
-                feedback+=file+' '                     
+                feedback+=file+' '
+        if self.gui.flags[6]:
+            print "loading navigation map...",
+            file=path+save_dir+"/"+self.gui.entry8.get()+".png"
+            if os.path.exists(file):
+                self.painter.paintPlanes[BUFFER_WALK].setTexture(loader.loadTexture(file))
+                print "done"
+            else:
+                print "FILE NOT FOUND!"  
+                feedback+=file+' '               
         print "Loading DONE!"         
         if feedback!="":            
             self.gui.okDialog(text="Some files are missing:\n"+feedback, command=self.hideDialog)       
@@ -572,15 +607,15 @@ class Editor (DirectObject):
         if self.gui.flags[1]:
             print "saving detail map...",
             self.painter.write(BUFFER_ATR, path+save_dir+"/"+self.gui.entry3.get())  
+            print "done"        
+        if self.gui.flags[2]:
+            print "saving grass map...",
+            self.painter.write(BUFFER_GRASS, path+save_dir+"/"+self.gui.entry5.get())          
             print "done"
-        #if self.gui.flags[2]:
+        #if self.gui.flags[3]:
         #    print "saving color map...",
             #self.painter.write(BUFFER_COLOR, path+save_dir+"/"+self.gui.entry4.get())
-        #    print "done"
-        if self.gui.flags[3]:
-            print "saving grass map...",
-            self.painter.write(BUFFER_EXTRA, path+save_dir+"/"+self.gui.entry5.get())          
-            print "done"
+        #    print "done"    
         if self.gui.flags[4]:
             print "saving objects...",
             SaveScene(path+save_dir+"/"+self.gui.entry6.get(), self.objectPainter.quadtree, self.textures)
@@ -589,6 +624,11 @@ class Editor (DirectObject):
             print "saving collision mesh...",
             self.genCollision(True, path+save_dir+"/"+self.gui.entry7.get())    
             print "done"
+        if self.gui.flags[6]:
+            print "saving Navigation Mesh(CSV) and map...",            
+            map=self.painter.write(BUFFER_WALK, path+save_dir+"/"+self.gui.entry8.get()+'.png', True)
+            GenerateNavmeshCSV(map, path+save_dir+"/"+self.gui.entry8.get()+'.csv')            
+            print "done"    
         print "SAVING DONE!" 
         self.gui.okDialog(text="Files saved to:\n"+save_dir, command=self.hideDialog)    
         self.hideSaveMenu()
@@ -641,21 +681,20 @@ class Editor (DirectObject):
                 self.objectPainter.drop(props)
                 self.objectPainter.currentObject=render.attachNewNode('temp')
                 self.setRandomWall()
-        else:
-            self.painter.paint(BUFFER_ATR)
-            #self.painter.paint(BUFFER_COLOR)
+
         
     def setMode(self, mode, guiEvent=None):        
         if mode==MODE_HEIGHT:
             if guiEvent!=None:
                 self.painter.brushAlpha=0.05
                 self.color_info['text']='%.2f'%self.painter.brushAlpha
-            self.gui.grayOutButtons(self.statusbar, (4,8), 4)
+            self.gui.grayOutButtons(self.statusbar, (4,9), 4)
             self.painter.brushes[BUFFER_HEIGHT].show()
             self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor, self.tempColor, self.tempColor, self.painter.brushAlpha)
             self.painter.brushes[BUFFER_ATR].hide()
             #self.painter.brushes[BUFFER_COLOR].hide()
-            self.painter.brushes[BUFFER_EXTRA].hide()  
+            self.painter.brushes[BUFFER_GRASS].hide() 
+            self.painter.brushes[BUFFER_WALK].hide() 
             self.painter.pointer.show()
             self.hpr_axis=''
             self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
@@ -670,15 +709,18 @@ class Editor (DirectObject):
             self.gui.hideElement(self.actor_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)
             self.gui.hideElement(self.prop_panel_id)
+            self.gui.hideElement(self.walkmap_toolbar_id)
             self.objectPainter.stop()
+            self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
         elif mode==MODE_TEXTURE:
             if guiEvent!=None:    
                 self.painter.brushAlpha=1.0
                 self.color_info['text']='%.2f'%self.painter.brushAlpha
-            self.gui.grayOutButtons(self.statusbar, (4,8), 5)
+            self.gui.grayOutButtons(self.statusbar, (4,9), 5)
             self.painter.brushes[BUFFER_HEIGHT].hide()
             self.painter.brushes[BUFFER_ATR].show()
-            self.painter.brushes[BUFFER_EXTRA].hide()
+            self.painter.brushes[BUFFER_GRASS].hide()
+            self.painter.brushes[BUFFER_WALK].hide() 
             #self.painter.brushes[BUFFER_COLOR].show()
             #self.painter.brushes[BUFFER_ATR].setColor(0,1,1,1) 
             self.painter.pointer.show()     
@@ -695,17 +737,20 @@ class Editor (DirectObject):
             self.gui.hideElement(self.collision_toolbar_id)
             self.gui.hideElement(self.prop_panel_id)
             self.gui.hideElement(self.heightmode_toolbar_id)
+            self.gui.hideElement(self.walkmap_toolbar_id)
             self.objectPainter.stop()
-        elif mode==MODE_EXTRA:
+            self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
+        elif mode==MODE_GRASS:
             if guiEvent!=None:
                 self.painter.brushAlpha=1.0
                 self.color_info['text']='%.2f'%self.painter.brushAlpha
-            self.gui.grayOutButtons(self.statusbar, (4,8), 6)
+            self.gui.grayOutButtons(self.statusbar, (4,9), 6)
             self.painter.brushes[BUFFER_HEIGHT].hide()
             self.painter.brushes[BUFFER_ATR].hide()
-            #self.painter.brushes[BUFFER_COLOR].hide()
-            self.painter.brushes[BUFFER_EXTRA].show()
-            self.painter.brushes[BUFFER_EXTRA].setColor(1,0,0, self.painter.brushAlpha)  
+            #self.painter.brushes[BUFFER_COLOR].hide()     
+            self.painter.brushes[BUFFER_WALK].hide()            
+            self.painter.brushes[BUFFER_GRASS].show()
+            self.painter.brushes[BUFFER_GRASS].setColor(1,0,0, self.painter.brushAlpha)  
             self.painter.pointer.show() 
             self.hpr_axis=''      
             self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
@@ -720,7 +765,9 @@ class Editor (DirectObject):
             self.gui.hideElement(self.collision_toolbar_id)
             self.gui.hideElement(self.prop_panel_id)
             self.gui.hideElement(self.heightmode_toolbar_id)
-            self.objectPainter.stop()            
+            self.gui.hideElement(self.walkmap_toolbar_id)
+            self.objectPainter.stop()
+            self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))            
         elif mode==MODE_OBJECT:
             if guiEvent!=None:                
                 self.hpr_axis='H: '
@@ -728,16 +775,47 @@ class Editor (DirectObject):
                     self.gui.yesNoDialog("To place objects a collision mesh is needed.\nGenerate Collision Mesh?", self.genCollision,['temp/collision.egg'])
             self.painter.hideBrushes() 
             self.painter.pointer.hide()            
-            self.gui.grayOutButtons(self.statusbar, (4,8), 7) 
+            self.gui.grayOutButtons(self.statusbar, (4,9), 7) 
             self.gui.hideElement(self.palette_id)
             self.gui.hideElement(self.toolbar_id)
             self.gui.hideElement(self.heightmode_toolbar_id)
             self.gui.showElement(self.mode_toolbar_id)
             self.gui.showElement(self.prop_panel_id)
+            self.gui.hideElement(self.walkmap_toolbar_id)
             self.setObjectMode(self.object_mode)
             self.accept('mouse1', self.paint)                
             self.ignore('mouse1-up')
-            
+            self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
+        elif mode==MODE_WALK:
+            if guiEvent!=None:
+                self.painter.brushAlpha=1.0
+                self.color_info['text']='%.2f'%self.painter.brushAlpha
+                self.changeWalkMode(WALK_MODE_NOWALK)
+            self.gui.grayOutButtons(self.statusbar, (4,9), 8)
+            self.painter.brushes[BUFFER_HEIGHT].hide()
+            self.painter.brushes[BUFFER_ATR].hide()
+            #self.painter.brushes[BUFFER_COLOR].hide()              
+            self.painter.brushes[BUFFER_GRASS].hide()    
+            self.painter.brushes[BUFFER_WALK].show()            
+            self.painter.textures[BUFFER_WALK].setMagfilter(Texture.FTNearest)
+            #self.painter.brushes[BUFFER_WALK].setColor(1,0,0, 1.0)  
+            self.painter.pointer.show() 
+            self.hpr_axis=''      
+            self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
+            self.accept('mouse1-up', self.keyMap.__setitem__, ['paint', False])
+            self.gui.hideElement(self.palette_id)
+            self.gui.showElement(self.toolbar_id)
+            self.gui.hideElement(self.mode_toolbar_id)
+            self.gui.hideElement(self.object_toolbar_id)
+            self.gui.hideElement(self.multi_toolbar_id)
+            self.gui.hideElement(self.wall_toolbar_id)
+            self.gui.hideElement(self.actor_toolbar_id)
+            self.gui.hideElement(self.collision_toolbar_id)
+            self.gui.hideElement(self.prop_panel_id)
+            self.gui.hideElement(self.heightmode_toolbar_id)
+            self.gui.showElement(self.walkmap_toolbar_id)
+            self.objectPainter.stop() 
+            self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_WALK])             
         self.mode=mode
         self.heading_info['text']=self.hpr_axis+'%.0f'%self.painter.brushes[0].getH()
         
@@ -760,7 +838,7 @@ class Editor (DirectObject):
     def flipBrushColor(self):        
         if self.mode == MODE_HEIGHT:        
             self.changeHeightMode()
-        elif self.mode == MODE_EXTRA:                
+        elif self.mode == MODE_GRASS:                
             if self.tempColor==1:
                 self.tempColor=0
             else:    
@@ -768,8 +846,8 @@ class Editor (DirectObject):
             c=self.tempColor
             #a=self.painter.brushes[BUFFER_HEIGHT].getColor()[3]
             self.painter.brushes[BUFFER_HEIGHT].setColor(c,c,c,self.painter.brushAlpha) 
-            if self.mode==MODE_EXTRA:
-                self.painter.brushes[BUFFER_EXTRA].setColor(c,0,0,self.painter.brushAlpha)
+            if self.mode==MODE_GRASS:
+                self.painter.brushes[BUFFER_GRASS].setColor(c,0,0,self.painter.brushAlpha)
         elif self.mode==MODE_OBJECT:
             if self.object_mode==OBJECT_MODE_MULTI:
                 self.setRandomObject()
@@ -780,12 +858,15 @@ class Editor (DirectObject):
         if self.mode==MODE_HEIGHT:
             if self.keyMap['paint']:      
                 self.painter.paint(BUFFER_HEIGHT)
-        elif self.mode==MODE_EXTRA:
+        elif self.mode==MODE_GRASS:
             if self.keyMap['paint']:      
-                self.painter.paint(BUFFER_EXTRA) 
+                self.painter.paint(BUFFER_GRASS) 
         elif self.mode==MODE_TEXTURE:
             if self.keyMap['paint']:      
                 self.painter.paint(BUFFER_ATR)         
+        elif self.mode==MODE_WALK:
+            if self.keyMap['paint']:
+                self.painter.paint(BUFFER_WALK)          
         elif self.mode==MODE_OBJECT:   
             if self.keyMap['rotate_l']:                
                 self.heading_info['text']=self.objectPainter.adjustHpr(5,self.hpr_axis)
@@ -805,7 +886,7 @@ class Editor (DirectObject):
                 self.color_info['text']='%.2f'%self.objectPainter.currentZ 
             return 
             
-        #if self.mode in (MODE_HEIGHT,MODE_TEXTURE,MODE_EXTRA):    
+        #if self.mode in (MODE_HEIGHT,MODE_TEXTURE,MODE_GRASS):    
         if self.keyMap['rotate_l']:
             self.painter.adjustBrushHeading(5)
             self.heading_info['text']=self.hpr_axis+'%.0f'%self.painter.brushes[0].getH()
