@@ -13,7 +13,7 @@ def makeFXAA(manager=None, span_max=8.0, reduce_mul=8.0, subpixel_shift=4.0):
     quad.setShaderInput("tex0", tex)
     quad.setShaderInput("rt_w",winX)
     quad.setShaderInput("rt_h",winY)
-    quad.setShaderInput("FXAA_SPAN_MAX" , span_max)
-    quad.setShaderInput("FXAA_REDUCE_MUL", 1.0/reduce_mul)
-    quad.setShaderInput("FXAA_SUBPIX_SHIFT", 1.0/subpixel_shift)  
+    quad.setShaderInput("FXAA_SPAN_MAX" , float(span_max))
+    quad.setShaderInput("FXAA_REDUCE_MUL", float(1.0/reduce_mul))
+    quad.setShaderInput("FXAA_SUBPIX_SHIFT", float(1.0/subpixel_shift))
     return manager

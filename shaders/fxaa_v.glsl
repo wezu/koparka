@@ -2,8 +2,8 @@
 #version 120
 varying vec4 posPos;
 uniform float FXAA_SUBPIX_SHIFT = 1.0/4.0;
-uniform int rt_w;
-uniform int rt_h;
+uniform float rt_w;
+uniform float rt_h;
 void main()
     {
     gl_Position = ftransform();
