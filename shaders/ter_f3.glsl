@@ -135,6 +135,7 @@ void main()
     
     vec4 final= vec4(color.rgb * detail.xyz, 1.0);     
     vec4 walk=vec4(1.0,1.0,1.0,1.0)- step(texture2D(walkmap,texUV), vec4(0.5,0.5,0.5,0.5));
+    //vec4 walk=texture2D(walkmap,texUV);
     gl_FragData[0] = mix(final,fog ,fogFactor)+walk;    
     gl_FragData[1]=vec4(fogFactor, 0.0,0.0,0.0);
     }

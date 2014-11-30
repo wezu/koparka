@@ -128,7 +128,7 @@ class Editor (DirectObject):
         #BUFFER_GRASS
         self.painter.addCanvas() 
         #BUFFER_WALK =3
-        self.painter.addCanvas(size=64,  brush_shader=loader.loadShader('shaders/brush3.cg'))       
+        self.painter.addCanvas(size=128,  brush_shader=loader.loadShader('shaders/brush3.cg'))       
         
         #GUI
         self.gui=GuiHelper(path)
@@ -797,7 +797,7 @@ class Editor (DirectObject):
             #self.painter.brushes[BUFFER_COLOR].hide()              
             self.painter.brushes[BUFFER_GRASS].hide()    
             self.painter.brushes[BUFFER_WALK].show()            
-            self.painter.textures[BUFFER_WALK].setMagfilter(Texture.FTNearest)
+            #self.painter.textures[BUFFER_WALK].setMagfilter(Texture.FTNearest)
             #self.painter.brushes[BUFFER_WALK].setColor(1,0,0, 1.0)  
             self.painter.pointer.show() 
             self.hpr_axis=''      
