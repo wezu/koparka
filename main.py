@@ -1,8 +1,8 @@
 from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
 loadPrcFileData('','win-size 1024 768')
-loadPrcFileData('','show-frame-rate-meter  0')
-loadPrcFileData('','sync-video 1')
+loadPrcFileData('','show-frame-rate-meter  1')
+loadPrcFileData('','sync-video 0')
 #loadPrcFileData('','win-size 1280 720')
 #loadPrcFileData("", "dump-generated-shaders 1")
 from direct.showbase.AppRunnerGlobal import appRunner
@@ -143,14 +143,14 @@ class Editor (DirectObject):
             id+=1
         #texture palette    
         self.palette_id=self.gui.addToolbar(self.gui.TopRight, (90, 512),icon_size=90, x_offset=-90, y_offset=0, hover_command=self.onToolbarHover)
-        self.gui.addButton(self.palette_id, 'tex/diffuse/0.png', self.setColorMask, [0],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/1.png', self.setColorMask, [1],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/2.png', self.setColorMask, [2],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/3.png', self.setColorMask, [3],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/4.png', self.setColorMask, [4],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/5.png', self.setColorMask, [5],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/6.png', self.setColorMask, [6],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, 'tex/diffuse/7.png', self.setColorMask, [7],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/0.dds', self.setColorMask, [0],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/1.dds', self.setColorMask, [1],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/2.dds', self.setColorMask, [2],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/3.dds', self.setColorMask, [3],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/4.dds', self.setColorMask, [4],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/5.dds', self.setColorMask, [5],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/6.dds', self.setColorMask, [6],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, 'tex/diffuse/7.dds', self.setColorMask, [7],tooltip=self.tooltip, tooltip_text='Set Brush Texture')
         
         self.TexSelector=self.gui.addFloatingButton(self.palette_id, [32,128], 'data/arrow.png', self.changeTex,tooltip=self.tooltip, tooltip_text='Change texture')   
         self.TexSelector.setX(self.TexSelector, -32)
@@ -263,21 +263,24 @@ class Editor (DirectObject):
         self.grass.setBin("background", 11)       
         #light
         self.dlight = DirectionalLight('dlight') 
-        self.dlight.setColor(VBase4(1, 1, 0.95, 1))     
+        self.dlight.setColor(VBase4(0.6, 0.6, 0.5, 1))     
         self.mainLight = render.attachNewNode(self.dlight)
         self.mainLight.setP(-60)       
         self.mainLight.setH(90)
         render.setLight(self.mainLight)
         
-        ambientLight = AmbientLight("ambientLight")
-        ambientLight.setColor(Vec4(.5, .5, .6, 1))
-        self.Ambient=render.attachNewNode(ambientLight)
-        render.setLight(self.Ambient)        
-        self.mesh.setLightOff(self.Ambient)
+        #ambientLight = AmbientLight("ambientLight")
+        #ambientLight.setColor(Vec4(.5, .0, .0, 1))
+        #self.Ambient=render.attachNewNode(ambientLight)
+        #render.setLight(self.Ambient)        
+        #self.mesh.setLightOff(self.Ambient)
         
+        #dummy = NodePath("dummy")
+        #dummy.setTransform(self.mesh.getTransform(base.cam))
+        #render.setShaderInput("model_to_world", dummy)
         
         render.setShaderInput("dlight0", self.mainLight)
-        render.setShaderInput("ambient", Vec4(.5, .5, .6, 1))
+        render.setShaderInput("ambient", Vec4(.3, .3, .5, 1))
         #render.setShaderInput("dlight1", self.Ambient)
         
         #fog
@@ -494,7 +497,7 @@ class Editor (DirectObject):
         self.setMode(self.mode)
         
     def CreateGrassTile(self, uv_offset, pos, parent, fogcenter=Vec3(0,0,0), count=256):
-        grass=loader.loadModel("data/grass_model")
+        grass=loader.loadModel("data/grass_model4")
         grass.reparentTo(parent)
         grass.setInstanceCount(count) 
         grass.node().setBounds(BoundingBox((0,0,0), (256,256,128)))
@@ -553,7 +556,7 @@ class Editor (DirectObject):
                 LoadScene(file, self.objectPainter.quadtree, self.objectPainter.actors,self.mesh,self.textures)
                 i=0
                 for id in self.textures:
-                    self.gui.elements[self.palette_id]['buttons'][i]['frameTexture']='tex/diffuse/'+str(id)+'.png'
+                    self.gui.elements[self.palette_id]['buttons'][i]['frameTexture']='tex/diffuse/'+str(id)+'.dds'
                     i+=1
                 print "done"
             else:
@@ -642,12 +645,12 @@ class Editor (DirectObject):
         
     def changeTex(self, guiEvent=None): 
         id=self.currentTexLayer 
-        diff='tex/diffuse/'+str(self.textures[id]+1)+'.png'
-        norm='tex/normal/'+str(self.textures[id]+1)+'.png'
+        diff='tex/diffuse/'+str(self.textures[id]+1)+'.dds'
+        norm='tex/normal/'+str(self.textures[id]+1)+'.dds'
         self.textures[id]+=1
         if not os.path.exists(diff):
-            diff='tex/diffuse/0.png'
-            norm='tex/normal/0.png'
+            diff='tex/diffuse/0.dds'
+            norm='tex/normal/0.dds'
             self.textures[id]=0
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(id+1)), loader.loadTexture(diff), 1)
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(id+1)+'n'), loader.loadTexture(norm), 1)
@@ -854,7 +857,7 @@ class Editor (DirectObject):
             if self.object_mode==OBJECT_MODE_WALL:
                 self.nextWall()
         
-    def update(self):
+    def update(self):        
         if self.mode==MODE_HEIGHT:
             if self.keyMap['paint']:      
                 self.painter.paint(BUFFER_HEIGHT)
@@ -922,7 +925,7 @@ class Editor (DirectObject):
     def perFrameUpdate(self, task):         
         time=globalClock.getFrameTime()    
         self.grass.setShaderInput('time', time) 
-        self.update()
+        self.update()        
         if self.mode==MODE_OBJECT:
             self.objectPainter.update(self.snap.get())
         return task.cont    

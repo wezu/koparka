@@ -12,9 +12,9 @@ def LoadScene(file, quad_tree, actors, terrain, textures, flatten=False):
         if 'textures' in object:
             i=1
             for tex in object['textures']:
-                diff=loader.loadTexture('tex/diffuse/'+str(tex)+'.png')
+                diff=loader.loadTexture('tex/diffuse/'+str(tex)+'.dds')
                 #diff.setAnisotropicDegree(2)
-                norm=loader.loadTexture('tex/normal/'+str(tex)+'.png')
+                norm=loader.loadTexture('tex/normal/'+str(tex)+'.dds')
                 #norm.setAnisotropicDegree(2)
                 terrain.setTexture(terrain.findTextureStage('tex'+str(i)), diff, 1 )
                 terrain.setTexture(terrain.findTextureStage('tex'+str(i)+'n'), norm, 1 )

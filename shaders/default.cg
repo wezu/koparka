@@ -32,12 +32,15 @@ void vshader(
 	 l_position = mul(mat_modelproj, vtx_position);
 	 l_eye_position = mul(trans_model_to_view, vtx_position);
 	 l_eye_normal.xyz = mul((float3x3)tpose_view_to_model, vtx_normal.xyz);
+     //l_eye_normal.xyz = vtx_normal.xyz;
 	 l_eye_normal.w = 0;
 	 l_texcoord0 = vtx_texcoord0;
 	 l_texcoord1 = vtx_texcoord1;
 	 l_tangent.xyz = mul((float3x3)tpose_view_to_model, vtx_tangent1.xyz);
+     //l_tangent.xyz = vtx_tangent1.xyz;
 	 l_tangent.w = 0;
 	 l_binormal.xyz = mul((float3x3)tpose_view_to_model, -vtx_binormal1.xyz);
+     //l_binormal.xyz =vtx_binormal1.xyz;
 	 l_binormal.w = 0;     
      float distToCamera =saturate(l_position.z*fog.a-0.5);
      float4 wpos=mul(trans_model_to_world, vtx_position);
@@ -59,6 +62,7 @@ void fshader(
 	 out float4 o_color : COLOR0,
 	 uniform float4 attr_color,
      uniform float4 fog,
+     uniform float4 ambient,
      in float l_fogfactor : TEXCOORD6,
 	 uniform float4 attr_colorscale
 ) {
@@ -90,7 +94,7 @@ void fshader(
 	 tot_specular += lspec;
 	 
 	 // Begin view-space light summation
-	 result = float4(0.5,0.5,0.5,0);
+	 result = ambient;
 	 result += tot_diffuse;
 	 result = saturate(result);
 	 // End view-space light calculations
@@ -100,5 +104,6 @@ void fshader(
 	 tot_specular *= tex1.a;
 	 result.rgb = result.rgb + tot_specular.rgb;     
 	 o_color =lerp(result, fog,l_fogfactor);
+     //o_color=float4(l_eye_normal.xyz, 1.0);
      o_color.a=result.a;
 }

@@ -33,7 +33,7 @@ void main()
     vec3 vLeft=vec3(1.0,0.0,0.0); 
     //vec2 texUV=gl_TexCoord[0].xy;
     vec3 halfV = normalize(halfVector);
-    float gloss=100.0;
+    float gloss=128.0;
     const float pixel=1.0/512.0;
     //const float repeat=24.0;
     const float height_scale=100.0;
@@ -115,10 +115,10 @@ void main()
     normap*=2.0;
     normap-=1.0;
     
-    norm.xyz *= normap.z;
-	norm.xyz += tangent * normap.x;
-	norm.xyz += binormal * normap.y;    
-    norm = normalize(norm);
+    //norm.xyz *= normap.z;
+	//norm.xyz += tangent * normap.x;
+	//norm.xyz += binormal * normap.y;    
+    //norm = normalize(norm);
     //lights   
     vec4 color =ambient;    
     vec3 lightDir;
@@ -133,7 +133,8 @@ void main()
        } 
     
     vec4 final= vec4(color.rgb * detail.xyz, 1.0);       
-    gl_FragData[0] = mix(final,fog ,fogFactor);    
+    //gl_FragData[0] = mix(final,fog ,fogFactor);    
+    gl_FragData[0]=vec4(norm.xyz, 1.0);
     gl_FragData[1]=vec4(fogFactor, 0.0,0.0,0.0);    
     }
     

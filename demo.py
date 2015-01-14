@@ -2,7 +2,8 @@ from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
 loadPrcFileData('','win-size 1024 768')
 loadPrcFileData('','show-frame-rate-meter  1')
-#loadPrcFileData('','threading-model Cull/Draw')
+loadPrcFileData('','threading-model Cull/Draw')
+loadPrcFileData('','compressed-textures  1')
 #loadPrcFileData('','sync-video 1')
 #loadPrcFileData('','win-size 1280 720')
 from direct.showbase.AppRunnerGlobal import appRunner
@@ -109,11 +110,11 @@ class Demo (DirectObject):
         self.mesh.setBin("background", 11)
         #grass
         self.grass=render.attachNewNode('grass')
-        self.CreateGrassTile(Vec2(0,0), (0,0,0), self.grass, Vec3(256,256,0), grass_map, height_map)
-        self.CreateGrassTile(Vec2(0,0.5), (0, 256, 0), self.grass, Vec3(256,0,0), grass_map, height_map)
-        self.CreateGrassTile(Vec2(0.5,0), (256, 0, 0), self.grass, Vec3(0,256,0), grass_map, height_map)
-        self.CreateGrassTile(Vec2(0.5,0.5), (256, 256, 0), self.grass, Vec3(0,0,0), grass_map, height_map)  
-        self.grass.setBin("background", 11)       
+        #self.CreateGrassTile(Vec2(0,0), (0,0,0), self.grass, Vec3(256,256,0), grass_map, height_map)
+        #self.CreateGrassTile(Vec2(0,0.5), (0, 256, 0), self.grass, Vec3(256,0,0), grass_map, height_map)
+        #self.CreateGrassTile(Vec2(0.5,0), (256, 0, 0), self.grass, Vec3(0,256,0), grass_map, height_map)
+        #self.CreateGrassTile(Vec2(0.5,0.5), (256, 256, 0), self.grass, Vec3(0,0,0), grass_map, height_map)  
+        #self.grass.setBin("background", 11)       
         #light
         self.dlight = DirectionalLight('dlight') 
         self.dlight.setColor(VBase4(1, 1, 0.9, 1))     
@@ -245,9 +246,9 @@ class Demo (DirectObject):
                 i=1
                 for tex in object['textures']:
                     diff=loader.loadTexture('tex/diffuse/'+str(tex)+'.png')
-                    #diff.setAnisotropicDegree(2)
+                    diff.setAnisotropicDegree(2)
                     norm=loader.loadTexture('tex/normal/'+str(tex)+'.png')
-                    #norm.setAnisotropicDegree(2)
+                    norm.setAnisotropicDegree(2)
                     terrain.setTexture(terrain.findTextureStage('tex'+str(i)), diff, 1 )
                     terrain.setTexture(terrain.findTextureStage('tex'+str(i)+'n'), norm, 1 )
                     i+=1
@@ -292,9 +293,9 @@ class Demo (DirectObject):
         quad.setShaderInput("tex0", tex)
         quad.setShaderInput("rt_w",winX)
         quad.setShaderInput("rt_h",winY)
-        quad.setShaderInput("FXAA_SPAN_MAX" , span_max)
-        quad.setShaderInput("FXAA_REDUCE_MUL", 1.0/reduce_mul)
-        quad.setShaderInput("FXAA_SUBPIX_SHIFT", 1.0/subpixel_shift)  
+        quad.setShaderInput("FXAA_SPAN_MAX" , float(span_max))
+        quad.setShaderInput("FXAA_REDUCE_MUL", float(1.0/reduce_mul))
+        quad.setShaderInput("FXAA_SUBPIX_SHIFT", float(1.0/subpixel_shift)) 
         quad.setShaderInput("fog", fog)
         return manager  
         
@@ -400,5 +401,5 @@ class Demo (DirectObject):
 
         return task.cont
         
-app=Demo('save/test18')
+app=Demo('save/default_new')
 run()      
