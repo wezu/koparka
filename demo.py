@@ -110,11 +110,11 @@ class Demo (DirectObject):
         self.mesh.setBin("background", 11)
         #grass
         self.grass=render.attachNewNode('grass')
-        #self.CreateGrassTile(Vec2(0,0), (0,0,0), self.grass, Vec3(256,256,0), grass_map, height_map)
-        #self.CreateGrassTile(Vec2(0,0.5), (0, 256, 0), self.grass, Vec3(256,0,0), grass_map, height_map)
-        #self.CreateGrassTile(Vec2(0.5,0), (256, 0, 0), self.grass, Vec3(0,256,0), grass_map, height_map)
-        #self.CreateGrassTile(Vec2(0.5,0.5), (256, 256, 0), self.grass, Vec3(0,0,0), grass_map, height_map)  
-        #self.grass.setBin("background", 11)       
+        self.CreateGrassTile(Vec2(0,0), (0,0,0), self.grass, Vec3(256,256,0), grass_map, height_map)
+        self.CreateGrassTile(Vec2(0,0.5), (0, 256, 0), self.grass, Vec3(256,0,0), grass_map, height_map)
+        self.CreateGrassTile(Vec2(0.5,0), (256, 0, 0), self.grass, Vec3(0,256,0), grass_map, height_map)
+        self.CreateGrassTile(Vec2(0.5,0.5), (256, 256, 0), self.grass, Vec3(0,0,0), grass_map, height_map)  
+        self.grass.setBin("background", 11)       
         #light
         self.dlight = DirectionalLight('dlight') 
         self.dlight.setColor(VBase4(1, 1, 0.9, 1))     
@@ -222,7 +222,7 @@ class Demo (DirectObject):
                 self.winsize=newsize
                 
     def CreateGrassTile(self, uv_offset, pos, parent, fogcenter, grass_map, height_map, count=256):
-        grass=loader.loadModel("data/grass_model")
+        grass=loader.loadModel("data/grass_model5")
         grass.reparentTo(parent)
         grass.setInstanceCount(count) 
         grass.node().setBounds(BoundingBox((0,0,0), (256,256,128)))
@@ -233,6 +233,9 @@ class Demo (DirectObject):
         grass.setShaderInput('uv_offset', uv_offset)   
         grass.setShaderInput('fogcenter', fogcenter)
         grass.setPos(pos)
+        #grass.setBin("fixed", 40)
+        #grass.setDepthTest(False)
+        #grass.setDepthWrite(False)
         return grass
         
     def LoadScene(self, file, quad_tree, actors, terrain, flatten=False):
@@ -245,9 +248,9 @@ class Demo (DirectObject):
             if 'textures' in object:
                 i=1
                 for tex in object['textures']:
-                    diff=loader.loadTexture('tex/diffuse/'+str(tex)+'.png')
+                    diff=loader.loadTexture('tex/diffuse/'+str(tex)+'.dds')
                     diff.setAnisotropicDegree(2)
-                    norm=loader.loadTexture('tex/normal/'+str(tex)+'.png')
+                    norm=loader.loadTexture('tex/normal/'+str(tex)+'.dds')
                     norm.setAnisotropicDegree(2)
                     terrain.setTexture(terrain.findTextureStage('tex'+str(i)), diff, 1 )
                     terrain.setTexture(terrain.findTextureStage('tex'+str(i)+'n'), norm, 1 )
@@ -401,5 +404,5 @@ class Demo (DirectObject):
 
         return task.cont
         
-app=Demo('save/default_new')
+app=Demo('save/default1')
 run()      

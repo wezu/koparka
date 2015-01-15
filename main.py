@@ -497,7 +497,7 @@ class Editor (DirectObject):
         self.setMode(self.mode)
         
     def CreateGrassTile(self, uv_offset, pos, parent, fogcenter=Vec3(0,0,0), count=256):
-        grass=loader.loadModel("data/grass_model4")
+        grass=loader.loadModel("data/grass_model5")
         grass.reparentTo(parent)
         grass.setInstanceCount(count) 
         grass.node().setBounds(BoundingBox((0,0,0), (256,256,128)))

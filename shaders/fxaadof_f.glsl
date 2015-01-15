@@ -8,8 +8,8 @@ uniform float vx_offset;
 uniform float rt_w; // GeeXLab built-in
 uniform float rt_h; // GeeXLab built-in
 uniform float FXAA_SPAN_MAX = 8.0;
-uniform float FXAA_REDUCE_MUL = 1.0/8.0;
-uniform float FXAA_SUBPIX_SHIFT = 1.0/4.0;
+uniform float FXAA_REDUCE_MUL = 1.0/2.0;
+//uniform float FXAA_SUBPIX_SHIFT = 1.0/2.0;
 varying vec4 posPos;
 
 #define FxaaInt2 ivec2
@@ -81,7 +81,7 @@ void main()
   vec4 fxaa=PostFX(tex0, uv, 0.0);
   
   vec4 blur=vec4(0,0,0,0);
-  float sharpness=0.008;
+  float sharpness=0.005;
   //Hardcoded fast gaussian blur
   blur += texture2D(tex0, uv + vec2( -0.326212, -0.405805)*sharpness);
   blur += texture2D(tex0, uv + vec2(-0.840144, -0.073580)*sharpness);
