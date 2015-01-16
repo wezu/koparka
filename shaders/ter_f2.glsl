@@ -32,8 +32,8 @@ varying vec2 texUVrepeat;
 void main()
     {    
     if(fogFactor>0.996)//fog only version
-        {
-        gl_FragData[0] = fog;            
+        {        
+        gl_FragData[0] = vec4(fog.rgb, 1.0);
         gl_FragData[1]=vec4(1.0,0.0,0.0,0.0);
         }
     else //full version

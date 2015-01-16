@@ -3,6 +3,8 @@
 #extension GL_EXT_gpu_shader4 : enable
 
 uniform sampler2D tex0; // 0
+uniform sampler2D noise; 
+uniform float time;
 uniform sampler2D fog; // fog-factor in R 
 uniform float vx_offset;
 uniform float rt_w; // GeeXLab built-in
@@ -78,9 +80,8 @@ vec4 PostFX(sampler2D tex, vec2 uv, float time)
 void main() 
 { 
   vec2 uv = gl_TexCoord[0].st;
-  vec4 fxaa=PostFX(tex0, uv, 0.0);
-  
-  vec4 blur=vec4(0,0,0,0);
+  vec4 fxaa=PostFX(tex0, uv, 0.0);  
+  vec4 blur=vec4(0.0, 0.0, 0.0, 1.0);
   float sharpness=0.005;
   //Hardcoded fast gaussian blur
   blur += texture2D(tex0, uv + vec2( -0.326212, -0.405805)*sharpness);

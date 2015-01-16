@@ -26,5 +26,5 @@ void main()
     halfVector = gl_LightSource[0].halfVector.xyz;
     
     texUV=gl_TexCoord[0].xy;
-    texUVrepeat=gl_TexCoord[0].xy*30.0;
+    texUVrepeat=gl_TexCoord[0].xy*40.0;
     }

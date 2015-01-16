@@ -31,7 +31,7 @@ void main()
         //normal.xyz *= normap.z;
         //normal.xyz += tangent * normap.x;
         //normal.xyz += binormal * normap.y;    
-        normal = normalize(normal);  
+        vec3 norm = normalize(normal);  
        
 
         //lights
@@ -41,10 +41,10 @@ void main()
         float NdotL, NdotHV; 
         lightDir = vec3(gl_LightSource[0].position); 
         //halfV = gl_LightSource[0].halfVector.xyz;    
-        NdotL = max(dot(normal,lightDir),0.0);
+        NdotL = max(dot(norm,lightDir),0.0);
         if (NdotL > 0.0)
             {
-           NdotHV = max(dot(normal,halfV),0.0);
+           NdotHV = max(dot(norm,halfV),0.0);
            color += gl_LightSource[0].diffuse* NdotL;        
            //color +=pow(NdotHV,200.0)*gloss;
            }
