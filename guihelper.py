@@ -524,7 +524,7 @@ class GuiHelper():
             frame.bind(DGG.WITHIN, self.setTooltip,[tooltip, tooltip_text])  
             frame.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])  
             
-    def addFloatingButton(self, parent_id, size, icon, command, arg=[], tooltip=None, tooltip_text=None):  
+    def addFloatingButton(self, parent_id, size, icon, pos, command, arg=[], tooltip=None, tooltip_text=None):  
         parent=self.elements[parent_id]['frame']
         frame= DirectFrame( frameSize=_rec2d(size[0],size[1]),
                         frameColor=(1,1,1,1),
@@ -532,6 +532,7 @@ class GuiHelper():
                         frameTexture=icon,
                         parent=parent)
         _resetPivot(frame)
+        frame.setPos(_pos2d(pos[0],pos[1]))
         frame.setTransparency(TransparencyAttrib.MDual)        
         frame.bind(DGG.B1PRESS, command, arg)
         self.elements.append({'frame':frame})
@@ -585,74 +586,4 @@ class GuiHelper():
         frame.setZ(frame, -y_offset)
         return frame
     
-    def addComposer(self, parent, update_command, x_offset=-160, y_offset=-224, hover_command=False, tooltip=None):
-        frame=DirectFrame( frameSize=_rec2d(160,224),
-                        frameColor=(0,0,1, 0),                      
-                        state=DGG.NORMAL,   
-                        parent=parent)
-        _resetPivot(frame)
-        frame.setTransparency(TransparencyAttrib.MDual)
-        frame.setX(frame, x_offset)
-        frame.setZ(frame, -y_offset)
-        if hover_command:
-            frame.bind(DGG.WITHOUT, hover_command,[False])  
-            frame.bind(DGG.WITHIN, hover_command, [True])
-        preview=DirectFrame( frameSize=_rec2d(128,128),
-                        frameColor=(1,1,1, 1),                                               
-                        frameTexture='data/detail.png',
-                        parent=frame)
-        _resetPivot(preview)        
-        preview.setPos(_pos2d(16, 96))
-        if tooltip:  
-            preview['state']=DGG.NORMAL
-            preview.bind(DGG.WITHIN, self.setTooltip,[tooltip, 'Detail Preview, use sliders to change'])  
-            preview.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])
-            
-        r_slider=DirectSlider(range=(0,1),
-                              value=1,
-                              pageSize=10,      
-                              thumb_relief=DGG.FLAT,
-                              scale=64,
-                              command=update_command,
-                              thumb_frameSize=(0.1, -0.1, -0.2, 0.2),
-                              parent=frame)
-        r_slider.setPos(_pos2d(80, 16))
-        r_slider.setColor(1,0,0,1)
-        if tooltip:
-            r_slider.bind(DGG.WITHIN, self.setTooltip,[tooltip, "Set detail 'R' component (dirt)"])  
-            r_slider.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])
-        
-        g_slider=DirectSlider(range=(0,1),
-                              value=0,
-                              pageSize=10,      
-                              thumb_relief=DGG.FLAT,
-                              scale=64,
-                              command=update_command,
-                              thumb_frameSize=(0.1, -0.1, -0.2, 0.2),
-                              parent=frame)
-        g_slider.setPos(_pos2d(80, 48))
-        g_slider.setColor(0,1,0,1)
-        if tooltip:
-            g_slider.bind(DGG.WITHIN, self.setTooltip,[tooltip, "Set detail 'G' component (grass)"])  
-            g_slider.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])
-        b_slider=DirectSlider(range=(0,1),
-                              value=0,
-                              pageSize=10,      
-                              thumb_relief=DGG.FLAT,
-                              scale=64,
-                              thumb_frameSize=(0.1, -0.1, -0.2, 0.2),
-                              command=update_command,
-                              parent=frame)
-        b_slider.setPos(_pos2d(80, 80))
-        b_slider.setColor(0,0,1,1)        
-        if tooltip:
-            b_slider.bind(DGG.WITHIN, self.setTooltip,[tooltip, "Set detail 'B' component (rock)"])  
-            b_slider.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])
-        preview_geom=preview.stateNodePath[0] 
-        preview_geom.setShader(loader.loadShader('shaders/composer_view.cg'))
-        preview_geom.setShaderInput('mix', Vec4(r_slider['value'],g_slider['value'],b_slider['value'],1.0 ))
-        
-        data={'frame':frame, 'geom':preview_geom, 'r_slider':r_slider, 'g_slider':g_slider, 'b_slider':b_slider}
-        id=len(self.elements)
-        self.elements.append(data)
-        return id
+    

@@ -108,8 +108,8 @@ void main()
         //directional =sun
         vec3 lightDir, halfV;
         float NdotL, NdotHV; 
-        lightDir = gl_LightSource[0].position.xyz; 
-        halfV=gl_LightSource[0].halfVector.xyz;    
+        lightDir = normalize(gl_LightSource[0].position.xyz); 
+        halfV= normalize(gl_LightSource[0].halfVector.xyz);    
         NdotL = max(dot(norm,lightDir),0.0);
         if (NdotL > 0.0)
             {

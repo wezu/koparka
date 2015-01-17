@@ -30,7 +30,7 @@ import sys
 
 class Demo (DirectObject):
     def __init__(self, directory):
-    
+        base.setBackgroundColor(0.77, 0.77, 0.77)  
         #files needed to be read
         objects=directory+'/objects.json'
         collision=directory+'/collision'
@@ -153,6 +153,7 @@ class Demo (DirectObject):
                                   "walk":"demo_models/ralph-walk"})
         self.ralph.reparentTo(render)
         self.ralph.setPos(ralphStartPos)
+        self.ralph.setScale(0.5)
         
         # Create a floater object.         
         self.floater = NodePath(PandaNode("floater"))
@@ -208,7 +209,7 @@ class Demo (DirectObject):
         
     def perFrameUpdate(self, task):         
         time=globalClock.getFrameTime()    
-        self.grass.setShaderInput('time', time)         
+        render.setShaderInput('time', time)         
         return task.cont 
         
     def windowEventHandler( self, window=None ):    
@@ -222,7 +223,7 @@ class Demo (DirectObject):
                 self.winsize=newsize
                 
     def CreateGrassTile(self, uv_offset, pos, parent, fogcenter, grass_map, height_map, count=256):
-        grass=loader.loadModel("data/grass_model5")
+        grass=loader.loadModel("data/grass_model4")
         grass.reparentTo(parent)
         grass.setInstanceCount(count) 
         grass.node().setBounds(BoundingBox((0,0,0), (256,256,128)))
@@ -233,6 +234,7 @@ class Demo (DirectObject):
         grass.setShaderInput('uv_offset', uv_offset)   
         grass.setShaderInput('fogcenter', fogcenter)
         grass.setPos(pos)
+        grass.setScale(1,1,0.2)
         #grass.setBin("fixed", 40)
         #grass.setDepthTest(False)
         #grass.setDepthWrite(False)
@@ -283,7 +285,7 @@ class Demo (DirectObject):
             model.setPos(render,object['position_x'],object['position_y'],object['position_z'])
             model.setScale(object['scale'])
             
-    def makeFXAADOF(self, manager=None, span_max=8.0, reduce_mul=8.0, subpixel_shift=4.0):
+    def makeFXAADOF(self, manager=None, span_max=4.0, reduce_mul=2.0, subpixel_shift=4.0):
         wp=base.win.getProperties()
         winX = wp.getXSize()
         winY = wp.getYSize()
@@ -300,6 +302,7 @@ class Demo (DirectObject):
         quad.setShaderInput("FXAA_REDUCE_MUL", float(1.0/reduce_mul))
         quad.setShaderInput("FXAA_SUBPIX_SHIFT", float(1.0/subpixel_shift)) 
         quad.setShaderInput("fog", fog)
+        quad.setShaderInput('noise', loader.loadTexture('data/noise.dds')) 
         return manager  
         
     #RR 

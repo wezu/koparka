@@ -20,7 +20,7 @@ void main()
     else
         {
         vec2 texUV=gl_TexCoord[0].xy;  
-        vec4 color_tex=texture2DLod(p3d_Texture0,texUV,0.0);
+        vec4 color_tex=texture2D(p3d_Texture0,texUV);
         //if(fogFactor > 0.5)        
             color_tex.a+=1.9*fogFactor;
             

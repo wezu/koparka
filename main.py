@@ -94,16 +94,11 @@ class Editor (DirectObject):
         self.object_mode=OBJECT_MODE_ONE
         self.hpr_axis='H: '
         self.last_model_path=''
-        self.currentTexLayer=0
-        self.textures=[0,1,2,3,4,5,6,7]
-        self.colorMasks=[Vec4(0,1,1,1),
-                        Vec4(0.25,1,1,1),
-                        Vec4(0.5,1,1,1),
-                        Vec4(1,0,1,1),
-                        Vec4(0.75,1,1,1),
-                        Vec4(1,1,0,1),
-                        Vec4(1,1,0.25,1),
-                        Vec4(1,1,0.5,1)]
+        self.colors=[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        self.curent_textures=[0,1,2,3,4,5]
+        self.textures_diffuse=[]
+        self.textures_normal=[]
+       
         #camera control
         base.disableMouse()  
         controler=CameraControler()
@@ -139,8 +134,27 @@ class Editor (DirectObject):
             self.gui.addButton(self.toolbar_id,brush, self.setBrush, [id],tooltip=self.tooltip, tooltip_text='Set Brush Shape')
             id+=1
         #texture palette    
-        self.palette_id=self.gui.addToolbar(self.gui.BottomRight, (128, 512),icon_size=128, x_offset=-128, y_offset=-128, hover_command=self.onToolbarHover)
-        self.gui.addButton(self.palette_id, 'icon/palette.png', self.openPalette, [None] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')        
+        self.palette_id=self.gui.addToolbar(self.gui.TopRight, (128, 512),icon_size=128, x_offset=-128, y_offset=0, hover_command=self.onToolbarHover)
+        dirList=os.listdir(Filename(path+"tex/diffuse").toOsSpecific())
+        for fname in dirList:
+            if  Filename(fname).getExtension() in ('dds'):
+                self.textures_diffuse.append("tex/diffuse/"+fname)
+                self.textures_normal.append("tex/normal/"+fname)               
+        
+        self.gui.addButton(self.palette_id, self.textures_diffuse[0], self.setAtrMapColor, [(1.0, 0.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[1], self.setAtrMapColor, [(0.0, 1.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[2], self.setAtrMapColor, [(0.0, 0.0, 1.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[3], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(1.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[4], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(0.0, 1.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[5], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(0.0, 0.0, 1.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        
+        self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[96, 96], self.changeTex,[0] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[96, 224], self.changeTex,[1] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[96, 352], self.changeTex,[2] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[96, 480], self.changeTex,[3] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[96, 608], self.changeTex,[4] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[96, 736], self.changeTex,[5] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        
         
         #save/load
         self.gui.addSaveLoadDialog(self.save, self.load, self.hideSaveMenu)
@@ -226,6 +240,14 @@ class Editor (DirectObject):
         
         #terrain mesh
         self.mesh=loader.loadModel('data/mesh35k.egg') #there's also a 3k and 10k mesh
+        #load default textures:        
+        for tex in self.textures_diffuse[:6]:
+            id=self.textures_diffuse.index(tex)
+            self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(id+1)), loader.loadTexture(tex), 1)
+        for tex in self.textures_normal[:6]:
+            id=self.textures_normal.index(tex)
+            self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(id+1)+'n'), loader.loadTexture(tex), 1) 
+            
         self.mesh.reparentTo(render)
         self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_f.glsl"))        
         self.mesh.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
@@ -607,18 +629,15 @@ class Editor (DirectObject):
         print "SAVING DONE!" 
         self.gui.okDialog(text="Files saved to:\n"+save_dir, command=self.hideDialog)    
         self.hideSaveMenu()              
-        
-    def changeTex(self, id, guiEvent=None):         
-        diff='tex/diffuse/'+str(self.textures[id]+1)+'.dds'
-        norm='tex/normal/'+str(self.textures[id]+1)+'.dds'
-        self.textures[id]+=1
-        if not os.path.exists(diff):
-            diff='tex/diffuse/0.dds'
-            norm='tex/normal/0.dds'
-            self.textures[id]=0
-        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(id+1)), loader.loadTexture(diff), 1)
-        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(id+1)+'n'), loader.loadTexture(norm), 1)
-        self.gui.elements[self.palette_id]['buttons'][id]['frameTexture']=diff
+
+    def changeTex(self, layer, guiEvent=None): 
+        id=self.curent_textures[layer]+1
+        if id>len(self.textures_diffuse)-1:
+            id=0
+        self.curent_textures[layer]=id
+        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), loader.loadTexture(self.textures_diffuse[id]), 1)
+        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)+'n'), loader.loadTexture(self.textures_normal[id]), 1)        
+        self.gui.elements[self.palette_id]['buttons'][layer]['frameTexture']=self.textures_diffuse[id]
                     
     def setBrush(self, id, guiEvent=None):
         self.painter.setBrushTex(id)
@@ -900,7 +919,9 @@ class Editor (DirectObject):
                 self.fxaaManager=makeFXAA(self.fxaaManager)
                 self.winsize=newsize
                 
-    def openPalette(self, value=None, event=None):
-        pass
+    def setAtrMapColor(self, color1, color2, event=None):       
+        self.painter.brushes[BUFFER_ATR].setColor(color1)
+        self.painter.brushes[BUFFER_ATR2].setColor(color2)  
+ 
 app=Editor()
 run()    
