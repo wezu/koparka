@@ -34,7 +34,8 @@ class Demo (DirectObject):
         #files needed to be read
         objects=directory+'/objects.json'
         collision=directory+'/collision'
-        detail_map=directory+'/detail.png'
+        detail_map1=directory+'/detail0.png'
+        detail_map2=directory+'/detail1.png'
         grass_map=directory+'/grass.png'
         height_map=directory+'/heightmap.png'
         
@@ -91,7 +92,7 @@ class Demo (DirectObject):
                        nodeD1,nodeD2,nodeD3,nodeD4]
         
         #setup terrain part1
-        self.mesh=loader.loadModel('data/mesh35k')             
+        self.mesh=loader.loadModel('data/mesh80k.bam')             
         self.mesh.reparentTo(render)
         #collision mesh
         self.collision=loader.loadModel(collision)             
@@ -101,9 +102,10 @@ class Demo (DirectObject):
         self.LoadScene(objects, self.quadtree, self.actors, self.mesh, flatten=True)
         
         #setup terrain part2
-        self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/ter_v2.glsl", "shaders/ter_f2.glsl"))        
+        self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/demo_terrain_v.glsl", "shaders/demo_terrain_f.glsl"))        
         self.mesh.setShaderInput("height", loader.loadTexture(height_map)) 
-        self.mesh.setShaderInput("atr",  loader.loadTexture(detail_map))
+        self.mesh.setShaderInput("atr1",  loader.loadTexture(detail_map1))
+        self.mesh.setShaderInput("atr2",  loader.loadTexture(detail_map2))
         self.mesh.setTransparency(TransparencyAttrib.MNone)
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
@@ -223,7 +225,7 @@ class Demo (DirectObject):
                 self.winsize=newsize
                 
     def CreateGrassTile(self, uv_offset, pos, parent, fogcenter, grass_map, height_map, count=256):
-        grass=loader.loadModel("data/grass_model4")
+        grass=loader.loadModel("data/grass_model")
         grass.reparentTo(parent)
         grass.setInstanceCount(count) 
         grass.node().setBounds(BoundingBox((0,0,0), (256,256,128)))
@@ -234,7 +236,7 @@ class Demo (DirectObject):
         grass.setShaderInput('uv_offset', uv_offset)   
         grass.setShaderInput('fogcenter', fogcenter)
         grass.setPos(pos)
-        grass.setScale(1,1,0.2)
+        #grass.setScale(1,1,0.2)
         #grass.setBin("fixed", 40)
         #grass.setDepthTest(False)
         #grass.setDepthWrite(False)
@@ -248,14 +250,16 @@ class Demo (DirectObject):
         for object in json_data:
             print ".",
             if 'textures' in object:
-                i=1
+                i=0
                 for tex in object['textures']:
-                    diff=loader.loadTexture('tex/diffuse/'+str(tex)+'.dds')
+                    diff=loader.loadTexture(tex)
                     diff.setAnisotropicDegree(2)
-                    norm=loader.loadTexture('tex/normal/'+str(tex)+'.dds')
+                    #normal texture should have the same name but should be in '/normal/' directory
+                    normal_tex=tex.replace('/diffuse/','/normal/')
+                    norm=loader.loadTexture(normal_tex)
                     norm.setAnisotropicDegree(2)
-                    terrain.setTexture(terrain.findTextureStage('tex'+str(i)), diff, 1 )
-                    terrain.setTexture(terrain.findTextureStage('tex'+str(i)+'n'), norm, 1 )
+                    terrain.setTexture(terrain.findTextureStage('tex{0}'.format(i+1)), diff, 1)                    
+                    terrain.setTexture(terrain.findTextureStage('tex{0}n'.format(i+1)), norm, 1) 
                     i+=1
                 continue    
             elif 'model' in object:
@@ -302,7 +306,6 @@ class Demo (DirectObject):
         quad.setShaderInput("FXAA_REDUCE_MUL", float(1.0/reduce_mul))
         quad.setShaderInput("FXAA_SUBPIX_SHIFT", float(1.0/subpixel_shift)) 
         quad.setShaderInput("fog", fog)
-        quad.setShaderInput('noise', loader.loadTexture('data/noise.dds')) 
         return manager  
         
     #RR 
