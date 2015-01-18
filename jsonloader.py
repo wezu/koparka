@@ -2,7 +2,7 @@ from panda3d.core import *
 import json
 from direct.actor.Actor import Actor
 
-def LoadScene(file, quad_tree, actors, terrain, textures, flatten=False):
+def LoadScene(file, quad_tree, actors, terrain, textures, current_textures=None, flatten=False):
     json_data=None
     with open(file) as f:  
         json_data=json.load(f)
@@ -10,15 +10,18 @@ def LoadScene(file, quad_tree, actors, terrain, textures, flatten=False):
     for object in json_data:
         print ".",
         if 'textures' in object:
-            i=1
+            i=0
             for tex in object['textures']:
-                diff=loader.loadTexture('tex/diffuse/'+str(tex)+'.dds')
-                #diff.setAnisotropicDegree(2)
-                norm=loader.loadTexture('tex/normal/'+str(tex)+'.dds')
-                #norm.setAnisotropicDegree(2)
-                terrain.setTexture(terrain.findTextureStage('tex'+str(i)), diff, 1 )
-                terrain.setTexture(terrain.findTextureStage('tex'+str(i)+'n'), norm, 1 )
-                textures[i-1]=tex
+                if tex in textures:
+                    if current_textures:
+                        id=textures.index(tex)                    
+                        current_textures[i]=id
+                    terrain.setTexture(terrain.findTextureStage('tex{0}'.format(i+1)), loader.loadTexture(tex), 1)
+                    #normal texture should have the same name but should be in '/normal/' directory
+                    normal_tex=tex.replace('/diffuse/','/normal/')
+                    terrain.setTexture(terrain.findTextureStage('tex{0}n'.format(i+1)), loader.loadTexture(normal_tex), 1)
+                else:
+                    print "WARNING: texture '{0}' not found!".format(tex)
                 i+=1
             continue    
         elif 'model' in object:
@@ -60,9 +63,15 @@ def LoadScene(file, quad_tree, actors, terrain, textures, flatten=False):
             flat.flattenStrong()
             flat.wrtReparentTo(node)            
         
-def SaveScene(file, quad_tree, textures):
+def SaveScene(file, quad_tree, textures, current_textures=None):
     export_data=[]
-    export_data.append({'textures':textures})
+    if current_textures:
+        temp=[]
+        for id in current_textures:
+            temp.append(textures[id])    
+        export_data.append({'textures':temp})    
+    else:
+        export_data.append({'textures':textures})
     for node in quad_tree:
         for child in node.getChildren():
             temp={}

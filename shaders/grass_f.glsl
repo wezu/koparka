@@ -21,16 +21,6 @@ void main()
         {
         vec2 texUV=gl_TexCoord[0].xy;  
         vec4 color_tex=texture2D(p3d_Texture0,texUV);
-        //if(fogFactor > 0.5)        
-            color_tex.a+=1.9*fogFactor;
-            
-        //vec4 normap=texture2D(p3d_Texture1,texUV);        
-        //float gloss=5.0*normap.a;
-        //normap*=2.0;
-        //normap-=1.0;        
-        //normal.xyz *= normap.z;
-        //normal.xyz += tangent * normap.x;
-        //normal.xyz += binormal * normap.y;    
         vec3 norm = normalize(normal);  
        
 
@@ -49,10 +39,11 @@ void main()
            //color +=pow(NdotHV,200.0)*gloss;
            }
       
-
+        //vec4 fog_color=vec4(fog.rgb, 1.0);
         vec4 final = vec4(color.rgb *color_tex.rgb, color_tex.a);
         gl_FragData[0] = mix(final,fog ,fogFactor);
-        gl_FragData[1]=vec4(fogFactor*color_tex.a, 0.0,0.0,0.0);
+        gl_FragData[0].a=color_tex.a;
+        gl_FragData[1]=vec4(fogFactor, 0.0,0.0,0.0);
         }
     }
     

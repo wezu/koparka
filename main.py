@@ -94,7 +94,7 @@ class Editor (DirectObject):
         self.object_mode=OBJECT_MODE_ONE
         self.hpr_axis='H: '
         self.last_model_path=''
-        self.colors=[1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        self.lastUpdateTime=0.0
         self.curent_textures=[0,1,2,3,4,5]
         self.textures_diffuse=[]
         self.textures_normal=[]
@@ -239,15 +239,17 @@ class Editor (DirectObject):
         self.objectPainter=ObjectPainter()
         
         #terrain mesh
-        self.mesh=loader.loadModel('data/mesh35k.egg') #there's also a 3k and 10k mesh
-        #load default textures:        
+        #the 80k mesh loads to slow from egg, using bam
+        #self.mesh=loader.loadModel('data/mesh80k.egg') #there's also a 3k, 10k and 35k mesh (can be broken at this point!)
+        self.mesh=loader.loadModel('data/mesh80k.bam')
+        #load default textures:   
+        #TODO(maybe): remove default tex from model ... and fix filtering then somehow
         for tex in self.textures_diffuse[:6]:
             id=self.textures_diffuse.index(tex)
-            self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(id+1)), loader.loadTexture(tex), 1)
+            self.mesh.setTexture(self.mesh.findTextureStage('tex{0}'.format(id+1)), loader.loadTexture(tex), 1)
         for tex in self.textures_normal[:6]:
             id=self.textures_normal.index(tex)
-            self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(id+1)+'n'), loader.loadTexture(tex), 1) 
-            
+            self.mesh.setTexture(self.mesh.findTextureStage('tex{0}n'.format(id+1)), loader.loadTexture(tex), 1)             
         self.mesh.reparentTo(render)
         self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_f.glsl"))        
         self.mesh.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
@@ -274,8 +276,11 @@ class Editor (DirectObject):
         render.setLight(self.mainLight)
                
         render.setShaderInput("dlight0", self.mainLight)
-        render.setShaderInput("ambient", Vec4(.5, .5, .7, 1))        
+        render.setShaderInput("ambient", Vec4(.5, .5, .7, 1)) 
+        #TODO: replace ambient light with a second directional light glued to the camera
+        
         #fog
+        #rgb color + coefficiency in alpha
         render.setShaderInput("fog",  Vec4(0.4, 0.4, 0.4, 0.002))
         
         self.keyMap = {'paint': False,
@@ -321,7 +326,6 @@ class Editor (DirectObject):
         self.painter.brushes[BUFFER_ATR2].setColor(0,0,1,1.0)
         
         #tasks
-        #taskMgr.doMethodLater(0.1, self.update,'update_task')
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task')        
         
     def changeWalkMode(self, mode=None, guiEvent=None):
@@ -491,7 +495,7 @@ class Editor (DirectObject):
         self.setMode(self.mode)
         
     def CreateGrassTile(self, uv_offset, pos, parent, fogcenter=Vec3(0,0,0), count=256):
-        grass=loader.loadModel("data/grass_model5")
+        grass=loader.loadModel("data/grass_model")
         grass.reparentTo(parent)
         grass.setInstanceCount(count) 
         grass.node().setBounds(BoundingBox((0,0,0), (256,256,128)))
@@ -507,58 +511,56 @@ class Editor (DirectObject):
     def load(self, guiEvent=None):
         save_dir=path+self.gui.entry1.get()
         feedback=""
-        if self.gui.flags[0]:
+        if self.gui.flags[0]:#height map
             print "loading height map...",
-            file=path+save_dir+"/"+self.gui.entry2.get()
+            file=path+save_dir+"/"+self.gui.entry2.get()+'.png'            
             if os.path.exists(file):
                 self.painter.paintPlanes[BUFFER_HEIGHT].setTexture(loader.loadTexture(file))
                 print "done"                
             else:
                 print "FILE NOT FOUND!"
                 feedback+=file +' '   
-        if self.gui.flags[1]:
+        if self.gui.flags[1]:#atr map, both
             print "loading detail map...",
-            file=path+save_dir+"/"+self.gui.entry3.get()
+            file=path+save_dir+"/"+self.gui.entry3.get()+'0.png'
             if os.path.exists(file):
                 self.painter.paintPlanes[BUFFER_ATR].setTexture(loader.loadTexture(file))
-                print "done"
+                print "ok",                
             else:
                 print "FILE NOT FOUND!"            
                 feedback+=file+' '
-        #if self.gui.flags[3]:
-        #    print "loading color map...",
-        #    file=path+save_dir+"/"+self.gui.entry4.get()
-        #    if os.path.exists(file):
-                #self.painter.paintPlanes[BUFFER_COLOR].setTexture(loader.loadTexture(file))
-        #        print "done"
-        #    else:
-        #        print "FILE NOT FOUND!" 
-        #        feedback+=file+' '
-        if self.gui.flags[2]:
+            file=path+save_dir+"/"+self.gui.entry3.get()+'1.png'
+            if os.path.exists(file):
+                self.painter.paintPlanes[BUFFER_ATR2].setTexture(loader.loadTexture(file))
+                print "done"    
+            else:
+                print "FILE NOT FOUND!"            
+                feedback+=file+' '  
+        if self.gui.flags[2]:#grass map
             print "loading grass map...",
-            file=path+save_dir+"/"+self.gui.entry5.get()
+            file=path+save_dir+"/"+self.gui.entry5.get()+'.png' 
             if os.path.exists(file):
                 self.painter.paintPlanes[BUFFER_GRASS].setTexture(loader.loadTexture(file))
                 print "done"
             else:
                 print "FILE NOT FOUND!"  
                 feedback+=file+' '
-        if self.gui.flags[4]:
+        if self.gui.flags[4]:#objects and textures used for terrain
             print "loading objects",
-            file=path+save_dir+"/"+self.gui.entry6.get()
+            file=path+save_dir+"/"+self.gui.entry6.get()+'.json' 
             if os.path.exists(file):
-                LoadScene(file, self.objectPainter.quadtree, self.objectPainter.actors,self.mesh,self.textures)
+                LoadScene(file, self.objectPainter.quadtree, self.objectPainter.actors, self.mesh, self.textures_diffuse, self.curent_textures)
                 i=0
-                for id in self.textures:
-                    self.gui.elements[self.palette_id]['buttons'][i]['frameTexture']='tex/diffuse/'+str(id)+'.dds'
+                for id in self.curent_textures:
+                    self.gui.elements[self.palette_id]['buttons'][i]['frameTexture']=self.textures_diffuse[id]
                     i+=1
                 print "done"
             else:
                 print "FILE NOT FOUND!"  
                 feedback+=file+' '    
-        if self.gui.flags[5]:
+        if self.gui.flags[5]:#collision
             print "loading collision mesh...",
-            file=path+save_dir+"/"+self.gui.entry7.get()
+            file=path+save_dir+"/"+self.gui.entry7.get()+'.egg' 
             if os.path.exists(file):
                 if self.collision_mesh:
                     self.collision_mesh.removeNode()
@@ -569,7 +571,7 @@ class Editor (DirectObject):
             else:
                 print "FILE NOT FOUND!"  
                 feedback+=file+' '
-        if self.gui.flags[6]:
+        if self.gui.flags[6]:#nav map
             print "loading navigation map...",
             file=path+save_dir+"/"+self.gui.entry8.get()+".png"
             if os.path.exists(file):
@@ -597,31 +599,28 @@ class Editor (DirectObject):
                 return
         else:
             os.makedirs(Filename(path+save_dir).toOsSpecific())            
-        if self.gui.flags[0]:
+        if self.gui.flags[0]:#height map
             print "saving height map...",
-            self.painter.write(BUFFER_HEIGHT, path+save_dir+"/"+self.gui.entry2.get())
+            self.painter.write(BUFFER_HEIGHT, path+save_dir+"/"+self.gui.entry2.get()+'.png')
             print "done"
-        if self.gui.flags[1]:
+        if self.gui.flags[1]:#atr maps
             print "saving detail map...",
-            self.painter.write(BUFFER_ATR, path+save_dir+"/"+self.gui.entry3.get())  
+            self.painter.write(BUFFER_ATR, path+save_dir+"/"+self.gui.entry3.get()+'0.png')
+            self.painter.write(BUFFER_ATR2, path+save_dir+"/"+self.gui.entry3.get()+'1.png')
             print "done"        
-        if self.gui.flags[2]:
+        if self.gui.flags[2]:#grass map
             print "saving grass map...",
-            self.painter.write(BUFFER_GRASS, path+save_dir+"/"+self.gui.entry5.get())          
-            print "done"
-        #if self.gui.flags[3]:
-        #    print "saving color map...",
-            #self.painter.write(BUFFER_COLOR, path+save_dir+"/"+self.gui.entry4.get())
-        #    print "done"    
-        if self.gui.flags[4]:
+            self.painter.write(BUFFER_GRASS, path+save_dir+"/"+self.gui.entry5.get()+'.png')         
+            print "done"   
+        if self.gui.flags[4]:#objects and textures used
             print "saving objects...",
-            SaveScene(path+save_dir+"/"+self.gui.entry6.get(), self.objectPainter.quadtree, self.textures)
+            SaveScene(path+save_dir+"/"+self.gui.entry6.get()+'.json', self.objectPainter.quadtree, self.textures_diffuse, self.curent_textures)
             print "done"        
-        if self.gui.flags[5]:
+        if self.gui.flags[5]:#collison
             print "saving collision mesh...",
-            self.genCollision(True, path+save_dir+"/"+self.gui.entry7.get())    
+            self.genCollision(True, path+save_dir+"/"+self.gui.entry7.get()+'.egg')    
             print "done"
-        if self.gui.flags[6]:
+        if self.gui.flags[6]:#navmesh
             print "saving Navigation Mesh(CSV) and map...",            
             map=self.painter.write(BUFFER_WALK, path+save_dir+"/"+self.gui.entry8.get()+'.png', True)
             GenerateNavmeshCSV(map, path+save_dir+"/"+self.gui.entry8.get()+'.csv')            
@@ -807,7 +806,7 @@ class Editor (DirectObject):
             heightmap=PNMImage(self.painter.buffSize[BUFFER_HEIGHT], self.painter.buffSize[BUFFER_HEIGHT],4)              
             base.graphicsEngine.extractTextureData(self.painter.textures[BUFFER_HEIGHT],base.win.getGsg())
             self.painter.textures[BUFFER_HEIGHT].store(heightmap)
-            GenerateCollisionEgg(heightmap, file, input='data/collision10k.egg')
+            GenerateCollisionEgg(heightmap, file, input='data/collision80k.egg')
             if self.collision_mesh:
                 self.collision_mesh.removeNode()
             self.collision_mesh=loader.loadModel(file, noCache=True)
@@ -901,9 +900,11 @@ class Editor (DirectObject):
         return 
         
     def perFrameUpdate(self, task):         
-        time=globalClock.getFrameTime()    
+        time=globalClock.getFrameTime()            
         self.grass.setShaderInput('time', time) 
-        self.update()        
+        if self.lastUpdateTime+0.03<time:
+            self.update()        
+            self.lastUpdateTime=time            
         if self.mode==MODE_OBJECT:
             self.objectPainter.update(self.snap.get())
         return task.cont    
@@ -919,9 +920,9 @@ class Editor (DirectObject):
                 self.fxaaManager=makeFXAA(self.fxaaManager)
                 self.winsize=newsize
                 
-    def setAtrMapColor(self, color1, color2, event=None):       
-        self.painter.brushes[BUFFER_ATR].setColor(color1)
-        self.painter.brushes[BUFFER_ATR2].setColor(color2)  
+    def setAtrMapColor(self, color1, color2, event=None):        
+        self.painter.brushes[BUFFER_ATR].setColor(color1[0],color1[1],color1[2],self.painter.brushAlpha)
+        self.painter.brushes[BUFFER_ATR2].setColor(color2[0],color2[1],color2[2],self.painter.brushAlpha)
  
 app=Editor()
 run()    
