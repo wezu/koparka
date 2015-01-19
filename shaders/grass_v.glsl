@@ -41,7 +41,8 @@ void main()
     // Set the mask to discard in the fragment shader
     mask = texture2DLod(grass,uv, 0.0).r;
     //mask =1.0;
-    float animation =sin(0.7*time+float(gl_InstanceID))*sin(1.7*time+float(gl_InstanceID))*gl_Color.r;
+    float anim_co=step(0.75, gl_MultiTexCoord0.y);
+    float animation =sin(0.7*time+float(gl_InstanceID))*sin(1.7*time+float(gl_InstanceID))*anim_co;
     float h= texture2DLod(height,uv, 0.0).r;    
     
     v.z+=h*100.0; 
