@@ -7,6 +7,7 @@ def GenerateCollisionEgg(heightmap, output, input='data/collision3k.egg', scale=
     input_egg=file(input, 'r')
     output_egg=file(output, 'w')
     isVertexPos=False    
+    print "Generating mesh, this may take a while..."
     for line in input_egg.readlines():
         if isVertexPos:
             vertex=line.split()

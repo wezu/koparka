@@ -17,6 +17,7 @@ class ObjectPainter():
         self.traverser.addCollider(self.pickerNP, self.queue)
                 
         self.currentObject=None
+        self.selectedObject=None
         self.hitNode=None
         self.currentHPR=[0,0,0]
         self.currentZ=0.0
@@ -206,17 +207,21 @@ class ObjectPainter():
             self.currentObject=None
             
     def pickup(self): 
-        if self.currentObject:
-            return False
+        if self.selectedObject:
+            self.currentObject=self.selectedObject
+            self.currentObject.wrtReparentTo(render) 
+            self.currentHPR=[self.currentObject.getH(render), self.currentObject.getP(render), self.currentObject.getR(render)]
+            self.currentZ=self.currentObject.getZ(render)
+            self.currentScales=self.currentObject.getScale()[0]
+       
+    def select(self):            
         if self.hitNode:
             if self.hitNode.hasPythonTag('object'):                
-                self.currentObject=self.hitNode.getPythonTag('object')
-                self.currentObject.wrtReparentTo(render) 
-                self.currentHPR=[self.currentObject.getH(render), self.currentObject.getP(render), self.currentObject.getR(render)]
-                self.currentZ=self.currentObject.getZ(render)
-                self.currentScales=self.currentObject.getScale()[0]
-                return True  
-                
+                self.selectedObject=self.hitNode.getPythonTag('object')
+                return True
+            else:
+                return False
+            
     def _stringToFloat(self, string):
         f=0.001
         if string:

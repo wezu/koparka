@@ -3,6 +3,7 @@ loadPrcFileData('','textures-power-2 None')#needed for fxaa
 loadPrcFileData('','win-size 1024 768')
 loadPrcFileData('','show-frame-rate-meter  1')
 loadPrcFileData('','sync-video 0')
+#loadPrcFileData('','show-buffers 1')
 #loadPrcFileData('','win-size 1280 720')
 #loadPrcFileData("", "dump-generated-shaders 1")
 from direct.showbase.AppRunnerGlobal import appRunner
@@ -52,6 +53,7 @@ OBJECT_MODE_WALL=2
 OBJECT_MODE_SELECT=3
 OBJECT_MODE_ACTOR=4
 OBJECT_MODE_COLLISION=5
+OBJECT_MODE_PICKUP=6
 
 HEIGHT_MODE_UP=0
 HEIGHT_MODE_DOWN=1
@@ -59,6 +61,9 @@ HEIGHT_MODE_LEVEL=2
 
 WALK_MODE_NOWALK=0
 WALK_MODE_WALK=1
+
+GRASS_MODE_PAINT=1
+GRASS_MODE_REMOVE=0
 
 class Editor (DirectObject):
     def __init__(self):
@@ -74,9 +79,11 @@ class Editor (DirectObject):
         self.grid.setTexture(loader.loadTexture('data/grid.png'))
         self.grid.setTransparency(TransparencyAttrib.MDual)
         self.grid.setTexScale(TextureStage.getDefault(), 16, 16, 1)
-        self.grid.setZ(1)
+        self.grid.setZ(1)        
         self.grid.setLightOff()
         self.grid.setColor(0,0,0,0.5) 
+        self.grid_z=1.0
+        self.grid_scale=16
         #self.grid.hide()
         #axis to help orient the scene
         self.axis=loader.loadModel('data/axis.egg')
@@ -158,13 +165,15 @@ class Editor (DirectObject):
         
         #save/load
         self.gui.addSaveLoadDialog(self.save, self.load, self.hideSaveMenu)
+        #config
+        self.gui.addConfigDialog(self.configBrush)
         
         #extra tools and info at the bottom
         self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (640, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))
         self.size_info=self.gui.addInfoIcon(self.statusbar, 'icon/resize.png', '1.0', tooltip=self.tooltip, tooltip_text='Brush Size or Object Scale:   [A]-Decrease    [D]-Increase')
         self.color_info=self.gui.addInfoIcon(self.statusbar, 'icon/color.png', '0.05',tooltip=self.tooltip, tooltip_text='Brush Strength or Object Z offset:   [W]-Increase   [S]-Decrease')
-        self.heading_info=self.gui.addInfoIcon(self.statusbar, 'icon/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Brush Rotation ([1][2][3] to change axis in Object Mode):   [Q]-Left   [E]-Right')
-        self.gui.addInfoIcon(self.statusbar, 'icon/blank.png', '')#empty space
+        self.heading_info=self.gui.addInfoIcon(self.statusbar, 'icon/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Brush Rotation ([1][2][3] to change axis in Object Mode):   [Q]-Left   [E]-Right')        
+        self.gui.addButton(self.statusbar, 'icon/config.png', self.configBrush, [True], self.tooltip, 'Configure brush and grid (numeric values)')
         self.gui.addButton(self.statusbar, 'icon/hm_icon.png', self.setMode, [MODE_HEIGHT], self.tooltip, 'Paint Heightmap Mode [F1]')
         self.gui.addButton(self.statusbar, 'icon/tex_icon.png', self.setMode, [MODE_TEXTURE], self.tooltip, 'Paint Texture Mode [F2]')
         self.gui.addButton(self.statusbar, 'icon/grass.png', self.setMode, [MODE_GRASS], self.tooltip, 'Paint Grass Mode [F3]')
@@ -215,6 +224,21 @@ class Editor (DirectObject):
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_actor.png', self.setObjectMode,[OBJECT_MODE_ACTOR],tooltip=self.tooltip, tooltip_text='Place actors (models with animations)')
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_collision.png', self.setObjectMode,[OBJECT_MODE_COLLISION],tooltip=self.tooltip, tooltip_text='Place Collision solids')
         self.gui.grayOutButtons(self.mode_toolbar_id, (0,6), 0)
+        #object-mode select toolbar
+        self.select_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 384), icon_size=32, x_offset=-192, y_offset=128, hover_command=self.onToolbarHover, color=(0,0,0, 0.5)) 
+        #hack to add text
+        self.gui.elements[self.select_toolbar_id]['frame']['text']="X:\nY:\nZ:\nH:\nP:\nR:\n      Scale:"
+        self.gui.elements[self.select_toolbar_id]['frame']['text_scale']=32
+        self.gui.elements[self.select_toolbar_id]['frame']['text_fg']=(1,1,1,1)
+        self.gui.elements[self.select_toolbar_id]['frame']['text_font']=self.gui.fontBig
+        self.gui.elements[self.select_toolbar_id]['frame']['text_pos']=(16,-24)
+        for i in range(6):
+            self.gui.addEntry(self.select_toolbar_id, size_x=180, offset_x=30)
+        self.gui.addEntry(self.select_toolbar_id, size_x=125, offset_x=85)
+        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/apply.png',[32, 232], self.applyTransform,[0] ,tooltip=self.tooltip, tooltip_text='Apply changes in position, rotation and scale')        
+        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/pickup.png',[32, 272], self.pickUp,[0] ,tooltip=self.tooltip, tooltip_text='Pick up the selected object and move it manualy')        
+        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/delete.png',[32, 312], self.deleteObject,[0] ,tooltip=self.tooltip, tooltip_text='Delete the selected object')        
+        
         
         #extra buttons for height paint mode (up/down/level)
         self.heightmode_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (192, 64), icon_size=64, y_offset=-64,x_offset=-192, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))        
@@ -229,6 +253,12 @@ class Editor (DirectObject):
         self.gui.addButton(self.walkmap_toolbar_id, 'icon/icon_walk.png', self.changeWalkMode,[WALK_MODE_WALK],tooltip=self.tooltip, tooltip_text='Paint walkable area')        
         self.gui.grayOutButtons(self.walkmap_toolbar_id, (0,2), 0)
         
+        #extra buttons for grass paint (add/remove)
+        self.grass_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (128, 64), icon_size=64, y_offset=-64,x_offset=-128, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))                
+        self.gui.addButton(self.grass_toolbar_id, 'icon/no_grass.png', self.changeGrassMode,[GRASS_MODE_REMOVE],tooltip=self.tooltip, tooltip_text='Remove grass')        
+        self.gui.addButton(self.grass_toolbar_id, 'icon/grass.png', self.changeGrassMode,[GRASS_MODE_PAINT],tooltip=self.tooltip, tooltip_text='Paint grass')
+        self.gui.grayOutButtons(self.grass_toolbar_id, (0,2), 1)
+        self.painter.brushes[BUFFER_GRASS].setColor(1,0,0,1)
         
         #properties panel
         self.prop_panel_id=self.gui.addPropPanel()
@@ -305,7 +335,7 @@ class Editor (DirectObject):
         self.accept('w-up', self.keyMap.__setitem__, ['alpha_up', False])
         self.accept('s', self.keyMap.__setitem__, ['alpha_down', True])                
         self.accept('s-up', self.keyMap.__setitem__, ['alpha_down', False])        
-        self.accept('tab', self.flipBrushColor)
+        #self.accept('tab', self.flipBrushColor)
         self.accept('f1', self.setMode,[MODE_HEIGHT,'hotkey']) 
         self.accept('f2', self.setMode,[MODE_TEXTURE,'hotkey'])
         self.accept('f3', self.setMode,[MODE_GRASS,'hotkey'])        
@@ -327,7 +357,120 @@ class Editor (DirectObject):
         
         #tasks
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task')        
+    
+    def deleteObject(self, not_used=None, guiEvent=None):
+        node=self.objectPainter.selectedObject
+        if node:
+            if node in self.objectPainter.actors:
+                self.objectPainter.actors.pop(self.objectPainter.actors.index(node)).cleanup() 
+            node.removeNode()
+            self.objectPainter.selectedObject=None
+            self.setObjectMode(OBJECT_MODE_ONE)
+            self.props.set('') 
+            
+    def applyTransform(self, not_used=None, guiEvent=None):
+        x=self.gui.elements[self.select_toolbar_id]['buttons'][0].get()        
+        y=self.gui.elements[self.select_toolbar_id]['buttons'][1].get()
+        z=self.gui.elements[self.select_toolbar_id]['buttons'][2].get()
+        h=self.gui.elements[self.select_toolbar_id]['buttons'][3].get()
+        p=self.gui.elements[self.select_toolbar_id]['buttons'][4].get()
+        r=self.gui.elements[self.select_toolbar_id]['buttons'][5].get()
+        scale=self.gui.elements[self.select_toolbar_id]['buttons'][6].get()
+        x=self.objectPainter._stringToFloat(x)
+        y=self.objectPainter._stringToFloat(y)
+        z=self.objectPainter._stringToFloat(z)
+        h=self.objectPainter._stringToFloat(h)
+        p=self.objectPainter._stringToFloat(p)
+        r=self.objectPainter._stringToFloat(r)
+        scale=self.objectPainter._stringToFloat(scale)
+        self.objectPainter.selectedObject.setPosHpr((x,y,z), (h,p,r))
+        self.objectPainter.selectedObject.setScale(scale)
+        self.gui.elements[self.select_toolbar_id]['buttons'][0]['focus']=0
+        self.gui.elements[self.select_toolbar_id]['buttons'][1]['focus']=0
+        self.gui.elements[self.select_toolbar_id]['buttons'][2]['focus']=0
+        self.gui.elements[self.select_toolbar_id]['buttons'][3]['focus']=0
+        self.gui.elements[self.select_toolbar_id]['buttons'][4]['focus']=0
+        self.gui.elements[self.select_toolbar_id]['buttons'][5]['focus']=0
+        self.gui.elements[self.select_toolbar_id]['buttons'][6]['focus']=0
         
+        props=self.props.get()
+        self.objectPainter.selectedObject.setPythonTag('props', props) 
+                    
+    def pickUp(self, not_used=None, guiEvent=None):   
+        self.objectPainter.pickup()
+        self.setObjectMode(OBJECT_MODE_ONE)
+        self.heading_info['text']=self.objectPainter.adjustHpr(0,self.hpr_axis)
+        self.size_info['text']='%.2f'%self.objectPainter.currentScale
+        self.color_info['text']='%.2f'%self.objectPainter.currentZ   
+        self.props.set(self.objectPainter.currentObject.getPythonTag('props'))
+                    
+    def configBrush(self, options=False, guiEvent=None):    
+        if options==True:
+            self.ignoreHover=True
+            self.painter.hideBrushes()
+            self.gui.ConfigFrame.show()
+            self.ignore('mouse1-up')
+            self.ignore('mouse1')
+            self.gui.ConfigEntry[0].enterText(self.size_info['text'])
+            self.gui.ConfigEntry[1].enterText(self.color_info['text'])
+            if self.mode==MODE_OBJECT:
+                self.gui.ConfigEntry[2].enterText(str(self.objectPainter.currentHPR[0]))
+                self.gui.ConfigEntry[3].enterText(str(self.objectPainter.currentHPR[1]))
+                self.gui.ConfigEntry[4].enterText(str(self.objectPainter.currentHPR[2]))
+            else:
+                self.gui.ConfigEntry[2].enterText(str(self.painter.brushes[0].getH()))
+                self.gui.ConfigEntry[3].enterText('0.0')
+                self.gui.ConfigEntry[4].enterText('0.0')
+            self.gui.ConfigEntry[5].enterText(str(self.grid_scale))
+            self.gui.ConfigEntry[6].enterText(str(self.grid_z))            
+        elif options==False:    
+            self.ignoreHover=False
+            self.gui.ConfigFrame.hide()
+            self.setMode(self.mode)
+        else: 
+            self.ignoreHover=False
+            self.gui.ConfigFrame.hide()
+            self.setMode(self.mode) 
+            self.grid.setTexScale(TextureStage.getDefault(), self.gui.ConfigOptions['grid'], self.gui.ConfigOptions['grid'], 1)
+            self.grid.setZ(self.gui.ConfigOptions['grid_z'])   
+            self.grid_scale=self.gui.ConfigOptions['grid']
+            self.grid_z=self.gui.ConfigOptions['grid_z']
+            if self.mode==MODE_OBJECT:
+                #hpr
+                self.setAxis='H: '
+                self.heading_info['text']=self.setAxis+str(self.gui.ConfigOptions['hpr'][0])
+                self.objectPainter.currentHPR=self.gui.ConfigOptions['hpr']                
+                #scale
+                self.objectPainter.currentScale=self.gui.ConfigOptions['scale']
+                self.size_info['text']='%.2f'%self.objectPainter.currentScale
+                #alpha (Z)
+                self.objectPainter.currentZ=self.gui.ConfigOptions['alpha']
+                self.color_info['text']='%.2f'%self.objectPainter.currentZ    
+            else:
+                #hpr                                
+                for brush in self.painter.brushes:            
+                    brush.setH(self.gui.ConfigOptions['hpr'][0])
+                self.heading_info['text']=self.hpr_axis+'%.0f'%self.painter.brushes[0].getH()                
+                #scale                               
+                self.painter.brushSize=self.gui.ConfigOptions['scale']                
+                self.painter.adjustBrushSize(0)
+                self.size_info['text']='%.2f'%self.painter.brushSize
+                #alpha (color)
+                if self.mode==MODE_HEIGHT and self.height_mode==HEIGHT_MODE_LEVEL:
+                    self.tempColor=self.gui.ConfigOptions['alpha']
+                    self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
+                    self.color_info['text']='%.2f'%self.tempColor                
+                else:
+                    self.painter.brushAlpha=self.gui.ConfigOptions['alpha']
+                    self.painter.adjustBrushAlpha(0)                    
+                    self.color_info['text']='%.2f'%self.painter.brushAlpha    
+                    
+    def changeGrassMode(self, mode=None, guiEvent=None):
+        self.gui.grayOutButtons(self.grass_toolbar_id, (0,2), mode)          
+        self.painter.brushes[BUFFER_GRASS].setColor(mode,0,0,1)
+        #self.painter.setBrushColor((mode,0,0,0))
+        print mode, self.painter.brushes[BUFFER_GRASS].getColor()
+            
     def changeWalkMode(self, mode=None, guiEvent=None):
         self.gui.grayOutButtons(self.walkmap_toolbar_id, (0,2), mode)
         if mode==WALK_MODE_NOWALK:
@@ -425,7 +568,7 @@ class Editor (DirectObject):
         
     def setObjectMode(self, mode, guiEvent=None): 
         self.gui.grayOutButtons(self.mode_toolbar_id, (0,6), mode)
-        self.object_mode=mode
+        self.object_mode=mode        
         if guiEvent!=None:
             self.objectPainter.stop()
         if mode==OBJECT_MODE_ONE:
@@ -434,6 +577,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.wall_toolbar_id)
             self.gui.hideElement(self.actor_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)
+            self.gui.hideElement(self.select_toolbar_id)
             self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))
         if mode==OBJECT_MODE_MULTI:
             self.gui.showElement(self.multi_toolbar_id)
@@ -441,6 +585,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.wall_toolbar_id)
             self.gui.hideElement(self.actor_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)
+            self.gui.hideElement(self.select_toolbar_id)
             self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))
         if mode==OBJECT_MODE_WALL:        
             self.gui.showElement(self.wall_toolbar_id)
@@ -448,6 +593,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.multi_toolbar_id)
             self.gui.hideElement(self.actor_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)
+            self.gui.hideElement(self.select_toolbar_id)
             self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))            
         if mode==OBJECT_MODE_SELECT:
             self.gui.hideElement(self.object_toolbar_id)
@@ -455,20 +601,22 @@ class Editor (DirectObject):
             self.gui.hideElement(self.wall_toolbar_id)
             self.gui.hideElement(self.actor_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)            
-            self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(2))
+            self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(2))            
         if mode==OBJECT_MODE_ACTOR:
             self.gui.showElement(self.actor_toolbar_id)
             self.gui.hideElement(self.object_toolbar_id)
             self.gui.hideElement(self.multi_toolbar_id)
             self.gui.hideElement(self.wall_toolbar_id)
             self.gui.hideElement(self.collision_toolbar_id)
+            self.gui.hideElement(self.select_toolbar_id)
             self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))
         if mode==OBJECT_MODE_COLLISION:
             self.gui.showElement(self.collision_toolbar_id)
             self.gui.hideElement(self.object_toolbar_id)
             self.gui.hideElement(self.multi_toolbar_id)
             self.gui.hideElement(self.wall_toolbar_id)
-            self.gui.hideElement(self.actor_toolbar_id)  
+            self.gui.hideElement(self.actor_toolbar_id) 
+            self.gui.hideElement(self.select_toolbar_id) 
             self.objectPainter.pickerNode.setFromCollideMask(BitMask32.bit(1))
             
     def hideDialog(self, guiEvent=None): 
@@ -525,7 +673,7 @@ class Editor (DirectObject):
             file=path+save_dir+"/"+self.gui.entry3.get()+'0.png'
             if os.path.exists(file):
                 self.painter.paintPlanes[BUFFER_ATR].setTexture(loader.loadTexture(file))
-                print "ok",                
+                print "ok...",                
             else:
                 print "FILE NOT FOUND!"            
                 feedback+=file+' '
@@ -606,6 +754,7 @@ class Editor (DirectObject):
         if self.gui.flags[1]:#atr maps
             print "saving detail map...",
             self.painter.write(BUFFER_ATR, path+save_dir+"/"+self.gui.entry3.get()+'0.png')
+            print "ok... "
             self.painter.write(BUFFER_ATR2, path+save_dir+"/"+self.gui.entry3.get()+'1.png')
             print "done"        
         if self.gui.flags[2]:#grass map
@@ -648,11 +797,11 @@ class Editor (DirectObject):
         if self.mode==MODE_OBJECT:
             self.props['focus']=0
             self.snap['focus']=0
-            props=self.props.get()
+            props=self.props.get()            
             if self.object_mode in(OBJECT_MODE_ONE,OBJECT_MODE_COLLISION, OBJECT_MODE_ACTOR):
                 self.objectPainter.drop(props)
                 self.props.set('')                
-            elif self.object_mode==OBJECT_MODE_SELECT:
+            elif self.object_mode==OBJECT_MODE_PICKUP:
                 if self.objectPainter.pickup():
                     self.setObjectMode(OBJECT_MODE_ONE)
                     self.heading_info['text']=self.objectPainter.adjustHpr(0,self.hpr_axis)
@@ -666,8 +815,22 @@ class Editor (DirectObject):
                 self.objectPainter.drop(props)
                 self.objectPainter.currentObject=render.attachNewNode('temp')
                 self.setRandomWall()
-
-        
+            elif self.object_mode==OBJECT_MODE_SELECT:    
+                if self.objectPainter.select():
+                    self.gui.showElement(self.select_toolbar_id)
+                    pos=self.objectPainter.selectedObject.getPos()
+                    hpr=self.objectPainter.selectedObject.getHpr()                    
+                    scale=self.objectPainter.selectedObject.getScale()
+                    props=self.objectPainter.selectedObject.getPythonTag('props')                    
+                    self.gui.elements[self.select_toolbar_id]['buttons'][0].enterText('%.2f'%pos[0])
+                    self.gui.elements[self.select_toolbar_id]['buttons'][1].enterText('%.2f'%pos[1])
+                    self.gui.elements[self.select_toolbar_id]['buttons'][2].enterText('%.2f'%pos[2])
+                    self.gui.elements[self.select_toolbar_id]['buttons'][3].enterText('%.2f'%hpr[0])
+                    self.gui.elements[self.select_toolbar_id]['buttons'][4].enterText('%.2f'%hpr[1])
+                    self.gui.elements[self.select_toolbar_id]['buttons'][5].enterText('%.2f'%hpr[2])
+                    self.gui.elements[self.select_toolbar_id]['buttons'][6].enterText('%.2f'%scale[0])
+                    self.props.enterText(props)
+                    
     def setMode(self, mode, guiEvent=None):        
         if mode==MODE_HEIGHT:
             if guiEvent!=None:
@@ -695,6 +858,8 @@ class Editor (DirectObject):
             self.gui.hideElement(self.collision_toolbar_id)
             self.gui.hideElement(self.prop_panel_id)
             self.gui.hideElement(self.walkmap_toolbar_id)
+            self.gui.hideElement(self.grass_toolbar_id)
+            self.gui.hideElement(self.select_toolbar_id)
             self.objectPainter.stop()
             self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
         elif mode==MODE_TEXTURE:
@@ -722,6 +887,8 @@ class Editor (DirectObject):
             self.gui.hideElement(self.prop_panel_id)
             self.gui.hideElement(self.heightmode_toolbar_id)
             self.gui.hideElement(self.walkmap_toolbar_id)
+            self.gui.hideElement(self.grass_toolbar_id)
+            self.gui.hideElement(self.select_toolbar_id)
             self.objectPainter.stop()
             self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
         elif mode==MODE_GRASS:
@@ -734,7 +901,7 @@ class Editor (DirectObject):
             self.painter.brushes[BUFFER_ATR2].hide()   
             self.painter.brushes[BUFFER_WALK].hide()            
             self.painter.brushes[BUFFER_GRASS].show()
-            self.painter.brushes[BUFFER_GRASS].setColor(1,0,0, self.painter.brushAlpha)  
+            #self.painter.brushes[BUFFER_GRASS].setColor(1,0,0, self.painter.brushAlpha)  
             self.painter.pointer.show() 
             self.hpr_axis=''      
             self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
@@ -750,6 +917,8 @@ class Editor (DirectObject):
             self.gui.hideElement(self.prop_panel_id)
             self.gui.hideElement(self.heightmode_toolbar_id)
             self.gui.hideElement(self.walkmap_toolbar_id)
+            self.gui.showElement(self.grass_toolbar_id)
+            self.gui.hideElement(self.select_toolbar_id)
             self.objectPainter.stop()
             self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))            
         elif mode==MODE_OBJECT:
@@ -766,7 +935,8 @@ class Editor (DirectObject):
             self.gui.showElement(self.mode_toolbar_id)
             self.gui.showElement(self.prop_panel_id)
             self.gui.hideElement(self.walkmap_toolbar_id)
-            self.setObjectMode(self.object_mode)
+            self.gui.hideElement(self.grass_toolbar_id)
+            self.setObjectMode(self.object_mode)            
             self.accept('mouse1', self.paint)                
             self.ignore('mouse1-up')
             self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
@@ -796,6 +966,8 @@ class Editor (DirectObject):
             self.gui.hideElement(self.prop_panel_id)
             self.gui.hideElement(self.heightmode_toolbar_id)
             self.gui.showElement(self.walkmap_toolbar_id)
+            self.gui.hideElement(self.grass_toolbar_id)
+            self.gui.hideElement(self.select_toolbar_id)
             self.objectPainter.stop() 
             self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_WALK])             
         self.mode=mode
@@ -882,7 +1054,7 @@ class Editor (DirectObject):
             self.painter.adjustBrushSize(-0.001) 
             self.size_info['text']='%.2f'%self.painter.brushSize
         if self.keyMap['alpha_up']:
-            if self.height_mode==HEIGHT_MODE_LEVEL:
+            if self.mode==MODE_HEIGHT and self.height_mode==HEIGHT_MODE_LEVEL:
                 self.tempColor=min(1.0, max(0.0, self.tempColor+0.001)) 
                 self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
                 self.color_info['text']='%.2f'%self.tempColor 
@@ -890,13 +1062,13 @@ class Editor (DirectObject):
                 self.painter.adjustBrushAlpha(0.001)  
                 self.color_info['text']='%.2f'%self.painter.brushAlpha                 
         if self.keyMap['alpha_down']:
-            if self.height_mode==HEIGHT_MODE_LEVEL:
+            if self.mode==MODE_HEIGHT and  self.height_mode==HEIGHT_MODE_LEVEL:
                 self.tempColor=min(1.0, max(0.0, self.tempColor-0.001)) 
                 self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
-                self.color_info['text']='%.2f'%self.tempColor
+                self.color_info['text']='%.2f'%self.tempColor                
             else:                    
                 self.painter.adjustBrushAlpha(-0.001) 
-            self.color_info['text']='%.2f'%self.painter.brushAlpha             
+                self.color_info['text']='%.2f'%self.painter.brushAlpha             
         return 
         
     def perFrameUpdate(self, task):         

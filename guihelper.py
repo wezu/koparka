@@ -100,8 +100,236 @@ class GuiHelper():
         self.dialogOk.show()        
         self.dialog['text']=text
         self.dialogOk.bind(DGG.B1PRESS, command, arg)
+    
+    def focusValidateEntry(self,id):    
+        text=self.ConfigEntry[id].get()
+        value=0.0
+        try:
+            value=float(text)
+        except ValueError:
+            value=0.0
+        if id==0:#size                        
+            value=min(10.0, max(0.1, value))
+            self.ConfigOptions['scale']=value
+        elif id==1:#alpha   
+            value=min(1.0, max(0.0, value))
+            self.ConfigOptions['alpha']=value
+        elif id in (2,3,4): #hpr    
+            value=min(360.0, max(0.0, value))
+            self.ConfigOptions['hpr'][id-2]=value
+        elif id==5:
+            value=min(512.0, max(1.0, value))
+            self.ConfigOptions['grid']=value
+        elif id==6:
+            value=min(101.0, max(0.0, value))    
+            self.ConfigOptions['grid_z']=value
+        self.ConfigEntry[id].enterText(str(value))    
         
-
+    def validateEntry(self, text=None, id=0):
+        value=0.0
+        if text==None:
+            text=self.ConfigEntry[id].get()
+        try:
+            value=float(text)
+        except ValueError:
+            value=0.0
+        if id==0:#size                        
+            value=min(10.0, max(0.1, value))
+            self.ConfigOptions['scale']=value
+        elif id==1:#alpha   
+            value=min(1.0, max(0.0, value))
+            self.ConfigOptions['alpha']=value
+        elif id in (2,3,4): #hpr    
+            value=min(360.0, max(0.0, value))
+            self.ConfigOptions['hpr'][id-2]=value
+        elif id==5:
+            value=min(512.0, max(1.0, value))
+            self.ConfigOptions['grid']=value
+        elif id==6:
+            value=min(101.0, max(-1.0, value))    
+            self.ConfigOptions['grid_z']=value
+        self.ConfigEntry[id].enterText(str(value))    
+        
+    def addConfigDialog(self, command):  
+        self.ConfigOptions={
+                            'grid':16,
+                            'grid_z':1.0,
+                            'hpr':[0,0,0],
+                            'scale':1.0,
+                            'alpha':0.05
+                            }
+        self.ConfigFrame=DirectFrame( frameSize=_rec2d(512,540),
+                                        frameColor=(0,0,0, 0.8),
+                                        text="Scale:\n\nStrength\n(Z offset):\n\nHeading:\n\nPitch:\n\nRoll:\n\nGrid Size:\n\nGrid Z:",
+                                        text_scale=32,
+                                        text_font=self.fontBig,
+                                        text_pos=(-440,505),
+                                        text_fg=(0.7,0.7,0.7,1),
+                                        parent=self.Center)
+        self.ConfigFrame.hide()
+        _resetPivot(self.ConfigFrame)
+        self.ConfigFrame.setPos(_pos2d(-256, -256))
+        self.ConfigEntry=[]
+        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = '1.0',
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText= '1.0',
+                        numLines = 1,
+                        width=19,
+                        focus=0,
+                        suppressKeys=True,
+                        parent=self.ConfigFrame,
+                        command=self.validateEntry,
+                        extraArgs=[0],
+                        focusOutCommand=self.focusValidateEntry,
+                        focusOutExtraArgs=[0]
+                        ))        
+        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = '1.0',
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText= '1.0',
+                        numLines = 1,
+                        width=19,
+                        focus=0,
+                        suppressKeys=True,
+                        parent=self.ConfigFrame,
+                        command=self.validateEntry,
+                        extraArgs=[1],
+                        focusOutCommand=self.focusValidateEntry,
+                        focusOutExtraArgs=[1]
+                        ))
+        
+        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = '1.0',
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText= '1.0',
+                        numLines = 1,
+                        width=19,
+                        focus=0,
+                        suppressKeys=True,
+                        parent=self.ConfigFrame,
+                        command=self.validateEntry,
+                        extraArgs=[2],
+                        focusOutCommand=self.focusValidateEntry,
+                        focusOutExtraArgs=[2]
+                        ))        
+        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = '1.0',
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText= '1.0',
+                        numLines = 1,
+                        width=19,
+                        focus=0,
+                        suppressKeys=True,
+                        parent=self.ConfigFrame,
+                        command=self.validateEntry,
+                        extraArgs=[3],
+                        focusOutCommand=self.focusValidateEntry,
+                        focusOutExtraArgs=[3]
+                        ))        
+        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = '1.0',
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText= '1.0',
+                        numLines = 1,
+                        width=19,
+                        focus=0,
+                        suppressKeys=True,
+                        parent=self.ConfigFrame,
+                        command=self.validateEntry,
+                        extraArgs=[4],
+                        focusOutCommand=self.focusValidateEntry,
+                        focusOutExtraArgs=[4]
+                        ))        
+        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = '1.0',
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText= '1.0',
+                        numLines = 1,
+                        width=19,
+                        focus=0,
+                        suppressKeys=True,
+                        parent=self.ConfigFrame,
+                        command=self.validateEntry,
+                        extraArgs=[5],
+                        focusOutCommand=self.focusValidateEntry,
+                        focusOutExtraArgs=[5]
+                        ))        
+        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
+                        frameColor=(1,1,1, 0.3),
+                        text = '1.0',
+                        text_scale=16,
+                        text_pos=(-308,18),
+                        text_fg=(1,1,1,1),
+                        initialText= '1.0',
+                        numLines = 1,
+                        width=19,
+                        focus=0,
+                        suppressKeys=True,
+                        parent=self.ConfigFrame,
+                        command=self.validateEntry,
+                        extraArgs=[6],
+                        focusOutCommand=self.focusValidateEntry,
+                        focusOutExtraArgs=[6]
+                        ))                        
+                        
+        pos_list=(8,86,170,230,290,355,415)            
+        i=0                
+        for entry in self.ConfigEntry:
+            _resetPivot(entry)
+            entry.setPos(_pos2d(150,pos_list[i]))
+            i+=1
+        
+        self.okButton=DirectFrame(frameSize=_rec2d(128,32),
+                                    frameColor=(1,1,1,0.5),  
+                                    text="OK",
+                                    text_scale=32,
+                                    text_font=self.fontBig,
+                                    text_pos=(-70,7),
+                                    text_fg=(0,1,0,1),
+                                    state=DGG.NORMAL, 
+                                    parent=self.ConfigFrame)
+        _resetPivot(self.okButton)        
+        self.okButton.setPos(_pos2d(352,478))
+        
+        self.cancelButton=DirectFrame(frameSize=_rec2d(128,32),
+                                    frameColor=(1,1,1,0.5),  
+                                    text="CANCEL",
+                                    text_scale=32,
+                                    text_font=self.fontBig,
+                                    text_pos=(-66,7),
+                                    text_fg=(1,0,0,1),
+                                    state=DGG.NORMAL, 
+                                    parent=self.ConfigFrame)
+        _resetPivot(self.cancelButton)        
+        self.cancelButton.setPos(_pos2d(32,478)) 
+        
+        self.okButton.bind(DGG.B1PRESS, self.validateAndExec, [command,2])        
+        self.cancelButton.bind(DGG.B1PRESS, command, [False])
+        
+    def validateAndExec(self, command, arg, event=None):
+        for i in range(7):
+            self.validateEntry(text=None, id=i)
+        command(arg)
+        
     def addSaveLoadDialog(self, save_command, load_command, cancel_command):
         #save/load 
         self.SaveLoadFrame=DirectFrame( frameSize=_rec2d(512,540),
@@ -499,6 +727,29 @@ class GuiHelper():
         id=len(self.elements)
         self.elements.append(data)
         return id
+    
+    def addEntry(self, toolbar, size_x, offset_x, offset_y=0, color=(1,1,1, 0.3)):
+        size_y=self.elements[toolbar]['icon_size']
+        parent=self.elements[toolbar]['frame']
+        x=offset_x
+        y=len(self.elements[toolbar]['buttons'])*size_y
+        entry=DirectEntry(frameSize=_rec2d(size_x,size_y-2),
+                            frameColor=color,
+                            text = '1.0',
+                            text_scale=16,
+                            text_pos=(-size_x,12),
+                            text_fg=(1,1,1,1),
+                            initialText= '1.0',
+                            numLines = 1,
+                            width=19,
+                            focus=0,
+                            suppressKeys=True,
+                            parent=parent
+                            )
+        _resetPivot(entry)
+        entry.setTransparency(TransparencyAttrib.MDual)
+        entry.setPos(_pos2d(x,y+offset_y+1))
+        self.elements[toolbar]['buttons'].append(entry)
         
     def addButton(self, toolbar, icon, command, arg=[], tooltip=None, tooltip_text=None):
         size=self.elements[toolbar]['icon_size']

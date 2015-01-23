@@ -84,11 +84,11 @@ class BufferPainter ():
         myTexture.load(p)        
         self.paintPlanes[id].setTexture(myTexture, 1)
     
-    def adjustBrushAlpha(self, alpha):
+    def adjustBrushAlpha(self, alpha):                
+        new_alpha=min(1.0, max(0.0, self.brushAlpha+alpha))           
+        self.brushAlpha=new_alpha                
         for brush in self.brushes:
-            color=brush.getColor()
-            new_alpha=min(1.0, max(0.0, self.brushAlpha+alpha))           
-            self.brushAlpha=new_alpha                
+            color=brush.getColor()              
             brush.setColor(color[0],color[1],color[2], new_alpha)
     
     def hideBrushes(self):          
@@ -109,14 +109,10 @@ class BufferPainter ():
             brush.setH(brush.getH()+heading)
             
     def adjustBrushSize(self, size):
-        for brush in self.brushes:  
-            new_size=min(5.00, max(0.11, self.brushSize+size))
-            #make 'sticky' around 1.0
-            #if new_size> 0.99 and new_size< 1.01:
-            #    new_size=1            
-            self.brushSize=new_size            
+        new_size=min(10.00, max(0.11, self.brushSize+size))                        
+        self.brushSize=new_size 
+        for brush in self.brushes:                         
             brush.setScale(new_size)
-            brush.setShaderInput('brushSize', new_size)
             
     def __getMousePos(self, task):
         if base.mouseWatcherNode.hasMouse():

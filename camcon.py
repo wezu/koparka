@@ -40,10 +40,10 @@ class CameraControler (DirectObject):
         self.accept('control-up', self.keyMap.__setitem__, ['rotate', False])
         
         self.mouseSpeed=speed #default 50.0
-        self.accept('wheel_up', self.zoom_control,[0.3])
-        self.accept('wheel_down',self.zoom_control,[-0.3])
-        self.accept('=', self.zoom_control,[0.3])
-        self.accept('-',self.zoom_control,[-0.3])
+        self.accept('wheel_up', self.zoom_control,[0.1])
+        self.accept('wheel_down',self.zoom_control,[-0.1])
+        self.accept('=', self.zoom_control,[0.1])
+        self.accept('-',self.zoom_control,[-0.1])
         
         self.skip=False
         
@@ -53,7 +53,7 @@ class CameraControler (DirectObject):
         base.camera.setY(base.camera, t)
     
     def zoom_control(self, amount):
-        LerpFunc(self.zoom,fromData=0,toData=amount, duration=.5, blendType='easeOut').start()
+        LerpFunc(self.zoom,fromData=0,toData=amount, duration=.2, blendType='easeOut').start()
         
     def update(self, task):        
         if base.mouseWatcherNode.hasMouse():
