@@ -1,7 +1,7 @@
 <CoordinateSystem> { Z-Up }
 
 <Texture> Tex1 {
-  grass2.png
+  grass.png
   <Scalar> format { rgba }
   <Scalar> wrapu { clamp }
   <Scalar> wrapv { clamp }

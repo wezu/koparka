@@ -34,7 +34,14 @@ from objectpainter import ObjectPainter
 from jsonloader import SaveScene, LoadScene
 import os, sys
 import random
+import re
 
+#helper function
+def sort_nicely( l ):
+    convert = lambda text: int(text) if text.isdigit() else text
+    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
+    l.sort( key=alphanum_key )
+    
 BUFFER_HEIGHT=0
 BUFFER_ATR=1
 BUFFER_GRASS=2 
@@ -145,8 +152,17 @@ class Editor (DirectObject):
         dirList=os.listdir(Filename(path+"tex/diffuse").toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('dds'):
-                self.textures_diffuse.append("tex/diffuse/"+fname)
-                self.textures_normal.append("tex/normal/"+fname)               
+                self.textures_diffuse.append(fname)
+                self.textures_normal.append(fname)   
+        #sort them, we want 0,1,2,3,4,5 as default textures        
+        sort_nicely(self.textures_diffuse)        
+        sort_nicely(self.textures_normal)
+        for tex in self.textures_diffuse:
+            id=self.textures_diffuse.index(tex)
+            self.textures_diffuse[id]="tex/diffuse/"+tex
+        for tex in self.textures_normal:
+            id=self.textures_normal.index(tex)
+            self.textures_normal[id]="tex/normal/"+tex              
         
         self.gui.addButton(self.palette_id, self.textures_diffuse[0], self.setAtrMapColor, [(1.0, 0.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
         self.gui.addButton(self.palette_id, self.textures_diffuse[1], self.setAtrMapColor, [(0.0, 1.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
@@ -272,14 +288,14 @@ class Editor (DirectObject):
         #the 80k mesh loads to slow from egg, using bam
         #self.mesh=loader.loadModel('data/mesh80k.egg') #there's also a 3k, 10k and 35k mesh (can be broken at this point!)
         self.mesh=loader.loadModel('data/mesh80k.bam')
-        #load default textures:   
+        #load default textures:           
         #TODO(maybe): remove default tex from model ... and fix filtering then somehow
         for tex in self.textures_diffuse[:6]:
             id=self.textures_diffuse.index(tex)
             self.mesh.setTexture(self.mesh.findTextureStage('tex{0}'.format(id+1)), loader.loadTexture(tex), 1)
         for tex in self.textures_normal[:6]:
             id=self.textures_normal.index(tex)
-            self.mesh.setTexture(self.mesh.findTextureStage('tex{0}n'.format(id+1)), loader.loadTexture(tex), 1)             
+            self.mesh.setTexture(self.mesh.findTextureStage('tex{0}n'.format(id+1)), loader.loadTexture(tex), 1)  
         self.mesh.reparentTo(render)
         self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_f.glsl"))        
         self.mesh.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
@@ -290,6 +306,9 @@ class Editor (DirectObject):
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
         self.mesh.setBin("background", 11)
+        
+            
+        
         #grass
         self.grass=render.attachNewNode('grass')
         self.CreateGrassTile(uv_offset=Vec2(0,0), pos=(0,0,0), parent=self.grass, fogcenter=Vec3(256,256,0))
@@ -395,7 +414,11 @@ class Editor (DirectObject):
         
         props=self.props.get()
         self.objectPainter.selectedObject.setPythonTag('props', props) 
-                    
+        self.props.set('')
+        self.props['focus']=0        
+        self.gui.hideElement(self.select_toolbar_id)
+        self.setObjectMode(OBJECT_MODE_SELECT)
+        
     def pickUp(self, not_used=None, guiEvent=None):   
         self.objectPainter.pickup()
         self.setObjectMode(OBJECT_MODE_ONE)
@@ -467,9 +490,7 @@ class Editor (DirectObject):
                     
     def changeGrassMode(self, mode=None, guiEvent=None):
         self.gui.grayOutButtons(self.grass_toolbar_id, (0,2), mode)          
-        self.painter.brushes[BUFFER_GRASS].setColor(mode,0,0,1)
-        #self.painter.setBrushColor((mode,0,0,0))
-        print mode, self.painter.brushes[BUFFER_GRASS].getColor()
+        self.painter.brushes[BUFFER_GRASS].setColor(mode,0,0,1)        
             
     def changeWalkMode(self, mode=None, guiEvent=None):
         self.gui.grayOutButtons(self.walkmap_toolbar_id, (0,2), mode)
@@ -777,11 +798,22 @@ class Editor (DirectObject):
         print "SAVING DONE!" 
         self.gui.okDialog(text="Files saved to:\n"+save_dir, command=self.hideDialog)    
         self.hideSaveMenu()              
-
+    
+    def setTex(self, layer, id, guiEvent=None): 
+        self.curent_textures[layer]=id
+        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), loader.loadTexture(self.textures_diffuse[id]), 1)
+        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)+'n'), loader.loadTexture(self.textures_normal[id]), 1)        
+        self.gui.elements[self.palette_id]['buttons'][layer]['frameTexture']=self.textures_diffuse[id]
+        
     def changeTex(self, layer, guiEvent=None): 
         id=self.curent_textures[layer]+1
+        while id in self.curent_textures:            
+            if id>len(self.textures_diffuse)-1:
+                id=0
+            else:
+                id+=1
         if id>len(self.textures_diffuse)-1:
-            id=0
+            id=0        
         self.curent_textures[layer]=id
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), loader.loadTexture(self.textures_diffuse[id]), 1)
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)+'n'), loader.loadTexture(self.textures_normal[id]), 1)        
@@ -1023,20 +1055,20 @@ class Editor (DirectObject):
                 self.painter.paint(BUFFER_WALK)          
         elif self.mode==MODE_OBJECT:   
             if self.keyMap['rotate_l']:                
-                self.heading_info['text']=self.objectPainter.adjustHpr(5,self.hpr_axis)
+                self.heading_info['text']=self.objectPainter.adjustHpr(2.5,self.hpr_axis)
             if self.keyMap['rotate_r']:                    
-                self.heading_info['text']=self.objectPainter.adjustHpr(-5,self.hpr_axis)
+                self.heading_info['text']=self.objectPainter.adjustHpr(-2.5,self.hpr_axis)
             if self.keyMap['scale_up']:
-                self.objectPainter.adjustScale(0.05)
+                self.objectPainter.adjustScale(0.01)
                 self.size_info['text']='%.2f'%self.objectPainter.currentScale
             if self.keyMap['scale_down']:
-                self.objectPainter.adjustScale(-0.05) 
+                self.objectPainter.adjustScale(-0.01) 
                 self.size_info['text']='%.2f'%self.objectPainter.currentScale
             if self.keyMap['alpha_up']:
-                self.objectPainter.adjustZ(0.1)  
+                self.objectPainter.adjustZ(0.05)  
                 self.color_info['text']='%.2f'%self.objectPainter.currentZ    
             if self.keyMap['alpha_down']:
-                self.objectPainter.adjustZ(-0.1) 
+                self.objectPainter.adjustZ(-0.05) 
                 self.color_info['text']='%.2f'%self.objectPainter.currentZ 
             return 
             
@@ -1048,26 +1080,26 @@ class Editor (DirectObject):
             self.painter.adjustBrushHeading(-5)    
             self.heading_info['text']=self.hpr_axis+'%.0f'%self.painter.brushes[0].getH()
         if self.keyMap['scale_up']:
-            self.painter.adjustBrushSize(0.001)
+            self.painter.adjustBrushSize(0.01)
             self.size_info['text']='%.2f'%self.painter.brushSize
         if self.keyMap['scale_down']:
-            self.painter.adjustBrushSize(-0.001) 
+            self.painter.adjustBrushSize(-0.01) 
             self.size_info['text']='%.2f'%self.painter.brushSize
         if self.keyMap['alpha_up']:
             if self.mode==MODE_HEIGHT and self.height_mode==HEIGHT_MODE_LEVEL:
-                self.tempColor=min(1.0, max(0.0, self.tempColor+0.001)) 
+                self.tempColor=min(1.0, max(0.0, self.tempColor+0.01)) 
                 self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
                 self.color_info['text']='%.2f'%self.tempColor 
             else:    
-                self.painter.adjustBrushAlpha(0.001)  
+                self.painter.adjustBrushAlpha(0.01)  
                 self.color_info['text']='%.2f'%self.painter.brushAlpha                 
         if self.keyMap['alpha_down']:
             if self.mode==MODE_HEIGHT and  self.height_mode==HEIGHT_MODE_LEVEL:
-                self.tempColor=min(1.0, max(0.0, self.tempColor-0.001)) 
+                self.tempColor=min(1.0, max(0.0, self.tempColor-0.01)) 
                 self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
                 self.color_info['text']='%.2f'%self.tempColor                
             else:                    
-                self.painter.adjustBrushAlpha(-0.001) 
+                self.painter.adjustBrushAlpha(-0.01) 
                 self.color_info['text']='%.2f'%self.painter.brushAlpha             
         return 
         
