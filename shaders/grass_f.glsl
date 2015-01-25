@@ -25,19 +25,20 @@ void main()
        
 
         //lights
-        vec4 color =vec4(0.1, 0.15, 0.1, 1.0)+ambient;    
+        //vec4 color =vec4(0.1, 0.15, 0.1, 1.0)+ambient;    
+        vec4 color =ambient+(gl_LightSource[0].diffuse)*0.5;    
         //directional =sun
-        vec3 lightDir,halfV;
-        float NdotL, NdotHV; 
-        lightDir = vec3(gl_LightSource[0].position); 
+        //vec3 lightDir,halfV;
+        //float NdotL, NdotHV; 
+        //lightDir = vec3(gl_LightSource[0].position); 
         //halfV = gl_LightSource[0].halfVector.xyz;    
-        NdotL = max(dot(norm,lightDir),0.0);
-        if (NdotL > 0.0)
-            {
-           NdotHV = max(dot(norm,halfV),0.0);
-           color += gl_LightSource[0].diffuse* NdotL;        
+        //NdotL = max(dot(norm,lightDir),0.0);
+        //if (NdotL > 0.0)
+        //    {
+        //   NdotHV = max(dot(norm,halfV),0.0);
+        //   color += gl_LightSource[0].diffuse* NdotL;        
            //color +=pow(NdotHV,200.0)*gloss;
-           }
+        //   }
       
         //vec4 fog_color=vec4(fog.rgb, 1.0);
         vec4 final = vec4(color.rgb *color_tex.rgb, color_tex.a);
