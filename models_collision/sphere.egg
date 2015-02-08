@@ -449,966 +449,966 @@
     }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 0 1 2 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 3 2 4 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 5 4 6 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 7 6 8 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 9 8 10 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 11 10 12 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 13 12 14 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 15 14 16 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 17 16 18 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 19 18 20 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 21 20 22 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 23 22 24 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 1 25 26 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 1 26 2 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 2 26 27 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 2 27 4 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 4 27 28 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 4 28 6 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 6 28 29 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 6 29 8 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 8 29 30 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 8 30 10 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 10 30 31 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 10 31 12 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 12 31 32 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 12 32 14 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 14 32 33 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 14 33 16 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 16 33 34 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 16 34 18 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 18 34 35 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 18 35 20 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 20 35 36 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 20 36 22 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 22 36 37 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 22 37 24 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 25 38 39 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 25 39 26 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 26 39 40 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 26 40 27 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 27 40 41 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 27 41 28 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 28 41 42 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 28 42 29 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 29 42 43 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 29 43 30 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 30 43 44 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 30 44 31 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 31 44 45 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 31 45 32 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 32 45 46 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 32 46 33 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 33 46 47 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 33 47 34 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 34 47 48 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 34 48 35 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 35 48 49 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 35 49 36 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 36 49 50 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 36 50 37 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 38 51 52 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 38 52 39 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 39 52 53 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 39 53 40 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 40 53 54 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 40 54 41 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 41 54 55 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 41 55 42 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 42 55 56 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 42 56 43 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 43 56 57 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 43 57 44 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 44 57 58 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 44 58 45 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 45 58 59 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 45 59 46 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 46 59 60 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 46 60 47 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 47 60 61 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 47 61 48 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 48 61 62 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 48 62 49 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 49 62 63 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 49 63 50 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 51 64 65 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 51 65 52 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 52 65 66 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 52 66 53 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 53 66 67 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 53 67 54 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 54 67 68 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 54 68 55 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 55 68 69 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 55 69 56 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 56 69 70 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 56 70 57 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 57 70 71 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 57 71 58 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 58 71 72 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 58 72 59 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 59 72 73 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 59 73 60 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 60 73 74 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 60 74 61 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 61 74 75 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 61 75 62 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 62 75 76 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 62 76 63 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 77 65 64 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 78 66 65 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 79 67 66 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 80 68 67 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 81 69 68 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 82 70 69 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 83 71 70 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 84 72 71 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 85 73 72 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 86 74 73 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 87 75 74 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 88 76 75 <Ref> { Sphere001.verts } }
   }
 }
 <Group> collision {
   <Collide> collision { Sphere descend }  
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 0 1 2 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 3 2 4 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 5 4 6 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 7 6 8 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 9 8 10 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 11 10 12 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 13 12 14 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 15 14 16 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 17 16 18 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 19 18 20 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 21 20 22 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 23 22 24 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 1 25 26 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 1 26 2 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 2 26 27 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 2 27 4 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 4 27 28 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 4 28 6 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 6 28 29 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 6 29 8 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 8 29 30 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 8 30 10 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 10 30 31 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 10 31 12 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 12 31 32 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 12 32 14 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 14 32 33 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 14 33 16 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 16 33 34 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 16 34 18 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 18 34 35 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 18 35 20 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 20 35 36 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 20 36 22 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 22 36 37 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 22 37 24 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 25 38 39 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 25 39 26 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 26 39 40 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 26 40 27 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 27 40 41 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 27 41 28 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 28 41 42 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 28 42 29 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 29 42 43 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 29 43 30 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 30 43 44 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 30 44 31 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 31 44 45 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 31 45 32 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 32 45 46 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 32 46 33 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 33 46 47 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 33 47 34 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 34 47 48 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 34 48 35 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 35 48 49 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 35 49 36 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 36 49 50 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 36 50 37 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 38 51 52 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 38 52 39 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 39 52 53 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 39 53 40 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 40 53 54 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 40 54 41 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 41 54 55 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 41 55 42 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 42 55 56 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 42 56 43 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 43 56 57 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 43 57 44 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 44 57 58 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 44 58 45 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 45 58 59 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 45 59 46 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 46 59 60 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 46 60 47 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 47 60 61 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 47 61 48 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 48 61 62 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 48 62 49 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 49 62 63 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 49 63 50 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 51 64 65 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 51 65 52 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 52 65 66 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 52 66 53 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 53 66 67 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 53 67 54 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 54 67 68 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 54 68 55 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 55 68 69 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 55 69 56 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 56 69 70 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 56 70 57 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 57 70 71 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 57 71 58 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 58 71 72 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 58 72 59 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 59 72 73 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 59 73 60 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 60 73 74 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 60 74 61 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 61 74 75 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 61 75 62 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 62 75 76 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 62 76 63 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 77 65 64 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 78 66 65 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 79 67 66 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 80 68 67 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 81 69 68 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 82 70 69 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 83 71 70 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 84 72 71 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 85 73 72 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 86 74 73 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 87 75 74 <Ref> { Sphere001.verts } }
   }
   <Polygon> {
-    <RGBA> { 1 0 0 0.5 }
+    <RGBA> { 1 1 1 1 }
     <VertexRef> { 88 76 75 <Ref> { Sphere001.verts } }
   }
 }

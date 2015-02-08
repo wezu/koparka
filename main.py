@@ -21,7 +21,8 @@ wp.setTitle("Koparka - Panda3D Level Editor")
 WindowProperties.setDefault(wp)
 
 from panda3d.core import *
-import direct.directbase.DirectStart
+#import direct.directbase.DirectStart
+from direct.showbase import ShowBase
 from direct.showbase.DirectObject import DirectObject
 from direct.filter.FilterManager import FilterManager
 from camcon import CameraControler
@@ -35,7 +36,7 @@ from jsonloader import SaveScene, LoadScene
 import os, sys
 import random
 import re
-
+ 
 #helper function
 def sort_nicely( l ):
     convert = lambda text: int(text) if text.isdigit() else text
@@ -74,7 +75,9 @@ GRASS_MODE_REMOVE=0
 
 class Editor (DirectObject):
     def __init__(self):
-    
+        #init ShowBase
+        base = ShowBase.ShowBase()
+        
         #fxaa, just the manager, the effect is created when the window is opened/resized
         self.fxaaManager=FilterManager(base.win, base.cam)
         
@@ -86,10 +89,10 @@ class Editor (DirectObject):
         self.grid.setTexture(loader.loadTexture('data/grid.png'))
         self.grid.setTransparency(TransparencyAttrib.MDual)
         self.grid.setTexScale(TextureStage.getDefault(), 16, 16, 1)
-        self.grid.setZ(1)        
+        self.grid.setZ(25.5)        
         self.grid.setLightOff()
         self.grid.setColor(0,0,0,0.5) 
-        self.grid_z=1.0
+        self.grid_z=25.5
         self.grid_scale=16
         #self.grid.hide()
         #axis to help orient the scene
@@ -115,8 +118,8 @@ class Editor (DirectObject):
        
         #camera control
         base.disableMouse()  
-        controler=CameraControler()
-        
+        self.controler=CameraControler()
+        self.controler.cameraNode.setZ(25.5)
         #painter        
         self.brushList=[]
         dirList=os.listdir(Filename(path+"brush/").toOsSpecific())
@@ -126,11 +129,11 @@ class Editor (DirectObject):
         self.painter=BufferPainter(self.brushList, showBuff=False)
         #2 buffers should do, but painting in an alpha channel is strange, so I use 3 (+1 for grass)
         #BUFFER_HEIGHT
-        self.painter.addCanvas() 
+        self.painter.addCanvas(default_tex='data/def_height.png') 
         #BUFFER_ATR
         self.painter.addCanvas(default_tex='data/atr_def.png')
         #BUFFER_GRASS
-        self.painter.addCanvas() 
+        self.painter.addCanvas(brush_shader=loader.loadShader('shaders/brush_a_to_g.cg')) 
         #BUFFER_WALK =3
         self.painter.addCanvas(size=128,  brush_shader=loader.loadShader('shaders/brush3.cg'))   
         #BUFFER_ATR2=4
@@ -183,9 +186,11 @@ class Editor (DirectObject):
         self.gui.addSaveLoadDialog(self.save, self.load, self.hideSaveMenu)
         #config
         self.gui.addConfigDialog(self.configBrush)
+        #sky/sea dialog
+        self.gui.addSkySeaDialog(self.configSkySea)
         
         #extra tools and info at the bottom
-        self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (640, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))
+        self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (704, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))
         self.size_info=self.gui.addInfoIcon(self.statusbar, 'icon/resize.png', '1.0', tooltip=self.tooltip, tooltip_text='Brush Size or Object Scale:   [A]-Decrease    [D]-Increase')
         self.color_info=self.gui.addInfoIcon(self.statusbar, 'icon/color.png', '0.05',tooltip=self.tooltip, tooltip_text='Brush Strength or Object Z offset:   [W]-Increase   [S]-Decrease')
         self.heading_info=self.gui.addInfoIcon(self.statusbar, 'icon/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Brush Rotation ([1][2][3] to change axis in Object Mode):   [Q]-Left   [E]-Right')        
@@ -195,9 +200,10 @@ class Editor (DirectObject):
         self.gui.addButton(self.statusbar, 'icon/grass.png', self.setMode, [MODE_GRASS], self.tooltip, 'Paint Grass Mode [F3]')
         self.gui.addButton(self.statusbar, 'icon/place_icon.png', self.setMode, [MODE_OBJECT], self.tooltip, 'Paint Objects Mode [F4]')
         self.gui.addButton(self.statusbar, 'icon/walkmap_icon.png', self.setMode, [MODE_WALK], self.tooltip, 'Paint Walkmap Mode [F5]')
-        self.gui.addButton(self.statusbar, 'icon/save.png', self.showSaveMenu, tooltip=self.tooltip, tooltip_text='Save/Load [F6]')
+        self.gui.addButton(self.statusbar, 'icon/sky_sea_icon.png', self.configSkySea,[True], tooltip=self.tooltip, tooltip_text='Configure sky and sea (and all that they encompass) [F6]')
+        self.gui.addButton(self.statusbar, 'icon/save.png', self.showSaveMenu, tooltip=self.tooltip, tooltip_text='Save/Load [F7]')
         #gray out buttons
-        self.gui.grayOutButtons(self.statusbar, (4,9), None)
+        self.gui.grayOutButtons(self.statusbar, (4,10), None)
         
         #object toolbars (scrollable)
         #each object paint mode has its own
@@ -258,9 +264,9 @@ class Editor (DirectObject):
         
         #extra buttons for height paint mode (up/down/level)
         self.heightmode_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (192, 64), icon_size=64, y_offset=-64,x_offset=-192, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))        
-        self.gui.addButton(self.heightmode_toolbar_id, 'icon/up.png', self.changeHeightMode,[HEIGHT_MODE_UP],tooltip=self.tooltip, tooltip_text='Raise terrain mode (click to set mode or [TAB] to cycle)')
-        self.gui.addButton(self.heightmode_toolbar_id, 'icon/down.png', self.changeHeightMode,[HEIGHT_MODE_DOWN],tooltip=self.tooltip, tooltip_text='Lower terrain mode (click to set mode or [TAB] to cycle)')
-        self.gui.addButton(self.heightmode_toolbar_id, 'icon/level.png', self.changeHeightMode,[HEIGHT_MODE_LEVEL],tooltip=self.tooltip, tooltip_text='Level terrain mode (click to set mode or [TAB] to cycle)')
+        self.gui.addButton(self.heightmode_toolbar_id, 'icon/up.png', self.changeHeightMode,[HEIGHT_MODE_UP],tooltip=self.tooltip, tooltip_text='Raise terrain mode (click to set mode)')
+        self.gui.addButton(self.heightmode_toolbar_id, 'icon/down.png', self.changeHeightMode,[HEIGHT_MODE_DOWN],tooltip=self.tooltip, tooltip_text='Lower terrain mode (click to set mode)')
+        self.gui.addButton(self.heightmode_toolbar_id, 'icon/level.png', self.changeHeightMode,[HEIGHT_MODE_LEVEL],tooltip=self.tooltip, tooltip_text='Level terrain mode (click to set mode)')
         self.gui.grayOutButtons(self.heightmode_toolbar_id, (0,3), 0)
         
         #extra buttons for walkmap paint (walkable/unwealkable)
@@ -279,8 +285,8 @@ class Editor (DirectObject):
         #properties panel
         self.prop_panel_id=self.gui.addPropPanel()
         self.props=self.gui.elements[self.prop_panel_id]['entry_props']
-        self.snap=self.gui.elements[self.prop_panel_id]['entry_snap']
-        
+        self.snap=self.gui.elements[self.prop_panel_id]['entry_snap']        
+                
         #object painter
         self.objectPainter=ObjectPainter()
         
@@ -307,8 +313,6 @@ class Editor (DirectObject):
         self.mesh.node().setFinal(1)
         self.mesh.setBin("background", 11)
         
-            
-        
         #grass
         self.grass=render.attachNewNode('grass')
         self.CreateGrassTile(uv_offset=Vec2(0,0), pos=(0,0,0), parent=self.grass, fogcenter=Vec3(256,256,0))
@@ -316,17 +320,82 @@ class Editor (DirectObject):
         self.CreateGrassTile(uv_offset=Vec2(0.5,0), pos=(256, 0, 0), parent=self.grass, fogcenter=Vec3(0,256,0))
         self.CreateGrassTile(uv_offset=Vec2(0.5,0.5), pos=(256, 256, 0), parent=self.grass, fogcenter=Vec3(0,0,0))  
         self.grass.setBin("background", 11)       
+        
+        #skydome
+        self.skydome = loader.loadModel("data/skydome") 
+        self.skydome.setScale(10)                 
+        self.skydome.reparentTo(render)            
+        self.skydome.setShaderInput("sky", Vec4(0.4,0.6,1.0, 1.0))   
+        #self.skydome.setShaderInput("fog", Vec4(1.0,1.0,1.0, 1.0)) 
+        self.skydome.setShaderInput("cloudColor", Vec4(0.9,0.9,1.0, 0.8))
+        self.skydome.setShaderInput("cloudTile",4.0) 
+        self.skydome.setShaderInput("cloudSpeed",0.008)
+        self.skydome.setShaderInput("horizont",140.0)
+        self.skydome.setBin('background', 1)
+        self.skydome.setTwoSided(True)
+        self.skydome.node().setBounds(OmniBoundingVolume())
+        self.skydome.node().setFinal(1)
+        self.skydome.setShader(Shader.load(Shader.SLGLSL, "shaders/cloud_v.glsl", "shaders/cloud_f.glsl"))
+        
+        #waterplane
+        maker = CardMaker("grid")
+        maker.setFrame( 0, 512, 0, 512)
+        self.waterNP = NodePath('waterSurface')
+        node = self.waterNP.attachNewNode(maker.generate())
+        self.waterNP.setHpr(0,-90,0)
+        self.waterNP.setPos(0, 0, 26)                         
+        self.waterNP.reparentTo(render)  
+        #Add a buffer and camera that will render the reflection texture
+        self.wBuffer = base.win.makeTextureBuffer("water", 256, 256)
+        self.wBuffer.setClearColorActive(True)
+        self.wBuffer.setClearColor(base.win.getClearColor())
+        self.waterCamera = base.makeCamera(self.wBuffer)
+        self.waterCamera.reparentTo(render)
+        self.waterCamera.node().setLens(base.camLens)
+        self.waterCamera.node().setCameraMask(BitMask32.bit(1))
+        self.waterNP.hide(BitMask32.bit(1))       
+        #Create this texture and apply settings
+        wTexture = self.wBuffer.getTexture()
+        wTexture.setWrapU(Texture.WMClamp)
+        wTexture.setWrapV(Texture.WMClamp)
+        wTexture.setMinfilter(Texture.FTLinearMipmapLinear)       
+        #Create plane for clipping and for reflection matrix
+        self.wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, 26))
+        wPlaneNP = render.attachNewNode(PlaneNode("water", self.wPlane))
+        tmpNP = NodePath("StateInitializer")
+        tmpNP.setClipPlane(wPlaneNP)
+        tmpNP.setAttrib(CullFaceAttrib.makeReverse())
+        self.waterCamera.node().setInitialState(tmpNP.getState())
+        self.waterNP.projectTexture(TextureStage("reflection"), wTexture, self.waterCamera)
+
+        self.waterNP.setShader(loader.loadShader("shaders/water.cg"))
+        self.waterNP.setShaderInput("water_norm", loader.loadTexture('data/water.png'))  
+        self.waterNP.setShaderInput("tile",10.0)
+        self.waterNP.setShaderInput("speed",0.02)
+        self.waterNP.setTransparency(TransparencyAttrib.MDual)
+        
+        
         #light
+        #sun
         self.dlight = DirectionalLight('dlight') 
-        self.dlight.setColor(VBase4(0.6, 0.6, 0.5, 1))     
+        self.dlight.setColor(VBase4(0.8, 0.8, 0.8, 1))     
         self.mainLight = render.attachNewNode(self.dlight)
         self.mainLight.setP(-60)       
         self.mainLight.setH(90)
         render.setLight(self.mainLight)
-               
+        
+        #ambient light 
+        self.alight = DirectionalLight('dlight') 
+        self.alight.setColor(Vec4(.2, .2, .2, 1))     
+        self.ambientLight = render.attachNewNode(self.alight)
+        self.ambientLight.setP(-90)       
+        self.ambientLight.setH(90)
+        render.setLight(self.ambientLight)
+        
+        
         render.setShaderInput("dlight0", self.mainLight)
-        render.setShaderInput("ambient", Vec4(.5, .5, .7, 1)) 
-        #TODO: replace ambient light with a second directional light glued to the camera
+        render.setShaderInput("dlight1", self.ambientLight)
+        render.setShaderInput("ambient", Vec4(.3, .3, .4, 1)) 
         
         #fog
         #rgb color + coefficiency in alpha
@@ -354,13 +423,14 @@ class Editor (DirectObject):
         self.accept('w-up', self.keyMap.__setitem__, ['alpha_up', False])
         self.accept('s', self.keyMap.__setitem__, ['alpha_down', True])                
         self.accept('s-up', self.keyMap.__setitem__, ['alpha_down', False])        
-        #self.accept('tab', self.flipBrushColor)
+        self.accept('tab', self.nextModel)
         self.accept('f1', self.setMode,[MODE_HEIGHT,'hotkey']) 
         self.accept('f2', self.setMode,[MODE_TEXTURE,'hotkey'])
         self.accept('f3', self.setMode,[MODE_GRASS,'hotkey'])        
         self.accept('f4', self.setMode,[MODE_OBJECT,'hotkey'])        
         self.accept('f5', self.setMode,[MODE_WALK,'hotkey']) 
-        self.accept('f6',self.showSaveMenu)
+        #self.accept('f6',self.showSaveMenu)
+        self.accept('f7',self.showSaveMenu)
         self.accept('1', self.setAxis,['H: '])
         self.accept('2', self.setAxis,['P: '])
         self.accept('3', self.setAxis,['R: '])
@@ -426,7 +496,53 @@ class Editor (DirectObject):
         self.size_info['text']='%.2f'%self.objectPainter.currentScale
         self.color_info['text']='%.2f'%self.objectPainter.currentZ   
         self.props.set(self.objectPainter.currentObject.getPythonTag('props'))
-                    
+    
+    def configSkySea(self, options=False, guiEvent=None):    
+        if options==True:
+            self.ignoreHover=True
+            self.painter.hideBrushes()
+            self.gui.SkySeaFrame.show()
+            self.ignore('mouse1-up')
+            self.ignore('mouse1')
+        elif options==False:    
+            self.ignoreHover=False
+            self.gui.SkySeaFrame.hide()
+            self.setMode(self.mode)
+        else: 
+            self.ignoreHover=False
+            self.gui.SkySeaFrame.hide()
+            self.setMode(self.mode)
+            sky=Vec4(self.gui.SkySeaOptions[0][0],self.gui.SkySeaOptions[0][1],self.gui.SkySeaOptions[0][2],self.gui.SkySeaOptions[0][3])
+            fog=Vec4(self.gui.SkySeaOptions[1][0],self.gui.SkySeaOptions[1][1],self.gui.SkySeaOptions[1][2],self.gui.SkySeaOptions[1][3])
+            cloudColor=Vec4(self.gui.SkySeaOptions[2][0],self.gui.SkySeaOptions[2][1],self.gui.SkySeaOptions[2][2],self.gui.SkySeaOptions[2][3])
+            cloudTile=self.gui.SkySeaOptions[3]
+            cloudSpeed=self.gui.SkySeaOptions[4]
+            horizont=self.gui.SkySeaOptions[5]
+            tile=self.gui.SkySeaOptions[6]
+            speed=self.gui.SkySeaOptions[7]
+            water_z=self.gui.SkySeaOptions[8]
+            self.skydome.setShaderInput("sky", sky)   
+            render.setShaderInput("fog", fog) 
+            self.skydome.setShaderInput("cloudColor", cloudColor)
+            self.skydome.setShaderInput("cloudTile",cloudTile) 
+            self.skydome.setShaderInput("cloudSpeed",cloudSpeed)
+            self.skydome.setShaderInput("horizont",horizont)
+            if water_z>0.0:
+                self.wBuffer.setActive(True)
+                self.waterNP.show()
+                self.waterNP.setShaderInput("tile",tile)
+                self.waterNP.setShaderInput("speed",speed)
+                self.waterNP.setPos(0, 0, water_z)
+                self.wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, water_z))
+                wPlaneNP = render.attachNewNode(PlaneNode("water", self.wPlane))
+                tmpNP = NodePath("StateInitializer")
+                tmpNP.setClipPlane(wPlaneNP)
+                tmpNP.setAttrib(CullFaceAttrib.makeReverse())
+                self.waterCamera.node().setInitialState(tmpNP.getState())
+            else:
+                self.waterNP.hide()
+                self.wBuffer.setActive(False)	
+                
     def configBrush(self, options=False, guiEvent=None):    
         if options==True:
             self.ignoreHover=True
@@ -458,6 +574,9 @@ class Editor (DirectObject):
             self.grid.setZ(self.gui.ConfigOptions['grid_z'])   
             self.grid_scale=self.gui.ConfigOptions['grid']
             self.grid_z=self.gui.ConfigOptions['grid_z']
+            self.painter.pointer.setZ(self.gui.ConfigOptions['grid_z'])
+            self.painter.plane = Plane(Vec3(0, 0, 1), Point3(0, 0, self.gui.ConfigOptions['grid_z'])) 
+            self.controler.cameraNode.setZ(self.gui.ConfigOptions['grid_z'])
             if self.mode==MODE_OBJECT:
                 #hpr
                 self.setAxis='H: '
@@ -1021,19 +1140,8 @@ class Editor (DirectObject):
             if yes:
                 self.gui.okDialog(text="Collision mesh saved to:\n"+file, command=self.hideDialog)
             
-    def flipBrushColor(self):        
-        if self.mode == MODE_HEIGHT:        
-            self.changeHeightMode()
-        elif self.mode == MODE_GRASS:                
-            if self.tempColor==1:
-                self.tempColor=0
-            else:    
-                self.tempColor=1
-            c=self.tempColor
-            self.painter.brushes[BUFFER_HEIGHT].setColor(c,c,c,self.painter.brushAlpha) 
-            if self.mode==MODE_GRASS:
-                self.painter.brushes[BUFFER_GRASS].setColor(c,0,0,self.painter.brushAlpha)
-        elif self.mode==MODE_OBJECT:
+    def nextModel(self):                
+        if self.mode==MODE_OBJECT:
             if self.object_mode==OBJECT_MODE_MULTI:
                 self.setRandomObject()
             if self.object_mode==OBJECT_MODE_WALL:
@@ -1105,7 +1213,13 @@ class Editor (DirectObject):
         
     def perFrameUpdate(self, task):         
         time=globalClock.getFrameTime()            
-        self.grass.setShaderInput('time', time) 
+        render.setShaderInput('time', time) 
+        #skydome
+        pos=self.controler.cameraNode.getPos()
+        self.skydome.setPos(pos[0], pos[1], 0)        
+        #water
+        if self.waterNP.getZ()>0.0:   
+            self.waterCamera.setMat(base.cam.getMat(render)*self.wPlane.getReflectionMat()) 
         if self.lastUpdateTime+0.03<time:
             self.update()        
             self.lastUpdateTime=time            

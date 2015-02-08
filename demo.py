@@ -2,8 +2,8 @@ from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
 loadPrcFileData('','win-size 1024 768')
 loadPrcFileData('','show-frame-rate-meter  1')
-loadPrcFileData('','threading-model Cull/Draw')
-loadPrcFileData('','compressed-textures  1')
+#loadPrcFileData('','threading-model Cull/Draw')
+#loadPrcFileData('','compressed-textures  1')
 #loadPrcFileData('','sync-video 1')
 #loadPrcFileData('','win-size 1280 720')
 from direct.showbase.AppRunnerGlobal import appRunner

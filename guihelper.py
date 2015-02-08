@@ -1,6 +1,7 @@
 from panda3d.core import *
 from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
+from ast import literal_eval as astEval
 
 def _pos2d(x,y):
     return Point3(x,0,-y)
@@ -101,13 +102,24 @@ class GuiHelper():
         self.dialog['text']=text
         self.dialogOk.bind(DGG.B1PRESS, command, arg)
     
-    def focusValidateEntry(self,id):    
-        text=self.ConfigEntry[id].get()
+    def validateEntry(self,id, text=None): 
+        if isinstance(id, basestring):
+            id=text
         value=0.0
-        try:
-            value=float(text)
-        except ValueError:
-            value=0.0
+        if id<100:
+            text=self.ConfigEntry[id].get()            
+            try:
+                value=float(text)
+            except ValueError:
+                value=0.0
+        else:
+            text=self.SkySeaEntry[id-100].get()
+            try:
+                value=astEval(text)
+                if isinstance(value, basestring):
+                    value=self.SkySeaOptions[id-100]
+            except:
+                value=self.SkySeaOptions[id-100]    
         if id==0:#size                        
             value=min(10.0, max(0.1, value))
             self.ConfigOptions['scale']=value
@@ -117,38 +129,154 @@ class GuiHelper():
         elif id in (2,3,4): #hpr    
             value=min(360.0, max(0.0, value))
             self.ConfigOptions['hpr'][id-2]=value
-        elif id==5:
+        elif id==5:#grid tile
             value=min(512.0, max(1.0, value))
             self.ConfigOptions['grid']=value
-        elif id==6:
+        elif id==6:#grid Z
             value=min(101.0, max(0.0, value))    
             self.ConfigOptions['grid_z']=value
-        self.ConfigEntry[id].enterText(str(value))    
+        elif id==100:#Sky Color
+            #shoul be 4 element tuple/list            
+            if len(value)!=4:
+                value=self.SkySeaOptions[2]
+            try:    
+                final=[]    
+                for item in value:
+                    final.append(min(1.0, max(0.0, item)))
+                value=final    
+            except:
+                value=self.SkySeaOptions[0]
+        elif id==101:#Fog Color
+            #shoul be 4 element tuple/list            
+            if len(value)!=4:
+                value=self.SkySeaOptions[2]
+            try:    
+                final=[]    
+                for item in value:
+                    final.append(min(1.0, max(0.0, item)))
+                value=final    
+            except:
+                value=self.SkySeaOptions[1]
+        elif id==102:#Cloud Color
+            #shoul be 4 element tuple/list            
+            if len(value)!=4:
+                value=self.SkySeaOptions[2]
+            try:    
+                final=[]    
+                for item in value:
+                    final.append(min(1.0, max(0.0, item)))
+                value=final    
+            except:
+                value=self.SkySeaOptions[2]
+        elif id==103:#Cloud Tile
+            try:                    
+                value=min(64.0, max(0.1,value))
+            except:
+                value=self.SkySeaOptions[3]
+        elif id==104:#Cloud Speed
+            try:                    
+                value=min(1.0, max(0.0,value))
+            except:
+                value=self.SkySeaOptions[4]
+        elif id==105:#Horizont
+            try:                    
+                value=min(500.0, max(-100.0,value))
+            except:
+                value=self.SkySeaOptions[5]
+        elif id==106:#Water Tile
+            try:                    
+                value=min(200.0, max(0.1,value))
+            except:
+                value=self.SkySeaOptions[6]
+        elif id==107:#Water Speed
+            try:                    
+                value=min(1.0, max(0.001,value))
+            except:
+                value=self.SkySeaOptions[7]
+        elif id==108:#Water Z
+            try:                    
+                value=min(200.0, max(-1.0,value))
+            except:
+                value=self.SkySeaOptions[8]        
+        if id<100:    
+            self.ConfigEntry[id].enterText(str(value))   
+        else:
+            self.SkySeaEntry[id-100].enterText(str(value))
+            self.SkySeaOptions[id-100]=value
+            
+    def addSkySeaDialog(self, command=None):
+        #this one done 'properly'        
+        #ordered dict should be used here... but not in python 2.5
+        #so the hack...well it looks like it won't be as 'propre' as advertised 
+        labels=['Sky Color:','Fog Color:','Cloud Color:','Cloud Tile:','Cloud Speed:','Horizont:','Water Tile:','Water Speed:', 'Water Level:\n(-1 to disable)']
+        self.SkySeaOptions=[[0.4,0.6,1.0, 1.0],[0.4, 0.4, 0.4, 0.002],[0.9,0.9,1.0, 0.8], 4.0, 0.008, 140.0,20.0,0.01, 26.0]
+        text=""
+        for item in labels:
+            text+=item+'\n'
+        self.SkySeaFrame=DirectFrame(frameSize=_rec2d(512,540),
+                                    frameColor=(0,0,0, 0.8),
+                                    text=text,
+                                    text_scale=32,
+                                    text_font=self.fontBig,
+                                    text_pos=(-300,510),
+                                    text_fg=(0.7,0.7,0.7,1), 
+                                    text_align=TextNode.ARight,
+                                    parent=self.Center)
+        self.SkySeaFrame.hide()
+        _resetPivot(self.SkySeaFrame)
+        self.SkySeaFrame.setPos(_pos2d(-256, -256)) 
         
-    def validateEntry(self, text=None, id=0):
-        value=0.0
-        if text==None:
-            text=self.ConfigEntry[id].get()
-        try:
-            value=float(text)
-        except ValueError:
-            value=0.0
-        if id==0:#size                        
-            value=min(10.0, max(0.1, value))
-            self.ConfigOptions['scale']=value
-        elif id==1:#alpha   
-            value=min(1.0, max(0.0, value))
-            self.ConfigOptions['alpha']=value
-        elif id in (2,3,4): #hpr    
-            value=min(360.0, max(0.0, value))
-            self.ConfigOptions['hpr'][id-2]=value
-        elif id==5:
-            value=min(512.0, max(1.0, value))
-            self.ConfigOptions['grid']=value
-        elif id==6:
-            value=min(101.0, max(-1.0, value))    
-            self.ConfigOptions['grid_z']=value
-        self.ConfigEntry[id].enterText(str(value))    
+        self.okButton=DirectFrame(frameSize=_rec2d(128,32),
+                                    frameColor=(1,1,1,0.5),  
+                                    text="OK",
+                                    text_scale=32,
+                                    text_font=self.fontBig,
+                                    text_pos=(-70,7),
+                                    text_fg=(0,1,0,1),
+                                    state=DGG.NORMAL, 
+                                    parent=self.SkySeaFrame)
+        _resetPivot(self.okButton)        
+        self.okButton.setPos(_pos2d(352,478))
+        
+        self.cancelButton=DirectFrame(frameSize=_rec2d(128,32),
+                                    frameColor=(1,1,1,0.5),  
+                                    text="CANCEL",
+                                    text_scale=32,
+                                    text_font=self.fontBig,
+                                    text_pos=(-66,7),
+                                    text_fg=(1,0,0,1),
+                                    state=DGG.NORMAL, 
+                                    parent=self.SkySeaFrame)
+        _resetPivot(self.cancelButton)        
+        self.cancelButton.setPos(_pos2d(32,478)) 
+        
+        self.okButton.bind(DGG.B1PRESS, self.validateAndExec, [command,2, 9, 100])        
+        self.cancelButton.bind(DGG.B1PRESS, command, [False]) 
+        
+        self.SkySeaEntry=[]
+        for item in self.SkySeaOptions:
+            id=len(self.SkySeaEntry)
+            entry=DirectEntry(  frameSize=_rec2d(250,30),
+                                frameColor=(1,1,1, 0.3),
+                                text = str(item),
+                                text_scale=16,                                                                
+                                text_pos=(-240,14),
+                                text_fg=(1,1,1,1),
+                                text_align=TextNode.ALeft,
+                                initialText=str(item),
+                                numLines = 1,
+                                width=19,
+                                focus=0,
+                                suppressKeys=True,
+                                parent=self.SkySeaFrame,
+                                command=self.validateEntry,
+                                extraArgs=[100+id],
+                                focusOutCommand=self.validateEntry,
+                                focusOutExtraArgs=[100+id])
+            _resetPivot(entry)
+            entry.setPos(_pos2d(250,32*id+2))                    
+            self.SkySeaEntry.append(entry)    
+        
         
     def addConfigDialog(self, command):  
         self.ConfigOptions={
@@ -184,7 +312,7 @@ class GuiHelper():
                         parent=self.ConfigFrame,
                         command=self.validateEntry,
                         extraArgs=[0],
-                        focusOutCommand=self.focusValidateEntry,
+                        focusOutCommand=self.validateEntry,
                         focusOutExtraArgs=[0]
                         ))        
         self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
@@ -201,7 +329,7 @@ class GuiHelper():
                         parent=self.ConfigFrame,
                         command=self.validateEntry,
                         extraArgs=[1],
-                        focusOutCommand=self.focusValidateEntry,
+                        focusOutCommand=self.validateEntry,
                         focusOutExtraArgs=[1]
                         ))
         
@@ -219,7 +347,7 @@ class GuiHelper():
                         parent=self.ConfigFrame,
                         command=self.validateEntry,
                         extraArgs=[2],
-                        focusOutCommand=self.focusValidateEntry,
+                        focusOutCommand=self.validateEntry,
                         focusOutExtraArgs=[2]
                         ))        
         self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
@@ -236,7 +364,7 @@ class GuiHelper():
                         parent=self.ConfigFrame,
                         command=self.validateEntry,
                         extraArgs=[3],
-                        focusOutCommand=self.focusValidateEntry,
+                        focusOutCommand=self.validateEntry,
                         focusOutExtraArgs=[3]
                         ))        
         self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
@@ -253,7 +381,7 @@ class GuiHelper():
                         parent=self.ConfigFrame,
                         command=self.validateEntry,
                         extraArgs=[4],
-                        focusOutCommand=self.focusValidateEntry,
+                        focusOutCommand=self.validateEntry,
                         focusOutExtraArgs=[4]
                         ))        
         self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
@@ -270,7 +398,7 @@ class GuiHelper():
                         parent=self.ConfigFrame,
                         command=self.validateEntry,
                         extraArgs=[5],
-                        focusOutCommand=self.focusValidateEntry,
+                        focusOutCommand=self.validateEntry,
                         focusOutExtraArgs=[5]
                         ))        
         self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
@@ -287,7 +415,7 @@ class GuiHelper():
                         parent=self.ConfigFrame,
                         command=self.validateEntry,
                         extraArgs=[6],
-                        focusOutCommand=self.focusValidateEntry,
+                        focusOutCommand=self.validateEntry,
                         focusOutExtraArgs=[6]
                         ))                        
                         
@@ -322,12 +450,12 @@ class GuiHelper():
         _resetPivot(self.cancelButton)        
         self.cancelButton.setPos(_pos2d(32,478)) 
         
-        self.okButton.bind(DGG.B1PRESS, self.validateAndExec, [command,2])        
+        self.okButton.bind(DGG.B1PRESS, self.validateAndExec, [command,2, 7, 0])        
         self.cancelButton.bind(DGG.B1PRESS, command, [False])
         
-    def validateAndExec(self, command, arg, event=None):
-        for i in range(7):
-            self.validateEntry(text=None, id=i)
+    def validateAndExec(self, command, arg, max=7, offset=0, event=None):
+        for i in range(max):
+            self.validateEntry(id=i+offset)
         command(arg)
         
     def addSaveLoadDialog(self, save_command, load_command, cancel_command):

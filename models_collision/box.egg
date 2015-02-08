@@ -27,7 +27,6 @@
   }
 }
 <Group> editor {
-  <Scalar> alpha { dual }
   <Polygon> {
     <Normal> { 0 0 -1 }
     <RGBA> { 1 0 0 0.5 }

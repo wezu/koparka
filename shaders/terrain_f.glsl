@@ -40,7 +40,7 @@ void main()
         const vec3 vLeft=vec3(1.0,0.0,0.0); 
         float gloss=1.0;        
         const float pixel=1.0/512.0;
-        const float height_scale=100.0;
+        const float height_scale=50.0;
         
         //normal vector...
         vec4 me=texture2D(height,texUV);
@@ -104,7 +104,7 @@ void main()
         norm = normalize(norm);
                    
         //lights   
-        vec4 color =ambient;    
+        vec4 color =ambient;//vec4(0.0, 0.0, 0.0, 0.0);    
         //directional =sun
         vec3 lightDir, halfV;
         float NdotL, NdotHV; 
@@ -115,7 +115,17 @@ void main()
             {
            NdotHV = max(dot(norm,halfV),0.0);
            color += gl_LightSource[0].diffuse * NdotL;        
-           color +=pow(NdotHV,100.0*gloss)*gloss*2.0;
+           color +=pow(NdotHV,500.0*gloss)*gloss*2.0;
+           }   
+        //directional2 = ambient
+        lightDir = normalize(gl_LightSource[1].position.xyz); 
+        //halfV= normalize(gl_LightSource[0].halfVector.xyz);    
+        NdotL = max(dot(norm,lightDir),0.0);
+        if (NdotL > 0.0)
+            {
+           //NdotHV = max(dot(norm,halfV),0.0);
+           color += gl_LightSource[1].diffuse * NdotL;        
+           //color +=pow(NdotHV,500.0*gloss)*gloss*2.0;
            } 
            
         vec4 final= vec4(color.rgb * detail.xyz, 1.0);     

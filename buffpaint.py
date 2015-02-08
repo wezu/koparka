@@ -8,7 +8,9 @@ class BufferPainter ():
         self.pointer.reparentTo(render)
         self.pointer.setLightOff()
         #the plane will bu used to see where the mouse pointer is
-        self.plane = Plane(Vec3(0, 0, 0.1), Point3(0, 0, 0.1))
+        self.z=25.5
+        self.pointer.setZ(self.z)
+        self.plane = Plane(Vec3(0, 0, 1), Point3(0, 0, self.z))        
         
         self.buffers=[]
         self.brushes=[]
@@ -123,7 +125,7 @@ class BufferPainter ():
             base.camLens.extrude(mpos, nearPoint, farPoint)
             if self.plane.intersectsLine(pos3d, render.getRelativePoint(camera, nearPoint),render.getRelativePoint(camera, farPoint)):                
                 self.pointer.setX(min(512.0, max(0.0, pos3d[0]))) 
-                self.pointer.setY(min(512.0, max(0.0, pos3d[1]))) 
+                self.pointer.setY(min(512.0, max(0.0, pos3d[1])))                
                 for brush in self.brushes:
                     brush.setPos(self.pointer.getPos())
         return task.again          

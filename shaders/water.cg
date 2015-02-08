@@ -1,0 +1,72 @@
+//Cg
+void vshader(
+      in float4 vtx_texcoord0 : TEXCOORD0,
+      in float4 vtx_position : POSITION, 
+	  in float4 vtx_normal : TEXCOORD1,      
+      in uniform float time,
+      in uniform float tile,
+      in uniform float speed,
+      
+      uniform float4x4 mat_modelproj,
+      uniform float4x4 trans_model_to_world,        
+      uniform float4x4 texmat_0,       
+	 uniform float4x4 tpose_view_to_model,
+	 uniform float4x4 trans_model_to_view,
+     
+      out float4 l_position : POSITION,
+      out float4 l_texcoord0 : TEXCOORD0,
+      out float4 l_texcoord1 : TEXCOORD1,
+      out float4 l_texCoordReflec: TEXCOORD2,      
+	  out float4 l_eye_normal : TEXCOORD3,      
+	 out float4 l_eye_position : TEXCOORD4)
+   {
+   float4 l_worldPos = mul(trans_model_to_world, vtx_position);
+   l_position = mul(mat_modelproj, vtx_position);
+   l_texcoord0 = vtx_texcoord0*tile+time*speed;
+   l_texcoord1 = vtx_texcoord0*tile-time*speed;
+   l_texCoordReflec = mul(texmat_0, l_worldPos);
+   l_eye_normal.xyz = mul((float3x3)tpose_view_to_model, vtx_normal.xyz);
+   l_eye_normal.w = 0;   
+   l_eye_position = mul(trans_model_to_view, vtx_position);
+}
+
+void fshader(
+      in float4 l_texcoord0 : TEXCOORD0,
+      in float4 l_texcoord1 : TEXCOORD1,
+      in float4 l_texCoordReflec: TEXCOORD2,
+      in float4 l_eye_normal : TEXCOORD3,
+      in float4 l_eye_position : TEXCOORD4,      
+      uniform sampler2D tex_0 : TEXUNIT0,
+      uniform sampler2D water_norm,   
+     uniform float4x4 dlight_dlight0_rel_view,   
+     uniform float4x4 dlight_dlight1_rel_view,  
+      out float4 o_color : COLOR0)
+  {   
+   float4 distortion1 = normalize(tex2D(water_norm, l_texcoord0.xy));
+   float4 distortion2 = normalize(tex2D(water_norm, l_texcoord1.xy));  
+   float facing = 1.5 -max(dot(normalize(-l_eye_position.xyz), normalize(l_eye_normal.xyz)), 0.0);
+   
+   float4 normalmap=distortion1+distortion2;   
+   float3 tsnormal = (normalmap.xyz * 2) - 1;
+   l_eye_normal.xyz *= tsnormal.z;
+   l_eye_normal.xyz += float3(1,0,0) * tsnormal.x;
+   l_eye_normal.xyz += float3(0,1,0) * tsnormal.y;	
+   l_eye_normal.xyz = normalize(l_eye_normal.xyz);
+   
+   float4 lhalf = dlight_dlight0_rel_view[3];
+   float4 lcolor=dlight_dlight0_rel_view[0];
+   float shine=250;   
+   float4 specular = pow(saturate(dot(l_eye_normal.xyz, lhalf.xyz)), shine)*lcolor;
+   
+   lhalf = dlight_dlight1_rel_view[3];
+   lcolor=dlight_dlight1_rel_view[0];
+   specular += pow(saturate(dot(l_eye_normal.xyz, lhalf.xyz)), shine)*lcolor;
+   
+   
+   //o_color =lerp(tex2Dproj(tex_0, l_texCoordReflec+distortion1*distortion2*50),specular, factor);
+   float4 refl=tex2Dproj(tex_0, l_texCoordReflec+distortion1*distortion2*20);
+   float4 ligh=saturate(dot(l_eye_normal.xyz, dlight_dlight0_rel_view[2].xyz))*lcolor;   
+   o_color=lerp(refl, ligh, 0.1);
+   o_color+=specular*facing;    
+   o_color.a=facing;
+}

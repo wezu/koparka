@@ -2,6 +2,56 @@ from panda3d.core import *
 import json
 from direct.actor.Actor import Actor
 
+def loadModel(file, collision=None, animation=None):
+    model=None
+    if animation:
+        model=Actor(file, animation)                   
+        #default anim
+        if 'default' in animation:
+            model.loop('default')
+        elif 'idle' in animation:
+            model.loop('idle')
+        else: #some random anim
+             model.loop(animation.items()[0])
+    else:
+        model=loader.loadModel(file)
+    model.setPythonTag('model_file', file)
+    #load shaders
+    for geom in model.findAllMatches('**/+GeomNode'):
+        if geom.hasTag('cg_shader'):            
+            geom.setShader(loader.loadShader("shaders/"+geom.getTag('cg_shader')))
+        elif geom.hasTag('glsl_shader'):  
+            glsl_shader=geom.getTag('glsl_shader')      
+            geom.setShader(Shader.load(Shader.SLGLSL, "shaders/{0}_v.glsl".format(glsl_shader),"shaders/{0}_f.glsl".format(glsl_shader)))
+        else:
+            geom.setShader(loader.loadShader("shaders/default.cg"))
+    #collisions        
+    model.setCollideMask(BitMask32.allOff())
+    if collision:
+        coll=loader.loadModel(collision)
+        coll.reparentTo(model)
+        coll.find('**/collision').setCollideMask(BitMask32.bit(2))        
+        coll.find('**/collision').setPythonTag('object', model)
+        if animation:
+            model.setPythonTag('actor_files', [file,animation,coll]) 
+    else:
+        try:
+            model.find('**/collision').setCollideMask(BitMask32.bit(2))        
+            model.find('**/collision').setPythonTag('object', model)        
+        except:
+            print "WARNING: Model {0} has no collision geometry!\nGenerating collision sphere...".format(file)
+            bounds=model.getBounds()
+            radi=bounds.getRadius()
+            cent=bounds.getCenter()
+            coll_sphere=model.attachNewNode(CollisionNode('collision'))
+            coll_sphere.node().addSolid(CollisionSphere(cent[0],cent[1],cent[2], radi)) 
+            coll_sphere.setCollideMask(BitMask32.bit(2))        
+            coll_sphere.setPythonTag('object', model)
+            #coll_sphere.show()
+            if animation:
+                model.setPythonTag('actor_files', [file,animation,None])
+    return model    
+        
 def LoadScene(file, quad_tree, actors, terrain, textures, current_textures=None, flatten=False):
     json_data=None
     with open(file) as f:  
@@ -25,27 +75,11 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures=None,
                 i+=1
             continue    
         elif 'model' in object:
-            model=loader.loadModel(object['model'])
-            model.setPythonTag('model_file', object['model'])
+            model=loadModel(object['model'])            
         elif 'actor' in object:
-            model=Actor(object['actor'], object['actor_anims'])
-            collision=loader.loadModel(object['actor_collision'])            
-            collision.reparentTo(model)
+            model=loadModel(object['actor'],object['actor_collision'],object['actor_anims'])
             actors.append(model)
-            model.setPythonTag('actor_files', [object['actor'],object['actor_anims'],object['actor_collision']])            
-            #default anim
-            if 'default' in object['actor_anims']:
-                model.loop('default')
-            elif 'idle' in object['actor_anims']:
-                model.loop('idle')
-            else: #some random anim
-                model.loop(object['actor_anims'].items()[0])
-        model.reparentTo(quad_tree[object['parent_index']])
-        model.setCollideMask(BitMask32.allOff())        
-        model.setShader(loader.loadShader("shaders/default.cg")) 
-        model.find('**/collision').setCollideMask(BitMask32.bit(2))        
-        model.find('**/collision').setPythonTag('object', model)
-        
+        model.reparentTo(quad_tree[object['parent_index']])        
         model.setPythonTag('props', object['props'])
         model.setHpr(render,object['rotation_h'],object['rotation_p'],object['rotation_r'])
         model.setPos(render,object['position_x'],object['position_y'],object['position_z'])
