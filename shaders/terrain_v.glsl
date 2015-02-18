@@ -8,6 +8,7 @@ uniform vec4 fog;
 varying float fogFactor;
 varying vec2 texUV;
 varying vec2 texUVrepeat;
+varying vec4 vpos;
 
 void main()
     {    
@@ -23,4 +24,5 @@ void main()
     fogFactor=clamp(distToCamera+distToEdge, 0.0, 1.0);    
     texUV=gl_TexCoord[0].xy;
     texUVrepeat=gl_TexCoord[0].xy*40.0;
+    vpos=vert;
     }

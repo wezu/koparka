@@ -23,12 +23,19 @@ uniform sampler2D walkmap; // walkmap
 uniform vec4 fog; //fog color + for adjust in alpha
 uniform vec4 ambient; //ambient light color
 
+uniform float cam2;
+
 varying float fogFactor; 
 varying vec2 texUV; 
 varying vec2 texUVrepeat;
+varying vec4 vpos;
 
 void main()
-    {    
+    { 
+    //if (gl_ClipPlane[0].z<vpos.z )
+    //    {
+    //    discard;
+    //    }
     if(fogFactor>0.996)//fog only version
         {
         gl_FragData[0] = fog;            
@@ -131,8 +138,13 @@ void main()
         vec4 final= vec4(color.rgb * detail.xyz, 1.0);     
         vec4 walk=vec4(1.0,1.0,1.0,1.0)- step(texture2D(walkmap,texUV), vec4(0.5,0.5,0.5,0.5));
         //vec4 walk=texture2D(walkmap,texUV);
-        gl_FragData[0] = mix(final,fog ,fogFactor)+walk;    
-        //gl_FragData[0]=vec4(norm.xyz, 1.0);
+        final = mix(final,fog ,fogFactor)+walk; 
+        vec4 water_fog=vec4(0.0, 0.0, 0.05, 1.0);
+        float water_fog_factor=clamp(distance(vpos.z, 26.0)*0.1, 0.0, 1.4);
+        if (vpos.z<26.0)
+            gl_FragData[0]=mix(final,water_fog ,water_fog_factor*0.6);
+        else
+            gl_FragData[0]=final;        
         gl_FragData[1]=vec4(fogFactor, 0.0,0.0,0.0);
         }
     }

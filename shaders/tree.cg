@@ -29,13 +29,14 @@ void vshader(
 	 float4 vtx_position : POSITION,
 	 out float4 l_position : POSITION,
      out float l_fogfactor: TEXCOORD6,
+     out float4 l_world_position : TEXCOORD7,
      out float l_isBark: TEXCOORD2,
 	 uniform float4x4 mat_modelproj
-) {  
-     float4 wpos=mul(trans_model_to_world, vtx_position);
+) {       
+     l_world_position = mul(trans_model_to_world, vtx_position);
      l_isBark=step(0.25, vtx_texcoord0.y);     
-     float animation =sin(time+wpos.x);     
-     animation *=sin(0.5*(time+wpos.y));
+     float animation =sin(time+l_world_position.x);     
+     animation *=sin(0.5*(time+l_world_position.y));
      animation *=l_isBark;
      animation *=distance(vtx_position.xy, float2(0.0,0.0))*0.04;
      float4 vert= float4(vtx_position.xyz+animation, vtx_position.w);
@@ -54,7 +55,7 @@ void vshader(
      //l_binormal.xyz =vtx_binormal1.xyz;
 	 l_binormal.w = 0;     
      float distToCamera =saturate(l_position.z*fog.a-0.5);     
-     float distToEdge=saturate(pow(distance(wpos.xy, float2(256,256))/256.0, 4.0));
+     float distToEdge=saturate(pow(distance(l_world_position.xy, float2(256,256))/256.0, 4.0));
      l_fogfactor=saturate(distToCamera+distToEdge);
      
 }
@@ -76,8 +77,16 @@ void fshader(
      uniform float4 ambient,
      in float l_fogfactor : TEXCOORD6,
      in float l_isBark: TEXCOORD2,
+    in float4 l_world_position : TEXCOORD7,
 	 uniform float4 attr_colorscale
-) {
+) { //this is a hack for not using clip planes :((    
+    if (attr_colorscale.r<0.99)
+        {
+        if (l_world_position.z<=attr_colorscale.r*200.0)          
+            discard;
+        }
+    else
+    {
 	 float4 result;
 	 // Fetch all textures.
 	 float4 tex0 = tex2D(tex_0, l_texcoord0.xy);
@@ -122,4 +131,5 @@ void fshader(
 	 result.rgb = result.rgb + tot_specular.rgb;     
 	 o_color =lerp(result, fog,l_fogfactor);     
      o_color.a=result.a;
+    }
 }

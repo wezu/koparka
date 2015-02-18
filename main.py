@@ -120,6 +120,13 @@ class Editor (DirectObject):
         base.disableMouse()  
         self.controler=CameraControler()
         self.controler.cameraNode.setZ(25.5)
+        #emptyPlane = render.attachNewNode(PlaneNode("emptyPlane", Plane(Vec3(0, 0, 1), Point3(0, 0, 1))))
+        #basecamtmpNP = NodePath("basecamtmpNP")
+        #render.setClipPlane(emptyPlane)
+        #basecamtmpNP.setAttrib(ColorScaleAttrib.make(Vec4(1.0, 0.0, 0.0, 1.0)))
+        #base.cam.node().setInitialState(basecamtmpNP.getState())
+        
+        
         #painter        
         self.brushList=[]
         dirList=os.listdir(Filename(path+"brush/").toOsSpecific())
@@ -312,6 +319,9 @@ class Editor (DirectObject):
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
         self.mesh.setBin("background", 11)
+        self.mesh.hide(BitMask32.bit(1))
+        #emptyPlane = render.attachNewNode(PlaneNode("emptyPlane", Plane(Vec3(0, 0, 1), Point3(0, 0, 45))))        
+        #self.mesh.setClipPlane(emptyPlane)
         
         #grass
         self.grass=render.attachNewNode('grass')
@@ -320,6 +330,7 @@ class Editor (DirectObject):
         self.CreateGrassTile(uv_offset=Vec2(0.5,0), pos=(256, 0, 0), parent=self.grass, fogcenter=Vec3(0,256,0))
         self.CreateGrassTile(uv_offset=Vec2(0.5,0.5), pos=(256, 256, 0), parent=self.grass, fogcenter=Vec3(0,0,0))  
         self.grass.setBin("background", 11)       
+        self.grass.hide(BitMask32.bit(1))
         
         #skydome
         self.skydome = loader.loadModel("data/skydome") 
@@ -338,15 +349,13 @@ class Editor (DirectObject):
         self.skydome.setShader(Shader.load(Shader.SLGLSL, "shaders/cloud_v.glsl", "shaders/cloud_f.glsl"))
         
         #waterplane
-        maker = CardMaker("grid")
-        maker.setFrame( 0, 512, 0, 512)
-        self.waterNP = NodePath('waterSurface')
-        node = self.waterNP.attachNewNode(maker.generate())
-        self.waterNP.setHpr(0,-90,0)
-        self.waterNP.setPos(0, 0, 26)                         
+        self.waterNP = loader.loadModel("data/waterplane") 
+        self.waterNP.setPos(256, 256, 0)
+        self.waterNP.flattenLight()
+        self.waterNP.setPos(0, 0, 26)
         self.waterNP.reparentTo(render)  
         #Add a buffer and camera that will render the reflection texture
-        self.wBuffer = base.win.makeTextureBuffer("water", 256, 256)
+        self.wBuffer = base.win.makeTextureBuffer("water", 512, 512)
         self.wBuffer.setClearColorActive(True)
         self.wBuffer.setClearColor(base.win.getClearColor())
         self.waterCamera = base.makeCamera(self.wBuffer)
@@ -363,8 +372,9 @@ class Editor (DirectObject):
         self.wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, 26))
         wPlaneNP = render.attachNewNode(PlaneNode("water", self.wPlane))
         tmpNP = NodePath("StateInitializer")
-        tmpNP.setClipPlane(wPlaneNP)
+        #tmpNP.setClipPlane(wPlaneNP)
         tmpNP.setAttrib(CullFaceAttrib.makeReverse())
+        tmpNP.setAttrib(ColorScaleAttrib.make(Vec4(24.0/200.0, 0.0, 0.0, 0.0)))
         self.waterCamera.node().setInitialState(tmpNP.getState())
         self.waterNP.projectTexture(TextureStage("reflection"), wTexture, self.waterCamera)
 
@@ -374,28 +384,30 @@ class Editor (DirectObject):
         self.waterNP.setShaderInput("speed",0.02)
         self.waterNP.setTransparency(TransparencyAttrib.MDual)
         
-        
+        #render.setAttrib(ColorScaleAttrib.make(Vec4(0.0, 0.0, 0.0, 1.0)))
         #light
         #sun
         self.dlight = DirectionalLight('dlight') 
-        self.dlight.setColor(VBase4(0.8, 0.8, 0.8, 1))     
+        self.dlight.setColor(VBase4(1.0, 1.0, 0.95, 1))     
         self.mainLight = render.attachNewNode(self.dlight)
-        self.mainLight.setP(-60)       
+        self.mainLight.setP(-30)       
         self.mainLight.setH(90)
         render.setLight(self.mainLight)
         
         #ambient light 
         self.alight = DirectionalLight('dlight') 
-        self.alight.setColor(Vec4(.2, .2, .2, 1))     
+        self.alight.setColor(Vec4(.4, .4, .6, 1))     
         self.ambientLight = render.attachNewNode(self.alight)
-        self.ambientLight.setP(-90)       
-        self.ambientLight.setH(90)
+        #self.ambientLight.setP(-90)       
+        #self.ambientLight.setH(90)
         render.setLight(self.ambientLight)
-        
+        self.ambientLight.setPos(base.camera.getPos())
+        self.ambientLight.setHpr(base.camera.getHpr())
+        self.ambientLight.wrtReparentTo(base.camera)
         
         render.setShaderInput("dlight0", self.mainLight)
         render.setShaderInput("dlight1", self.ambientLight)
-        render.setShaderInput("ambient", Vec4(.3, .3, .4, 1)) 
+        render.setShaderInput("ambient", Vec4(.01, .01, .01, 1)) 
         
         #fog
         #rgb color + coefficiency in alpha

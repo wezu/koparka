@@ -17,6 +17,7 @@
   <Scalar> minfilter { linear_mipmap_linear }
   <Scalar> magfilter { linear }
   <Scalar> envtype { modulate }
+  <Scalar> alpha { binary }
 }
 <Group> house3 {
   <VertexPool> house3.verts {
