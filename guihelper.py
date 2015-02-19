@@ -193,11 +193,22 @@ class GuiHelper():
                 value=min(1.0, max(0.001,value))
             except:
                 value=self.SkySeaOptions[7]
-        elif id==108:#Water Z
+        elif id==108:#Water Wave
+             #shoul be 3 element tuple/list            
+            if len(value)!=3:
+                value=self.SkySeaOptions[8]
+            try:    
+                final=[]    
+                for item in value:
+                    final.append(min(100.0, max(0.0, item)))
+                value=final    
+            except:
+                value=self.SkySeaOptions[8]        
+        elif id==109:#Water Z
             try:                    
                 value=min(200.0, max(-1.0,value))
             except:
-                value=self.SkySeaOptions[8]        
+                value=self.SkySeaOptions[9]         
         if id<100:    
             self.ConfigEntry[id].enterText(str(value))   
         else:
@@ -208,8 +219,8 @@ class GuiHelper():
         #this one done 'properly'        
         #ordered dict should be used here... but not in python 2.5
         #so the hack...well it looks like it won't be as 'propre' as advertised 
-        labels=['Sky Color:','Fog Color:','Cloud Color:','Cloud Tile:','Cloud Speed:','Horizont:','Water Tile:','Water Speed:', 'Water Level:\n(-1 to disable)']
-        self.SkySeaOptions=[[0.4,0.6,1.0, 1.0],[0.4, 0.4, 0.4, 0.002],[0.9,0.9,1.0, 0.8], 4.0, 0.008, 140.0,20.0,0.01, 26.0]
+        labels=['Sky Color:','Fog Color:','Cloud Color:','Cloud Tile:','Cloud Speed:','Horizont:','Water Tile:','Water Speed:', 'Water Wave:','Water Level:\n(-1 to disable)']
+        self.SkySeaOptions=[[0.4,0.6,1.0, 1.0],[0.4, 0.4, 0.4, 0.002],[0.9,0.9,1.0, 0.8], 4.0, 0.008, 140.0,10.0,0.01,[32.0, 32.0, 0.3], 26.0]
         text=""
         for item in labels:
             text+=item+'\n'
@@ -250,7 +261,7 @@ class GuiHelper():
         _resetPivot(self.cancelButton)        
         self.cancelButton.setPos(_pos2d(32,478)) 
         
-        self.okButton.bind(DGG.B1PRESS, self.validateAndExec, [command,2, 9, 100])        
+        self.okButton.bind(DGG.B1PRESS, self.validateAndExec, [command,2, 10, 100])        
         self.cancelButton.bind(DGG.B1PRESS, command, [False]) 
         
         self.SkySeaEntry=[]

@@ -6,12 +6,14 @@ void vshader(
       in uniform float time,
       in uniform float tile,
       in uniform float speed,
+      in uniform float3 wave,
       
       uniform float4x4 mat_modelproj,
       uniform float4x4 trans_model_to_world,        
       uniform float4x4 texmat_0,       
 	 uniform float4x4 tpose_view_to_model,
-	 uniform float4x4 trans_model_to_view,     
+	 uniform float4x4 trans_model_to_view, 
+    uniform float4x4 trans_model_to_clip_of_camera,
       uniform float4 fog,
       out float4 l_position : POSITION,
       out float4 l_texcoord0 : TEXCOORD0,
@@ -21,22 +23,31 @@ void vshader(
 	 out float4 l_eye_position : TEXCOORD4,
      out float3 l_tangent : TEXCOORD5,
      out float3 l_binormal : TEXCOORD6,
-     out float l_fogfactor: TEXCOORD7)
+     out float4 l_factors: TEXCOORD7)
    {
-   float4 l_worldPos = mul(trans_model_to_world, vtx_position);
-   l_position = mul(mat_modelproj, vtx_position);
+   float4 vert=vtx_position;
+   vert.z+=sin(time+vtx_texcoord0.x*wave.x)*wave.z;
+   vert.z+=sin(time+vtx_texcoord0.y*wave.y)*wave.z;
+   float4 l_worldPos = mul(trans_model_to_world, vert);
+   l_position = mul(mat_modelproj, vert);
    l_texcoord0 = vtx_texcoord0*tile+time*speed;
    l_texcoord1 = vtx_texcoord0*tile*1.77-time*speed*1.77;
-   l_texCoordReflec = mul(texmat_0, l_worldPos);
+   //l_texCoordReflec = mul(texmat_0, l_worldPos);
    l_eye_normal.xyz = mul((float3x3)tpose_view_to_model, vtx_normal.xyz);
    l_eye_normal.w = 0;   
-   l_eye_position = mul(trans_model_to_view, vtx_position);
+   l_eye_position = mul(trans_model_to_view, vert);
    l_tangent=mul((float3x3)tpose_view_to_model, float3(1,0,0));
    l_binormal=mul((float3x3)tpose_view_to_model, -float3(0,1,0));
    float distToCamera =saturate(l_position.z*fog.a-0.5);
-   float4 wpos=mul(trans_model_to_world, vtx_position);
-   float distToEdge=saturate(pow(distance(wpos.xy, float2(256,256))/256.0, 4.0));
-   l_fogfactor=saturate(distToCamera+distToEdge);
+   //float4 wpos=mul(trans_model_to_world, vtx_position);
+   float distToEdge=saturate(pow(distance(vert.xy, float2(256,256))/256.0, 4.0));
+   l_factors=float4(0.0,0.0,0.0,0.0);
+   l_factors.x=saturate(distToCamera+distToEdge);   
+   l_factors.y=vert.z;//not used after all
+   l_factors.zw=vtx_texcoord0.xy;//used to many TEXCOORDs need to put the uvs somwhere...
+   float4 l_camclip = mul(trans_model_to_clip_of_camera, vert);
+    // Calculate texture coordinates.
+    l_texCoordReflec = l_camclip * float4(0.5,0.5,0.5,1.0) + l_camclip.w * float4(0.5,0.5,0.5,0.0);
 }
 
 void fshader(
@@ -47,10 +58,12 @@ void fshader(
       in float4 l_eye_position : TEXCOORD4,      
       in float3 l_tangent : TEXCOORD5,
       in float3 l_binormal : TEXCOORD6,      
-      in float l_fogfactor : TEXCOORD7,
+      in float4 l_factors : TEXCOORD7,
       uniform float4 fog,
-      uniform sampler2D tex_0 : TEXUNIT0,
-      uniform sampler2D water_norm,   
+      uniform float water_level,
+      uniform sampler2D reflection,
+      uniform sampler2D water_norm,  
+      uniform sampler2D height, 
      uniform float4x4 dlight_dlight0_rel_view,   
      uniform float4x4 dlight_dlight1_rel_view,  
       out float4 o_color : COLOR0)
@@ -75,14 +88,20 @@ void fshader(
    lcolor=dlight_dlight1_rel_view[0];
    specular += pow(saturate(dot(l_eye_normal.xyz, lhalf.xyz)), shine);
    
+   float h_map=tex2D(height, l_factors.zw).r;
+   float foam=normalmap.a*saturate(h_map*100.0-(water_level-1.0));
    
-   float4 refl=tex2Dproj(tex_0, l_texCoordReflec+distortion1*distortion2*10);
-   float4 ligh=saturate(dot(l_eye_normal.xyz, dlight_dlight0_rel_view[2].xyz))*lcolor;  
+   float4 refl=tex2Dproj(reflection, l_texCoordReflec+distortion1*distortion2*10);
+   float4 ligh=saturate(dot(l_eye_normal.xyz, dlight_dlight0_rel_view[2].xyz))*lcolor;     
+   ligh+=foam;
    float4 result;   
-   result=lerp(refl, ligh, 0.5);
+   result=lerp(refl, ligh, 0.2+foam*1.4);
    result+=specular;    
-   //result.a=facing+0.4;
-   o_color =lerp(result, fog,l_fogfactor);
-   //o_color=result;
-   o_color.a=(facing*0.5)+0.3;
+   result.a=(facing*0.5)+0.6;
+   fog.a=1.0;     
+   //o_color =lerp(result, fog,l_factors.x);
+   //result+=normalmap.a*saturate(h_map*100.0-25.0)*0.3;
+   //result.a+=normalmap.a*saturate(h_map*100.0-25.0);
+   //o_color.a+=normalmap.a*l_factors.y;
+   o_color =lerp(result, fog,l_factors.x); 
 }

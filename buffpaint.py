@@ -7,6 +7,7 @@ class BufferPainter ():
         self.pointer = loader.loadModel("data/pointer")
         self.pointer.reparentTo(render)
         self.pointer.setLightOff()
+        self.pointer.hide(BitMask32.bit(1))
         #the plane will bu used to see where the mouse pointer is
         self.z=25.5
         self.pointer.setZ(self.z)

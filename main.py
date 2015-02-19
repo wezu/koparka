@@ -94,11 +94,13 @@ class Editor (DirectObject):
         self.grid.setColor(0,0,0,0.5) 
         self.grid_z=25.5
         self.grid_scale=16
+        self.grid.hide(BitMask32.bit(1))
         #self.grid.hide()
         #axis to help orient the scene
         self.axis=loader.loadModel('data/axis.egg')
         self.axis.reparentTo(render)
         self.axis.setLightOff()
+        self.axis.hide(BitMask32.bit(1))
         
         #store variables needed for diferent classes 
         self.mode=MODE_HEIGHT
@@ -320,6 +322,7 @@ class Editor (DirectObject):
         self.mesh.node().setFinal(1)
         self.mesh.setBin("background", 11)
         self.mesh.hide(BitMask32.bit(1))
+        self.mesh.setShaderInput("water_level",26.0)
         #emptyPlane = render.attachNewNode(PlaneNode("emptyPlane", Plane(Vec3(0, 0, 1), Point3(0, 0, 45))))        
         #self.mesh.setClipPlane(emptyPlane)
         
@@ -376,21 +379,27 @@ class Editor (DirectObject):
         tmpNP.setAttrib(CullFaceAttrib.makeReverse())
         tmpNP.setAttrib(ColorScaleAttrib.make(Vec4(24.0/200.0, 0.0, 0.0, 0.0)))
         self.waterCamera.node().setInitialState(tmpNP.getState())
-        self.waterNP.projectTexture(TextureStage("reflection"), wTexture, self.waterCamera)
-
+        #self.waterNP.projectTexture(TextureStage("reflection"), wTexture, self.waterCamera)
+        #reflect UV generated on the shader - faster(?)
+        self.waterNP.setShaderInput('camera',self.waterCamera)
+        self.waterNP.setShaderInput("reflection",wTexture)
+        
         self.waterNP.setShader(loader.loadShader("shaders/water.cg"))
         self.waterNP.setShaderInput("water_norm", loader.loadTexture('data/water.png'))  
+        self.waterNP.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
         self.waterNP.setShaderInput("tile",10.0)
+        self.waterNP.setShaderInput("water_level",26.0)
         self.waterNP.setShaderInput("speed",0.02)
+        self.waterNP.setShaderInput("wave",Vec3(32.0, 34.0, 0.2))
         self.waterNP.setTransparency(TransparencyAttrib.MDual)
         
         #render.setAttrib(ColorScaleAttrib.make(Vec4(0.0, 0.0, 0.0, 1.0)))
         #light
         #sun
         self.dlight = DirectionalLight('dlight') 
-        self.dlight.setColor(VBase4(1.0, 1.0, 0.95, 1))     
+        self.dlight.setColor(VBase4(0.9, 0.9, 0.9, 1))     
         self.mainLight = render.attachNewNode(self.dlight)
-        self.mainLight.setP(-30)       
+        self.mainLight.setP(-60)       
         self.mainLight.setH(90)
         render.setLight(self.mainLight)
         
@@ -532,24 +541,30 @@ class Editor (DirectObject):
             horizont=self.gui.SkySeaOptions[5]
             tile=self.gui.SkySeaOptions[6]
             speed=self.gui.SkySeaOptions[7]
-            water_z=self.gui.SkySeaOptions[8]
+            wave=Vec3(self.gui.SkySeaOptions[8][0],self.gui.SkySeaOptions[8][1],self.gui.SkySeaOptions[8][2])
+            water_z=self.gui.SkySeaOptions[9]            
             self.skydome.setShaderInput("sky", sky)   
             render.setShaderInput("fog", fog) 
             self.skydome.setShaderInput("cloudColor", cloudColor)
             self.skydome.setShaderInput("cloudTile",cloudTile) 
             self.skydome.setShaderInput("cloudSpeed",cloudSpeed)
             self.skydome.setShaderInput("horizont",horizont)
+            self.mesh.setShaderInput("water_level",water_z)
             if water_z>0.0:
                 self.wBuffer.setActive(True)
                 self.waterNP.show()
                 self.waterNP.setShaderInput("tile",tile)
-                self.waterNP.setShaderInput("speed",speed)
+                self.waterNP.setShaderInput("speed",speed)                
+                self.waterNP.setShaderInput("water_level",water_z)
+                self.waterNP.setShaderInput("wave",wave)
                 self.waterNP.setPos(0, 0, water_z)
                 self.wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, water_z))
                 wPlaneNP = render.attachNewNode(PlaneNode("water", self.wPlane))
+                self.mesh.setShaderInput("water_level",water_z)
                 tmpNP = NodePath("StateInitializer")
                 tmpNP.setClipPlane(wPlaneNP)
                 tmpNP.setAttrib(CullFaceAttrib.makeReverse())
+                tmpNP.setAttrib(ColorScaleAttrib.make(Vec4((water_z-2.0)/200.0, 0.0, 0.0, 0.0)))
                 self.waterCamera.node().setInitialState(tmpNP.getState())
             else:
                 self.waterNP.hide()

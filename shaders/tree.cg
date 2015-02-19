@@ -126,7 +126,7 @@ void fshader(
 	 // End view-space light calculations
 	 result.a = 1;
 	 result.rgba *= tex0.rgba;
-	 result *= attr_colorscale;
+	 //result *= attr_colorscale;
 	 tot_specular *= tex1.a;
 	 result.rgb = result.rgb + tot_specular.rgb;     
 	 o_color =lerp(result, fog,l_fogfactor);     
