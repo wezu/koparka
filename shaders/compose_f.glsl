@@ -8,11 +8,11 @@ void main()
     {
     vec2 uv=gl_TexCoord[0].xy;
     vec4 color=texture2D(colortex,uv);
-    float shadow=texture2D(shadow_map,uv).g*0.5+0.5; 
+    float shadow=texture2D(shadow_map,uv).g*0.8+0.21; 
     float fogfactor=texture2D(auxTex, uv).r;
     
     vec4 blur=texture2D(colortex, uv);
-    float sharpness=0.003;
+    float sharpness=0.005;
     //Hardcoded fast gaussian blur
     blur += texture2D(colortex, uv + vec2( -0.326212, -0.405805)*sharpness);
     blur += texture2D(colortex, uv + vec2(-0.840144, -0.073580)*sharpness);
@@ -28,6 +28,6 @@ void main()
     blur += texture2D(colortex, uv + vec2(-0.791559, -0.597705)*sharpness);
     blur /=13.0;      
     color*=shadow;   
-    gl_FragColor =mix(color, blur, fogfactor);
+    gl_FragColor =mix(color, blur, pow(fogfactor, 0.5));
     //gl_FragColor =color;
     }

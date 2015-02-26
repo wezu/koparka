@@ -23,7 +23,7 @@ void main()
         {
         discard;
         }
-    vec4 fog_color=vec4(fog.rgb, 1.0);    
+    vec4 fog_color=vec4(fog.rgb, 0.0);    
     if(fog_factor>0.996)//fog only version
         {
         gl_FragData[0] =fog_color;

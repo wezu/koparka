@@ -41,10 +41,11 @@ void main()
     if (dot(p3d_ClipPlane[0], vpos) < 0) 
         {
         discard;
-        }       
+        } 
+    vec4 fog_color=vec4(fog.rgb, 0.0);        
     if(fogFactor>0.996)//fog only version
         {
-        gl_FragData[0] = fog;            
+        gl_FragData[0] = fog_color;            
         gl_FragData[1]=vec4(1.0,1.0,0.0,0.0);
         }
     else //full version
@@ -148,8 +149,8 @@ void main()
         vec4 water_fog=vec4(0.0, 0.0, 0.05, 1.0);
         float water_fog_factor=clamp(distance(terrainz, water_level)*0.1, 0.0, 1.4);
         if (terrainz<water_level)
-            final=mix(final,water_fog ,water_fog_factor*0.6);        
-        gl_FragData[0] = mix(final,fog ,fogFactor)+walk;    
+            final=mix(final,water_fog ,water_fog_factor*0.6);                 
+        gl_FragData[0] = mix(final,fog_color ,fogFactor)+walk;    
         //shadows
         vec4 shadowUV = shadowCoord / shadowCoord.q;
         float shadowColor = texture2D(shadow, shadowUV.xy).r;    

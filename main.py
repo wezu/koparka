@@ -4,7 +4,7 @@ loadPrcFileData('','win-size 1024 768')
 loadPrcFileData('','show-frame-rate-meter  1')
 loadPrcFileData('','sync-video 0')
 loadPrcFileData('','framebuffer-srgb true')
-loadPrcFileData('','default-texture-color-space sRGB')
+#loadPrcFileData('','default-texture-color-space sRGB')
 #loadPrcFileData('','gl-check-errors #t')
 #loadPrcFileData('','show-buffers 1')
 #loadPrcFileData('','win-size 1280 720')
@@ -388,10 +388,12 @@ class Editor (DirectObject):
         self.skydome.node().setFinal(1)
         self.skydome.setShader(Shader.load(Shader.SLGLSL, "shaders/cloud_v.glsl", "shaders/cloud_f.glsl"))
         self.skydome.hide(BitMask32.bit(2))
+        self.skydome.setTransparency(TransparencyAttrib.MNone)
         
         #waterplane
         self.waterNP = loader.loadModel("data/waterplane") 
         self.waterNP.setPos(256, 256, 0)
+        self.waterNP.setTransparency(TransparencyAttrib.MAlpha)
         self.waterNP.flattenLight()
         self.waterNP.setPos(0, 0, 26)
         self.waterNP.reparentTo(render)  
@@ -402,8 +404,7 @@ class Editor (DirectObject):
         self.waterCamera = base.makeCamera(self.wBuffer)
         self.waterCamera.reparentTo(render)
         self.waterCamera.node().setLens(base.camLens)
-        self.waterCamera.node().setCameraMask(BitMask32.bit(1))
-        self.waterNP.hide(BitMask32.bit(1))       
+        self.waterCamera.node().setCameraMask(BitMask32.bit(1))               
         #Create this texture and apply settings
         wTexture = self.wBuffer.getTexture()
         wTexture.setWrapU(Texture.WMClamp)
@@ -428,8 +429,8 @@ class Editor (DirectObject):
         self.waterNP.setShaderInput("tile",10.0)
         self.waterNP.setShaderInput("water_level",26.0)
         self.waterNP.setShaderInput("speed",0.02)
-        self.waterNP.setShaderInput("wave",Vec3(32.0, 34.0, 0.2))
-        self.waterNP.setTransparency(TransparencyAttrib.MDual)
+        self.waterNP.setShaderInput("wave",Vec3(32.0, 34.0, 0.2))        
+        self.waterNP.hide(BitMask32.bit(1))
         self.waterNP.hide(BitMask32.bit(2))
         
         #render.setAttrib(ColorScaleAttrib.make(Vec4(0.0, 0.0, 0.0, 1.0)))
@@ -471,6 +472,7 @@ class Editor (DirectObject):
         props.setRgbColor(0)
         props.setDepthBits(1)
         props.setAlphaBits(0)
+        props.set_srgb_color(False)
         depthBuffer = base.win.makeTextureBuffer("Shadow Buffer", 
                                               1024, 
                                               1024, 
@@ -481,10 +483,10 @@ class Editor (DirectObject):
         depthBuffer.setSort(-101)
         shadowCamera = base.makeCamera(depthBuffer) 
         lens = OrthographicLens()
-        lens.setFilmSize(512, 512)
+        lens.setFilmSize(500, 500)
         shadowCamera.node().setLens(lens)
         shadowCamera.node().getLens().setNearFar(1,400) 
-        shadowCamera.node().setCameraMask(BitMask32.bit(1))
+        shadowCamera.node().setCameraMask(BitMask32.bit(2))
         shadowCamera.reparentTo(render)
         #shadowCamera.node().showFrustum()
         shadowCamera.setPos(400, 256, 256)          
