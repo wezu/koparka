@@ -8,11 +8,10 @@
   <Scalar> minfilter { linear_mipmap_linear }
   <Scalar> magfilter { linear }
   <Scalar> envtype { normal_gloss }
-  <Scalar> alpha { binary }
 }
 <Texture> Tex1 {
   arch.png
-  <Scalar> format { rgba }
+  <Scalar> format { rgb }
   <Scalar> wrapu { repeat }
   <Scalar> wrapv { repeat }
   <Scalar> minfilter { linear_mipmap_linear }

@@ -9,6 +9,11 @@ varying float fogFactor;
 varying vec2 texUV;
 varying vec2 texUVrepeat;
 varying vec4 vpos;
+varying float terrainz;
+
+uniform float bias;
+uniform mat4 trans_model_to_clip_of_shadowCamera;
+varying vec4 shadowCoord;
 
 void main()
     {    
@@ -24,5 +29,12 @@ void main()
     fogFactor=clamp(distToCamera+distToEdge, 0.0, 1.0);    
     texUV=gl_TexCoord[0].xy;
     texUVrepeat=gl_TexCoord[0].xy*40.0;
-    vpos=vert;
+    vpos=gl_ModelViewMatrix * vert;
+    terrainz=vert.z;
+    
+     // Calculate light-space clip position.
+    vec4 pushed = vert + vec4(gl_Normal * bias, 0);
+    vec4 lightclip = trans_model_to_clip_of_shadowCamera * pushed;
+    // Calculate shadow-map texture coordinates.
+    shadowCoord = lightclip * vec4(0.5,0.5,0.5,1.0) + lightclip.w * vec4(0.5,0.5,0.5,0.0);    
     }

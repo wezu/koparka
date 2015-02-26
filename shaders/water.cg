@@ -26,8 +26,8 @@ void vshader(
      out float4 l_factors: TEXCOORD7)
    {
    float4 vert=vtx_position;
-   vert.z+=sin(time+vtx_texcoord0.x*wave.x)*wave.z;
-   vert.z+=sin(time+vtx_texcoord0.y*wave.y)*wave.z;
+   vert.z+=0.5+sin(time+vtx_texcoord0.x*wave.x)*wave.z;
+   vert.z+=0.5+sin(time+vtx_texcoord0.y*wave.y)*wave.z;
    float4 l_worldPos = mul(trans_model_to_world, vert);
    l_position = mul(mat_modelproj, vert);
    l_texcoord0 = vtx_texcoord0*tile+time*speed;
@@ -73,7 +73,7 @@ void fshader(
    float facing = 1.0 -max(dot(normalize(-l_eye_position.xyz), normalize(l_eye_normal.xyz)), 0.0);    
    
    float4 normalmap=distortion1+distortion2;   
-   float3 tsnormal = (normalmap.xyz * 2) - 1;
+   float3 tsnormal = (normalize(normalmap.xyz) * 2) - 1;
    l_eye_normal.xyz *= tsnormal.z;
    l_eye_normal.xyz += l_tangent * tsnormal.x;
    l_eye_normal.xyz += l_binormal * tsnormal.y;	
@@ -81,19 +81,20 @@ void fshader(
    
    float4 lhalf = dlight_dlight0_rel_view[3];
    float4 lcolor=dlight_dlight0_rel_view[0];
-   float shine=500;   
-   float4 specular = pow(saturate(dot(l_eye_normal.xyz, lhalf.xyz)), shine);
+   float shine=300;   
+   float4 specular = pow(saturate(dot(l_eye_normal.xyz, lhalf.xyz)), shine)*(1.0-l_factors.x);
    
-   lhalf = dlight_dlight1_rel_view[3];
-   lcolor=dlight_dlight1_rel_view[0];
-   specular += pow(saturate(dot(l_eye_normal.xyz, lhalf.xyz)), shine);
+   //lhalf = dlight_dlight1_rel_view[3];
+   //lcolor=dlight_dlight1_rel_view[0];
+   //specular += pow(saturate(dot(l_eye_normal.xyz, lhalf.xyz)), shine)*(1.0-l_factors.x);
+   
    
    float h_map=tex2D(height, l_factors.zw).r;
    float foam=normalmap.a*saturate(h_map*100.0-(water_level-1.0));
    
-   float4 refl=tex2Dproj(reflection, l_texCoordReflec+distortion1*distortion2*10);
+   float4 refl=tex2Dproj(reflection, l_texCoordReflec+distortion1*distortion2*4);
    float4 ligh=saturate(dot(l_eye_normal.xyz, dlight_dlight0_rel_view[2].xyz))*lcolor;     
-   ligh+=foam;
+   ligh+=foam*lcolor;
    float4 result;   
    result=lerp(refl, ligh, 0.2+foam*1.4);
    result+=specular;    

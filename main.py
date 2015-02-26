@@ -3,6 +3,9 @@ loadPrcFileData('','textures-power-2 None')#needed for fxaa
 loadPrcFileData('','win-size 1024 768')
 loadPrcFileData('','show-frame-rate-meter  1')
 loadPrcFileData('','sync-video 0')
+loadPrcFileData('','framebuffer-srgb true')
+loadPrcFileData('','default-texture-color-space sRGB')
+#loadPrcFileData('','gl-check-errors #t')
 #loadPrcFileData('','show-buffers 1')
 #loadPrcFileData('','win-size 1280 720')
 #loadPrcFileData("", "dump-generated-shaders 1")
@@ -78,8 +81,39 @@ class Editor (DirectObject):
         #init ShowBase
         base = ShowBase.ShowBase()
         
-        #fxaa, just the manager, the effect is created when the window is opened/resized
-        self.fxaaManager=FilterManager(base.win, base.cam)
+        #manager for post process filters (fxaa, soft shadows, dof)
+        manager=FilterManager(base.win, base.cam)        
+       
+        colorTex = Texture()#the scene
+        auxTex = Texture() # r=blur, g=shadow, b=?, a=?
+        blurTex = Texture() #1/4 size of the shadows to be blured        
+        blurTex2 = Texture()#1/4 size of the shadows to be blured again
+        composeTex=Texture()#the scene(colorTex) blured where auxTex.r>0 and with shadows (blurTex2.r) added
+        
+        final_quad = manager.renderSceneInto(colortex=colorTex, auxtex=auxTex)        
+        
+        interquad1 = manager.renderQuadInto(colortex=blurTex, div=2)
+        interquad1.setShader(Shader.load(Shader.SLGLSL, "shaders/blur_v.glsl", "shaders/blur_f.glsl"))
+        interquad1.setShaderInput("input_map", auxTex)
+        
+        interquad2 = manager.renderQuadInto(colortex=blurTex2, div=2)
+        interquad2.setShader(Shader.load(Shader.SLGLSL, "shaders/blur_v.glsl", "shaders/blur_f.glsl"))
+        interquad2.setShaderInput("input_map", blurTex)  
+        
+        interquad3 = manager.renderQuadInto(colortex=composeTex)
+        interquad3.setShader(Shader.load(Shader.SLGLSL, "shaders/compose_v.glsl", "shaders/compose_f.glsl"))
+        interquad3.setShaderInput("colortex", colorTex)
+        interquad3.setShaderInput("shadow_map", blurTex2)
+        interquad3.setShaderInput("auxTex", auxTex)   
+        
+        final_quad.setShader(Shader.load(Shader.SLGLSL, "shaders/fxaa_v.glsl", "shaders/fxaa_f.glsl"))
+        final_quad.setShaderInput("tex0", composeTex)
+        final_quad.setShaderInput("rt_w",float(base.win.getXSize()))
+        final_quad.setShaderInput("rt_h",float(base.win.getYSize()))
+        final_quad.setShaderInput("FXAA_SPAN_MAX" , float(8.0))
+        final_quad.setShaderInput("FXAA_REDUCE_MUL", float(1.0/8.0))
+        final_quad.setShaderInput("FXAA_SUBPIX_SHIFT", float(1.0/4.0))
+        
         
         #make a grid
         cm = CardMaker("plane")
@@ -95,7 +129,8 @@ class Editor (DirectObject):
         self.grid_z=25.5
         self.grid_scale=16
         self.grid.hide(BitMask32.bit(1))
-        #self.grid.hide()
+        self.grid.hide(BitMask32.bit(2))
+        self.grid.hide()
         #axis to help orient the scene
         self.axis=loader.loadModel('data/axis.egg')
         self.axis.reparentTo(render)
@@ -122,7 +157,8 @@ class Editor (DirectObject):
         base.disableMouse()  
         self.controler=CameraControler()
         self.controler.cameraNode.setZ(25.5)
-        #emptyPlane = render.attachNewNode(PlaneNode("emptyPlane", Plane(Vec3(0, 0, 1), Point3(0, 0, 1))))
+        render.setShaderInput('camera', base.cam)
+        #emptyPlane = render.attachNewNode(PlaneNode("emptyPlane", Plane(Vec3(0, 0, 1), Point3(0, 0, -100))))
         #basecamtmpNP = NodePath("basecamtmpNP")
         #render.setClipPlane(emptyPlane)
         #basecamtmpNP.setAttrib(ColorScaleAttrib.make(Vec4(1.0, 0.0, 0.0, 1.0)))
@@ -321,10 +357,10 @@ class Editor (DirectObject):
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
         self.mesh.setBin("background", 11)
-        self.mesh.hide(BitMask32.bit(1))
+        #self.mesh.hide(BitMask32.bit(1))
         self.mesh.setShaderInput("water_level",26.0)
-        #emptyPlane = render.attachNewNode(PlaneNode("emptyPlane", Plane(Vec3(0, 0, 1), Point3(0, 0, 45))))        
-        #self.mesh.setClipPlane(emptyPlane)
+        #emptyPlane = render.attachNewNode(PlaneNode("emptyPlane", Plane(Vec3(0, 0, 1), Point3(0, 0, -100))))        
+        #render.setClipPlane(emptyPlane)
         
         #grass
         self.grass=render.attachNewNode('grass')
@@ -334,6 +370,7 @@ class Editor (DirectObject):
         self.CreateGrassTile(uv_offset=Vec2(0.5,0.5), pos=(256, 256, 0), parent=self.grass, fogcenter=Vec3(0,0,0))  
         self.grass.setBin("background", 11)       
         self.grass.hide(BitMask32.bit(1))
+        self.grass.hide(BitMask32.bit(2))
         
         #skydome
         self.skydome = loader.loadModel("data/skydome") 
@@ -350,6 +387,7 @@ class Editor (DirectObject):
         self.skydome.node().setBounds(OmniBoundingVolume())
         self.skydome.node().setFinal(1)
         self.skydome.setShader(Shader.load(Shader.SLGLSL, "shaders/cloud_v.glsl", "shaders/cloud_f.glsl"))
+        self.skydome.hide(BitMask32.bit(2))
         
         #waterplane
         self.waterNP = loader.loadModel("data/waterplane") 
@@ -372,19 +410,19 @@ class Editor (DirectObject):
         wTexture.setWrapV(Texture.WMClamp)
         wTexture.setMinfilter(Texture.FTLinearMipmapLinear)       
         #Create plane for clipping and for reflection matrix
-        self.wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, 26))
+        self.wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, 26))        
         wPlaneNP = render.attachNewNode(PlaneNode("water", self.wPlane))
         tmpNP = NodePath("StateInitializer")
-        #tmpNP.setClipPlane(wPlaneNP)
+        tmpNP.setClipPlane(wPlaneNP)
         tmpNP.setAttrib(CullFaceAttrib.makeReverse())
-        tmpNP.setAttrib(ColorScaleAttrib.make(Vec4(24.0/200.0, 0.0, 0.0, 0.0)))
+        #tmpNP.setAttrib(ColorScaleAttrib.make(Vec4(24.0/200.0, 1.0, 1.0, 1.0)))
         self.waterCamera.node().setInitialState(tmpNP.getState())
         #self.waterNP.projectTexture(TextureStage("reflection"), wTexture, self.waterCamera)
         #reflect UV generated on the shader - faster(?)
         self.waterNP.setShaderInput('camera',self.waterCamera)
         self.waterNP.setShaderInput("reflection",wTexture)
         
-        self.waterNP.setShader(loader.loadShader("shaders/water.cg"))
+        self.waterNP.setShader(Shader.load(Shader.SLGLSL, "shaders/water_v.glsl", "shaders/water_f.glsl"))
         self.waterNP.setShaderInput("water_norm", loader.loadTexture('data/water.png'))  
         self.waterNP.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
         self.waterNP.setShaderInput("tile",10.0)
@@ -392,12 +430,13 @@ class Editor (DirectObject):
         self.waterNP.setShaderInput("speed",0.02)
         self.waterNP.setShaderInput("wave",Vec3(32.0, 34.0, 0.2))
         self.waterNP.setTransparency(TransparencyAttrib.MDual)
+        self.waterNP.hide(BitMask32.bit(2))
         
         #render.setAttrib(ColorScaleAttrib.make(Vec4(0.0, 0.0, 0.0, 1.0)))
         #light
         #sun
         self.dlight = DirectionalLight('dlight') 
-        self.dlight.setColor(VBase4(0.9, 0.9, 0.9, 1))     
+        self.dlight.setColor(VBase4(0.85, 0.85, 0.8, 1))     
         self.mainLight = render.attachNewNode(self.dlight)
         self.mainLight.setP(-60)       
         self.mainLight.setH(90)
@@ -405,7 +444,7 @@ class Editor (DirectObject):
         
         #ambient light 
         self.alight = DirectionalLight('dlight') 
-        self.alight.setColor(Vec4(.4, .4, .6, 1))     
+        self.alight.setColor(Vec4(.2, .2, .25, 1))     
         self.ambientLight = render.attachNewNode(self.alight)
         #self.ambientLight.setP(-90)       
         #self.ambientLight.setH(90)
@@ -417,6 +456,45 @@ class Editor (DirectObject):
         render.setShaderInput("dlight0", self.mainLight)
         render.setShaderInput("dlight1", self.ambientLight)
         render.setShaderInput("ambient", Vec4(.01, .01, .01, 1)) 
+        
+        #render shadow map
+        depth_map = Texture()
+        depth_map.setFormat( Texture.FDepthComponent)
+        depth_map.setWrapU(Texture.WMBorderColor)
+        depth_map.setWrapV(Texture.WMBorderColor) 
+        depth_map.setBorderColor(Vec4(1.0, 1.0, 1.0, 1.0)) 
+        #depth_map.setMinfilter(Texture.FTShadow )
+        #depth_map.setMagfilter(Texture.FTShadow )        
+        depth_map.setMinfilter(Texture.FTNearest   )
+        depth_map.setMagfilter(Texture.FTNearest   )
+        props = FrameBufferProperties()
+        props.setRgbColor(0)
+        props.setDepthBits(1)
+        props.setAlphaBits(0)
+        depthBuffer = base.win.makeTextureBuffer("Shadow Buffer", 
+                                              1024, 
+                                              1024, 
+                                              to_ram = False, 
+                                              tex = depth_map, 
+                                              fbp = props)
+        depthBuffer.setClearColor(Vec4(1.0,1.0,1.0,1.0)) 
+        depthBuffer.setSort(-101)
+        shadowCamera = base.makeCamera(depthBuffer) 
+        lens = OrthographicLens()
+        lens.setFilmSize(512, 512)
+        shadowCamera.node().setLens(lens)
+        shadowCamera.node().getLens().setNearFar(1,400) 
+        shadowCamera.node().setCameraMask(BitMask32.bit(1))
+        shadowCamera.reparentTo(render)
+        #shadowCamera.node().showFrustum()
+        shadowCamera.setPos(400, 256, 256)          
+        shadowCamera.setHpr(self.mainLight.getHpr())
+        #self.shadowNode=render.attachNewNode('shadowNode')
+        #self.shadowNode.setPos(self.controler.cameraNode.getPos())
+        #shadowCamera.wrtReparentTo(self.shadowNode)            
+        render.setShaderInput('shadow', depth_map)
+        render.setShaderInput("bias", 2.0)
+        render.setShaderInput('shadowCamera',shadowCamera)
         
         #fog
         #rgb color + coefficiency in alpha
@@ -1243,7 +1321,8 @@ class Editor (DirectObject):
         render.setShaderInput('time', time) 
         #skydome
         pos=self.controler.cameraNode.getPos()
-        self.skydome.setPos(pos[0], pos[1], 0)        
+        self.skydome.setPos(pos[0], pos[1], 0)  
+        #self.shadowNode.setPos(pos)        
         #water
         if self.waterNP.getZ()>0.0:   
             self.waterCamera.setMat(base.cam.getMat(render)*self.wPlane.getReflectionMat()) 
@@ -1261,9 +1340,9 @@ class Editor (DirectObject):
             if self.winsize!=newsize:            
                 self.gui.updateBaseNodes()   
                 #resizing the window breaks the filter manager, so I just make a new one
-                self.fxaaManager.cleanup()
-                self.fxaaManager=makeFXAA(self.fxaaManager)
-                self.winsize=newsize
+                #self.fxaaManager.cleanup()
+                #self.fxaaManager=makeFXAA(self.fxaaManager)
+                #self.winsize=newsize
                 
     def setAtrMapColor(self, color1, color2, event=None):        
         self.painter.brushes[BUFFER_ATR].setColor(color1[0],color1[1],color1[2],self.painter.brushAlpha)

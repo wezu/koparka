@@ -444,7 +444,7 @@
   }
 }
 <Group> pine3 {
-   <Tag> "cg_shader" {tree.cg}
+   <Tag> "glsl_shader" {tree}
   <VertexPool> pine3.verts {
     <Vertex> 0 {
       -19.7071 -0.354355 15.6955

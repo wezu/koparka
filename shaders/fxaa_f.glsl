@@ -78,4 +78,5 @@ void main()
 { 
   vec2 uv = gl_TexCoord[0].st;
   gl_FragColor = PostFX(tex0, uv, 0.0);
+  //gl_FragColor =texture2D(tex0,uv);
 }

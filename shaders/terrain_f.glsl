@@ -23,23 +23,29 @@ uniform sampler2D walkmap; // walkmap
 uniform vec4 fog; //fog color + for adjust in alpha
 uniform vec4 ambient; //ambient light color
 
+uniform vec4 p3d_ClipPlane[1];
+
 uniform float water_level;
 
 varying float fogFactor; 
 varying vec2 texUV; 
 varying vec2 texUVrepeat;
 varying vec4 vpos;
+varying float terrainz;
+
+varying vec4 shadowCoord;
+uniform sampler2D shadow;
 
 void main()
     { 
-    //if (gl_ClipPlane[0].z<vpos.z )
-    //    {
-    //    discard;
-    //    }
+    if (dot(p3d_ClipPlane[0], vpos) < 0) 
+        {
+        discard;
+        }       
     if(fogFactor>0.996)//fog only version
         {
         gl_FragData[0] = fog;            
-        gl_FragData[1]=vec4(1.0,0.0,0.0,0.0);
+        gl_FragData[1]=vec4(1.0,1.0,0.0,0.0);
         }
     else //full version
         {
@@ -103,11 +109,11 @@ void main()
         norm_gloss+=tex3n*mask2.r;
         norm_gloss+=tex4n*mask2.g;
         norm_gloss+=tex5n*mask2.b;        
-        gloss*=norm_gloss.a;
+        gloss=norm_gloss.a;
         norm_gloss=norm_gloss*2.0-1.0;
         norm.xyz *= norm_gloss.z;
         norm.xyz += tangent * norm_gloss.x;
-        norm.xyz += binormal * norm_gloss.y;    
+        norm.xyz -= binormal * norm_gloss.y;    
         norm = normalize(norm);
                    
         //lights   
@@ -122,7 +128,7 @@ void main()
             {
            NdotHV = max(dot(norm,halfV),0.0);
            color += gl_LightSource[0].diffuse * NdotL;        
-           color +=pow(NdotHV,500.0*gloss)*gloss*2.0;
+           color +=pow(NdotHV,200.0)*clamp(gloss*3.0, 0.0, 1.0);
            }   
         //directional2 = ambient
         lightDir = normalize(gl_LightSource[1].position.xyz); 
@@ -138,13 +144,19 @@ void main()
         vec4 final= vec4(color.rgb * detail.xyz, 1.0);     
         vec4 walk=vec4(1.0,1.0,1.0,1.0)- step(texture2D(walkmap,texUV), vec4(0.5,0.5,0.5,0.5));
         //vec4 walk=texture2D(walkmap,texUV);
-        final = mix(final,fog ,fogFactor)+walk; 
+        //final = mix(final,fog ,fogFactor)+walk; 
         vec4 water_fog=vec4(0.0, 0.0, 0.05, 1.0);
-        float water_fog_factor=clamp(distance(vpos.z, water_level)*0.1, 0.0, 1.4);
-        if (vpos.z<water_level)
+        float water_fog_factor=clamp(distance(terrainz, water_level)*0.1, 0.0, 1.4);
+        if (terrainz<water_level)
             final=mix(final,water_fog ,water_fog_factor*0.6);        
-        gl_FragData[0] = mix(final,fog ,fogFactor)+walk;     
-        gl_FragData[1]=vec4(fogFactor, 0.0,0.0,0.0);
+        gl_FragData[0] = mix(final,fog ,fogFactor)+walk;    
+        //shadows
+        vec4 shadowUV = shadowCoord / shadowCoord.q;
+        float shadowColor = texture2D(shadow, shadowUV.xy).r;    
+        float shade = 1.0;
+        if (shadowColor < shadowUV.z-0.001)
+            shade=0.0;        
+        gl_FragData[1]=vec4(fogFactor, shade,0.0,0.0);        
         }
     }
     

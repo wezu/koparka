@@ -444,7 +444,7 @@
   }
 }
 <Group> tree2 {
-   <Tag> "cg_shader" {tree.cg}
+   <Tag> "glsl_shader" {tree}
   <VertexPool> tree2.verts {
     <Vertex> 0 {
       -11.4317 -6.53381 12.2085

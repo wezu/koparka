@@ -24,7 +24,8 @@ def loadModel(file, collision=None, animation=None):
             glsl_shader=geom.getTag('glsl_shader')      
             geom.setShader(Shader.load(Shader.SLGLSL, "shaders/{0}_v.glsl".format(glsl_shader),"shaders/{0}_f.glsl".format(glsl_shader)))
         else:
-            geom.setShader(loader.loadShader("shaders/default.cg"))
+            #geom.setShader(loader.loadShader("shaders/default.cg"))
+            geom.setShader(Shader.load(Shader.SLGLSL, "shaders/default_v.glsl","shaders/default_f.glsl"))
     #collisions        
     model.setCollideMask(BitMask32.allOff())
     if collision:
