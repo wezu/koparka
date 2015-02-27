@@ -46,8 +46,10 @@ void main()
         //do lights
         vec4 color =ambient;  
         //directional =sun
-        vec3 L, halfV;
-        float NdotL, NdotHV; 
+        vec3 L;
+        vec3 halfV;
+        float NdotL;
+        float NdotHV; 
         L = normalize(gl_LightSource[0].position.xyz); 
         halfV= normalize(gl_LightSource[0].halfVector.xyz);    
         NdotL = max(dot(N,L),0.0);

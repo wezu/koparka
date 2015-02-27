@@ -18,5 +18,5 @@ void main()
     out_color+=((cloudColor-out_color)*(tex1.r*tex2.r)*blend)*cloudColor.a;
     out_color.a=1.0;
     gl_FragData[0]=out_color;
-    gl_FragData[1]=vec4(blend, 1.0,0.0,0.0);
+    gl_FragData[1]=vec4(0.0, 1.0,0.0,0.0);
     }

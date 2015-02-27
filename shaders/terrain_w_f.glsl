@@ -18,7 +18,7 @@ uniform sampler2D atr1; // rgb vaules are for mapping details
 uniform sampler2D atr2; // rgb vaules are for mapping details
 
 uniform sampler2D height; // a heightmap 
-//uniform sampler2D walkmap; // walkmap 
+uniform sampler2D walkmap; // walkmap 
 
 uniform vec4 fog; //fog color + for adjust in alpha
 uniform vec4 ambient; //ambient light color
@@ -33,8 +33,8 @@ varying vec2 texUVrepeat;
 varying vec4 vpos;
 varying float terrainz;
 
-varying vec4 shadowCoord;
-uniform sampler2D shadow;
+//varying vec4 shadowCoord;//not using this
+//uniform sampler2D shadow;//not using this
 
 void main()
     { 
@@ -145,25 +145,21 @@ void main()
            } 
            
         vec4 final= vec4(color.rgb * detail.xyz, 1.0);     
-        //vec4 walk=vec4(1.0,1.0,1.0,1.0)- step(texture2D(walkmap,texUV), vec4(0.5,0.5,0.5,0.5));
+        vec4 walk=vec4(1.0,1.0,1.0,1.0)- step(texture2D(walkmap,texUV), vec4(0.5,0.5,0.5,0.5));
         //vec4 walk=texture2D(walkmap,texUV);
         //final = mix(final,fog ,fogFactor)+walk; 
-        vec4 water_fog=vec4(0.0, 0.0, 0.01, 1.0);
-        float shade = 1.0;            
-        if (terrainz<water_level)
-            {
-            float water_fog_factor=1.0-pow(terrainz/(water_level), 4.0);
-            final=mix(final,water_fog ,water_fog_factor*0.95);         
-            }
-        else //no shadows under water
-            {
-            vec4 shadowUV = shadowCoord / shadowCoord.q;
-            float shadowColor = texture2D(shadow, shadowUV.xy).r;            
-            if (shadowColor < shadowUV.z-0.001)
-                shade=0.0;            
-            }
-        gl_FragData[0] = mix(final,fog_color ,fogFactor);//+walk;    
-        gl_FragData[1]=vec4(fogFactor, shade,0.0,0.0);        
+        //vec4 water_fog=vec4(0.0, 0.0, 0.05, 1.0);
+        //float water_fog_factor=clamp(distance(terrainz, water_level)*0.1, 0.0, 1.4);
+        //if (terrainz<water_level)
+        //    final=mix(final,water_fog ,water_fog_factor*0.6);                 
+        gl_FragData[0] = mix(final,fog_color ,fogFactor)+walk;    
+        //shadows
+        //vec4 shadowUV = shadowCoord / shadowCoord.q;
+        //float shadowColor = texture2D(shadow, shadowUV.xy).r;    
+        //float shade = 1.0;
+        //if (shadowColor < shadowUV.z-0.001)
+        //    shade=0.0;        
+        gl_FragData[1]=vec4(fogFactor, 1.0,0.0,0.0);        
         }
     }
     

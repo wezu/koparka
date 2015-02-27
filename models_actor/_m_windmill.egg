@@ -10,7 +10,7 @@
 }
 <Texture> Tex1 {
   "../models/arch.png"
-  <Scalar> format { rgba }
+  <Scalar> format { rgb }
   <Scalar> wrapu { repeat }
   <Scalar> wrapv { repeat }
   <Scalar> minfilter { linear_mipmap_linear }

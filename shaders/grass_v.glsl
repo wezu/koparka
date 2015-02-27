@@ -1,5 +1,5 @@
 //GLSL
-#version 110
+#version 120
 #extension GL_ARB_draw_instanced : enable
 #extension GL_EXT_draw_instanced : enable
 

@@ -57,9 +57,10 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures=None,
     json_data=None
     with open(file) as f:  
         json_data=json.load(f)
-        
+    return_data=[]    
     for object in json_data:
         print ".",
+        model=None
         if 'textures' in object:
             i=0
             for tex in object['textures']:
@@ -80,11 +81,14 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures=None,
         elif 'actor' in object:
             model=loadModel(object['actor'],object['actor_collision'],object['actor_anims'])
             actors.append(model)
-        model.reparentTo(quad_tree[object['parent_index']])        
-        model.setPythonTag('props', object['props'])
-        model.setHpr(render,object['rotation_h'],object['rotation_p'],object['rotation_r'])
-        model.setPos(render,object['position_x'],object['position_y'],object['position_z'])
-        model.setScale(object['scale'])
+        else:
+            return_data.append(object)
+        if model:    
+            model.reparentTo(quad_tree[object['parent_index']])        
+            model.setPythonTag('props', object['props'])
+            model.setHpr(render,object['rotation_h'],object['rotation_p'],object['rotation_r'])
+            model.setPos(render,object['position_x'],object['position_y'],object['position_z'])
+            model.setScale(object['scale'])
     
     if flatten:
         for node in quad_tree:
@@ -97,9 +101,12 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures=None,
                     child.wrtReparentTo(flat)
             flat.flattenStrong()
             flat.wrtReparentTo(node)            
-        
-def SaveScene(file, quad_tree, textures, current_textures=None):
+    return return_data
+    
+def SaveScene(file, quad_tree, textures, current_textures=None, extra_data=None):
     export_data=[]
+    if extra_data:
+        export_data.append(extra_data)
     if current_textures:
         temp=[]
         for id in current_textures:

@@ -214,6 +214,32 @@ class GuiHelper():
         else:
             self.SkySeaEntry[id-100].enterText(str(value))
             self.SkySeaOptions[id-100]=value
+
+    def setSkySeaValues(self, data):
+        sky=[data[0]['sky'][0], data[0]['sky'][1], data[0]['sky'][2], data[0]['sky'][3]]
+        fog=[data[0]['fog'][0], data[0]['fog'][1], data[0]['fog'][2], data[0]['fog'][3]]
+        cloudColor=[data[0]['cloudColor'][0], data[0]['cloudColor'][1], data[0]['cloudColor'][2], data[0]['cloudColor'][3]]
+        cloudTile=data[0]['cloudTile']
+        cloudSpeed=data[0]['cloudSpeed']
+        horizont=data[0]['horizont']
+        tile=data[0]['tile']
+        speed=data[0]['speed']
+        wave=[data[0]['wave'][0], data[0]['wave'][1], data[0]['wave'][2]]
+        water_z=data[0]['water_z']
+        
+        self.SkySeaEntry[0].set(str(sky))
+        self.SkySeaEntry[1].set(str(fog))
+        self.SkySeaEntry[2].set(str(cloudColor))
+        self.SkySeaEntry[3].set(str(cloudTile))
+        self.SkySeaEntry[4].set(str(cloudSpeed))
+        self.SkySeaEntry[5].set(str(horizont))
+        self.SkySeaEntry[6].set(str(tile))
+        self.SkySeaEntry[7].set(str(speed))
+        self.SkySeaEntry[8].set(str(wave))
+        self.SkySeaEntry[9].set(str(water_z))
+        
+        for i in range(10):
+            self.validateEntry(id=i+100)
             
     def addSkySeaDialog(self, command=None):
         #this one done 'properly'        
@@ -224,18 +250,18 @@ class GuiHelper():
         text=""
         for item in labels:
             text+=item+'\n'
-        self.SkySeaFrame=DirectFrame(frameSize=_rec2d(512,540),
+        self.SkySeaFrame=DirectFrame(frameSize=_rec2d(512,480),
                                     frameColor=(0,0,0, 0.8),
                                     text=text,
                                     text_scale=32,
                                     text_font=self.fontBig,
-                                    text_pos=(-300,510),
+                                    text_pos=(-300,454),
                                     text_fg=(0.7,0.7,0.7,1), 
                                     text_align=TextNode.ARight,
                                     parent=self.Center)
         self.SkySeaFrame.hide()
         _resetPivot(self.SkySeaFrame)
-        self.SkySeaFrame.setPos(_pos2d(-256, -256)) 
+        self.SkySeaFrame.setPos(_pos2d(-256, -240)) 
         
         self.okButton=DirectFrame(frameSize=_rec2d(128,32),
                                     frameColor=(1,1,1,0.5),  
@@ -247,7 +273,7 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.SkySeaFrame)
         _resetPivot(self.okButton)        
-        self.okButton.setPos(_pos2d(352,478))
+        self.okButton.setPos(_pos2d(352,430))
         
         self.cancelButton=DirectFrame(frameSize=_rec2d(128,32),
                                     frameColor=(1,1,1,0.5),  
@@ -259,7 +285,7 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.SkySeaFrame)
         _resetPivot(self.cancelButton)        
-        self.cancelButton.setPos(_pos2d(32,478)) 
+        self.cancelButton.setPos(_pos2d(32,430)) 
         
         self.okButton.bind(DGG.B1PRESS, self.validateAndExec, [command,2, 10, 100])        
         self.cancelButton.bind(DGG.B1PRESS, command, [False]) 
@@ -737,7 +763,7 @@ class GuiHelper():
     
     def addScrolledToolbar(self, parent, width, canvas_size, x_offset=0, y_offset=0, hover_command=False, color=(1,0,0, 0)):         
         wp=base.win.getProperties()        
-        height=wp.getYSize()-y_offset-256
+        height=wp.getYSize()-y_offset-128
         frame=DirectScrolledFrame(canvasSize = _rec2d(canvas_size[0],canvas_size[1]),
                                   frameSize = _rec2d(width,height),                              
                                   verticalScroll_frameSize=_rec2d(16,height), 

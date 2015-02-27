@@ -20,5 +20,5 @@ void fshader(
     l_texcoord0 = mul(texmat_0, l_texcoord0);
 	 l_texcoord0.xyz /= l_texcoord0.w;	
 	 float alpha = step(0.5, tex2D(tex_0, l_texcoord0.xy).a);
-	 o_color = float4(attr_color.r, attr_color.a, 0.0, alpha);   
+	 o_color = float4(attr_color.r, 1.0-attr_color.a, 0.0, alpha);   
 }
