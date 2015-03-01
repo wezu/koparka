@@ -24,9 +24,11 @@ void main()
         }
     else
         {    
-        vec4 distortion1 = normalize(texture2D(water_norm, gl_TexCoord[0].xy));
-        vec4 distortion2 = normalize(texture2D(water_norm, gl_TexCoord[1].xy)); 
         float h_map=texture2D(height, gl_TexCoord[2].xy).r;
+        if (h_map*100.0>water_level+1.0)
+            discard;
+        vec4 distortion1 = normalize(texture2D(water_norm, gl_TexCoord[0].xy));
+        vec4 distortion2 = normalize(texture2D(water_norm, gl_TexCoord[1].xy));
         vec4 normalmap=distortion1+distortion2; 
         float foam=normalmap.a*clamp(h_map*100.0-(water_level-1.0), 0.0, 1.0);
         float facing = 1.0 -max(dot(normalize(-vpos.xyz), normalize(normal.xyz)), 0.0);   

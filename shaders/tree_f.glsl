@@ -37,7 +37,7 @@ void main()
         float gloss=normal_map.a;
         //get noormal
         normal_map.xyz=(normal_map.xyz*2.0)-1.0;
-        vec3 N=normalize(normal);
+        vec3 N=normal;
         N *= normal_map.z;
         N += tangent * normal_map.x;
         N += binormal * normal_map.y;    

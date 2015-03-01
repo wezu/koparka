@@ -1,8 +1,8 @@
 <CoordinateSystem> { Z-Up }
 
-<Group> editor {   
-  <Group> collision {  
-  <Collide> collision { Sphere keep descend }  
+<Group> editor {  
+  <Group> collision { 
+  <Tag> "glsl_shader" {editor}   
   <VertexPool> editor.verts {
     <Vertex> 0 {
       -2.5 -0.05 -0.05

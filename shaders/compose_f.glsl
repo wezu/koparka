@@ -12,7 +12,7 @@ void main()
     float fogfactor=texture2D(auxTex, uv).r;
     
     vec4 blur=texture2D(colortex, uv);
-    float sharpness=0.002;
+    float sharpness=0.004;
     //Hardcoded fast gaussian blur
     blur += texture2D(colortex, uv + vec2( -0.326212, -0.405805)*sharpness);
     blur += texture2D(colortex, uv + vec2(-0.840144, -0.073580)*sharpness);

@@ -1,6 +1,7 @@
 <CoordinateSystem> { Z-Up }
 
 <Group> editor {
+  <Tag> "glsl_shader" {editor}
   <VertexPool> Sphere001.verts {
     <Vertex> 0 {
       0 0 5

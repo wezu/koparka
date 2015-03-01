@@ -21,7 +21,7 @@ def loadModel(file, collision=None, animation=None):
         if geom.hasTag('cg_shader'):            
             geom.setShader(loader.loadShader("shaders/"+geom.getTag('cg_shader')))
         elif geom.hasTag('glsl_shader'):  
-            glsl_shader=geom.getTag('glsl_shader')      
+            glsl_shader=geom.getTag('glsl_shader')  
             geom.setShader(Shader.load(Shader.SLGLSL, "shaders/{0}_v.glsl".format(glsl_shader),"shaders/{0}_f.glsl".format(glsl_shader)))
         else:
             #geom.setShader(loader.loadShader("shaders/default.cg"))

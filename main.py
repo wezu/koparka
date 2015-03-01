@@ -503,7 +503,7 @@ class Editor (DirectObject):
         #self.shadowNode.setPos(self.controler.cameraNode.getPos())
         #shadowCamera.wrtReparentTo(self.shadowNode)            
         render.setShaderInput('shadow', depth_map)
-        render.setShaderInput("bias", 0.5)
+        render.setShaderInput("bias", 1.0)
         render.setShaderInput('shadowCamera',shadowCamera)
         
         #fog
@@ -1260,14 +1260,14 @@ class Editor (DirectObject):
             self.gui.hideElement(self.toolbar_id)
             self.gui.hideElement(self.heightmode_toolbar_id)
             self.gui.showElement(self.mode_toolbar_id)
-            #self.gui.showElement(self.prop_panel_id)
+            self.gui.showElement(self.prop_panel_id)
             self.gui.hideElement(self.walkmap_toolbar_id)
             self.gui.hideElement(self.grass_toolbar_id)
             self.setObjectMode(self.object_mode)            
             self.accept('mouse1', self.paint)                
             self.ignore('mouse1-up')
-            self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
-            self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_f.glsl"))  
+            self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_WALK])
+            self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_w_f.glsl"))  
         elif mode==MODE_WALK:
             if guiEvent!=None:
                 self.painter.brushAlpha=1.0

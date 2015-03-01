@@ -130,8 +130,9 @@ void main()
         if (NdotL > 0.0)
             {
            NdotHV = max(dot(norm,halfV),0.0);
-           color += gl_LightSource[0].diffuse * NdotL;        
-           color +=pow(NdotHV,200.0)*clamp(gloss*3.0, 0.0, 1.0);
+           color += gl_LightSource[0].diffuse * NdotL;   
+           float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;
+           color +=pow(NdotHV,200.0)*clamp(gloss*3.0, 0.0, 1.0)*s;
            }   
         //directional2 = ambient
         lightDir = normalize(gl_LightSource[1].position.xyz); 

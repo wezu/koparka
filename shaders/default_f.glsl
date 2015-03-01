@@ -23,14 +23,14 @@ void main()
         {
         discard;
         }
-    vec4 fog_color=vec4(fog.rgb, 0.0);    
-    if(fog_factor>0.996)//fog only version
-        {
-        gl_FragData[0] =fog_color;
-        gl_FragData[1]=vec4(1.0,0.0,0.0,0.0);
-        }
-    else
-        {
+    vec4 fog_color=vec4(fog.rgb, 1.0);    
+    //if(fog_factor>0.996)//fog only version
+    //    {
+    //    gl_FragData[0] =fog_color;
+    //    gl_FragData[1]=vec4(1.0,0.0,0.0,0.0);
+    //    }
+    //else
+    //    {
         //sample textures
         vec2 uv=gl_TexCoord[0].xy; 
         vec4 color_map=texture2D(p3d_Texture0,uv); 
@@ -38,7 +38,7 @@ void main()
         float gloss=normal_map.a;
         //get noormal
         normal_map.xyz=(normal_map.xyz*2.0)-1.0;
-        vec3 N=normalize(normal);
+        vec3 N=normal;
         N *= normal_map.z;
         N += tangent * normal_map.x;
         N += binormal * normal_map.y;    
@@ -56,8 +56,9 @@ void main()
         if (NdotL > 0.0)
             {
            NdotHV = max(dot(N,halfV),0.0);
-           color += gl_LightSource[0].diffuse * NdotL;        
-           color +=pow(NdotHV,200.0)*clamp(gloss*5.0, 0.0, 1.0);//all gloss map need to be remade!
+           color += gl_LightSource[0].diffuse * NdotL;   
+           float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;           
+           color +=pow(NdotHV,200.0)*clamp(gloss*5.0, 0.0, 1.0)*s;//all gloss map need to be remade!
            }   
         //directional2 = ambient
         L = normalize(gl_LightSource[1].position.xyz);         
@@ -76,5 +77,5 @@ void main()
         if (shadowColor < shadowUV.z-0.001)
             shade=0.0;        
         gl_FragData[1]=vec4(fog_factor, shade,0.0,0.0);
-        }
+    //    }
     }

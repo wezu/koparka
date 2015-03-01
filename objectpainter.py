@@ -192,7 +192,7 @@ class ObjectPainter():
             self.currentObject=self.selectedObject
             self.currentObject.wrtReparentTo(render) 
             self.currentHPR=[self.currentObject.getH(render), self.currentObject.getP(render), self.currentObject.getR(render)]
-            self.currentZ=self.currentObject.getZ(render)
+            #self.currentZ=self.currentObject.getZ(render)
             self.currentScales=self.currentObject.getScale()[0]
        
     def select(self):            
