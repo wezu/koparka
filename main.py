@@ -94,29 +94,31 @@ class Editor (DirectObject):
         blurTex2 = Texture()#1/4 size of the shadows to be blured again
         composeTex=Texture()#the scene(colorTex) blured where auxTex.r>0 and with shadows (blurTex2.r) added
         
-        final_quad = manager.renderSceneInto(colortex=colorTex, auxtex=auxTex)        
+        self.final_quad = manager.renderSceneInto(colortex=colorTex, auxtex=auxTex)        
         #blurr shadows #1
         interquad1 = manager.renderQuadInto(colortex=blurTex, div=2)
         interquad1.setShader(Shader.load(Shader.SLGLSL, "shaders/blur_v.glsl", "shaders/blur_f.glsl"))
         interquad1.setShaderInput("input_map", auxTex)
         #blurr shadows #2
-        interquad2 = manager.renderQuadInto(colortex=blurTex2, div=2)
-        interquad2.setShader(Shader.load(Shader.SLGLSL, "shaders/blur_v.glsl", "shaders/blur_f.glsl"))
-        interquad2.setShaderInput("input_map", blurTex)  
+        #interquad2 = manager.renderQuadInto(colortex=blurTex2, div=2)
+        #interquad2.setShader(Shader.load(Shader.SLGLSL, "shaders/blur_v.glsl", "shaders/blur_f.glsl"))
+        #interquad2.setShaderInput("input_map", blurTex)  
         #compose the scene
-        interquad3 = manager.renderQuadInto(colortex=composeTex)
-        interquad3.setShader(Shader.load(Shader.SLGLSL, "shaders/compose_v.glsl", "shaders/compose_f.glsl"))
-        interquad3.setShaderInput("colortex", colorTex)
-        interquad3.setShaderInput("shadow_map", blurTex2)
-        interquad3.setShaderInput("auxTex", auxTex)   
+        self.interquad3 = manager.renderQuadInto(colortex=composeTex)
+        self.interquad3.setShader(Shader.load(Shader.SLGLSL, "shaders/compose_v.glsl", "shaders/compose_f.glsl"))
+        self.interquad3.setShaderInput("colortex", colorTex)
+        self.interquad3.setShaderInput("shadow_map", blurTex)
+        self.interquad3.setShaderInput("auxTex", auxTex)   
+        self.interquad3.setShaderInput("noiseTex", loader.loadTexture("data/noise2.png"))    
+        self.interquad3.setShaderInput('time', 0.0)   
         #fxaa
-        final_quad.setShader(Shader.load(Shader.SLGLSL, "shaders/fxaa_v.glsl", "shaders/fxaa_f.glsl"))
-        final_quad.setShaderInput("tex0", composeTex)
-        final_quad.setShaderInput("rt_w",float(base.win.getXSize()))
-        final_quad.setShaderInput("rt_h",float(base.win.getYSize()))
-        final_quad.setShaderInput("FXAA_SPAN_MAX" , float(8.0))
-        final_quad.setShaderInput("FXAA_REDUCE_MUL", float(1.0/8.0))
-        final_quad.setShaderInput("FXAA_SUBPIX_SHIFT", float(1.0/4.0))
+        self.final_quad.setShader(Shader.load(Shader.SLGLSL, "shaders/fxaa_v.glsl", "shaders/fxaa_f.glsl"))
+        self.final_quad.setShaderInput("tex0", composeTex)
+        self.final_quad.setShaderInput("rt_w",float(base.win.getXSize()))
+        self.final_quad.setShaderInput("rt_h",float(base.win.getYSize()))
+        self.final_quad.setShaderInput("FXAA_SPAN_MAX" , float(8.0))
+        self.final_quad.setShaderInput("FXAA_REDUCE_MUL", float(1.0/8.0))
+        self.final_quad.setShaderInput("FXAA_SUBPIX_SHIFT", float(1.0/4.0))
         
         
         #make a grid
@@ -1392,6 +1394,7 @@ class Editor (DirectObject):
     def perFrameUpdate(self, task):         
         time=globalClock.getFrameTime()            
         render.setShaderInput('time', time) 
+        self.interquad3.setShaderInput('time', time)
         #skydome
         pos=self.controler.cameraNode.getPos()
         self.skydome.setPos(pos[0], pos[1], 0)  
@@ -1411,11 +1414,9 @@ class Editor (DirectObject):
             wp=window.getProperties()       
             newsize=[wp.getXSize(),wp.getYSize()]
             if self.winsize!=newsize:            
-                self.gui.updateBaseNodes()   
-                #resizing the window breaks the filter manager, so I just make a new one
-                #self.fxaaManager.cleanup()
-                #self.fxaaManager=makeFXAA(self.fxaaManager)
-                #self.winsize=newsize
+                self.gui.updateBaseNodes()  
+                self.final_quad.setShaderInput("rt_w",float(base.win.getXSize()))
+                self.final_quad.setShaderInput("rt_h",float(base.win.getYSize()))                    
                 
     def setAtrMapColor(self, color1, color2, event=None):        
         self.painter.brushes[BUFFER_ATR].setColor(color1[0],color1[1],color1[2],self.painter.brushAlpha)

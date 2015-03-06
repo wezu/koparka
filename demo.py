@@ -7,6 +7,7 @@ loadPrcFileData('','show-frame-rate-meter  1')
 loadPrcFileData('','framebuffer-srgb true')
 #loadPrcFileData('','show-buffers 1')
 loadPrcFileData('','threading-model Cull/Draw')
+#loadPrcFileData('','undecorated 1')
 #loadPrcFileData('','compressed-textures  1')
 #loadPrcFileData('','sync-video 1')
 from direct.showbase.AppRunnerGlobal import appRunner
@@ -33,6 +34,7 @@ import sys
 
 from demo_util import loadLevel
 from demo_util import setupLights
+from demo_util import setupShadows
 from demo_util import setupFilters
 from demo_util import processProps
 from demo_util import CameraControler
@@ -47,10 +49,8 @@ class Demo (DirectObject):
         
         #manager for post process filters (fxaa, soft shadows, dof)
         manager=FilterManager(base.win, base.cam)
-        setupFilters(manager, path)
+        self.quads=setupFilters(manager, path)
         
-        #lights and shadows    
-        setupLights(sun_color=Vec4(0.95, 0.95, 0.75, 1), ambient_color=Vec4(.1, .1, .1, 1), ambient2_color=Vec4(.01, .01, .01, 1), sun_hpr=(90, -60, 0))        
         #load a level
         self.level=loadLevel(path=path, from_dir=directory) 
         
@@ -59,13 +59,18 @@ class Demo (DirectObject):
         #process properties
         functions={'coll_mask':self.setCollideMaskOn,
                    'hide':self.hideNode,
-                   'startpos':self.setStratPos
+                   'startpos':self.setStratPos,
+                   'alpha':self.setAlpha
                    }                   
         processProps(self.level, functions)        
         
+        #lights and shadows    
+        setupLights(sun_color=Vec4(0.95, 0.95, 0.75, 1), ambient_color=Vec4(.1, .1, .1, 1), ambient2_color=Vec4(.01, .01, .01, 1), sun_hpr=(90, -60, 0))        
+        self.shadows=setupShadows(sun_hpr=(90, -60, 0), buffer_size=1024)        
+        
         #camera controll
         base.disableMouse()  
-        self.controler=CameraControler()                
+        self.controler=CameraControler(shadows=self.shadows)                
         #point and click interface
         self.pointer=PointAndClick()
         self.accept('mouse1', self.onMouseClick)
@@ -101,14 +106,24 @@ class Demo (DirectObject):
         self.navi=Navigator(path+directory+'/navmesh.csv', self.pcNode, self.actor)
         self.target=render.attachNewNode('target')
         #tasks
-        taskMgr.add(self.update, 'update_task', sort=46)
-    
+        taskMgr.add(self.update, 'update_task', sort=45)
+        
+        self.accept( 'window-event', self.windowEventHandler) 
+        
+    def windowEventHandler( self, window=None ):    
+        if window is not None: # window is none if panda3d is not started
+            self.quads[-1].setShaderInput("rt_w",float(base.win.getXSize()))
+            self.quads[-1].setShaderInput("rt_h",float(base.win.getYSize()))
+                
     def onMouseClick(self):
         pos=self.pointer.getPos()
         if pos:
             self.target.setPos(pos)
             self.navi.moveTo(self.target)
-    
+            
+    def setAlpha(self, node, mode):
+        node.setTransparency(TransparencyAttrib.MAlpha)
+        
     def setCollideMaskOn(self, node, mask):
         print "setting mask", mask, "on", node
         node.setCollideMask(BitMask32.bit(mask))
@@ -125,6 +140,8 @@ class Demo (DirectObject):
         time=globalClock.getFrameTime()            
         render.setShaderInput('time', time)   
         self.controler.cameraNode.setPos(self.pcNode.getPos())
+        self.shadows['shadowNode'].setPos(self.pcNode.getPos())
+        self.quads[1].setShaderInput('time', time)   
         #water
         if self.level['water']['waterNP'].getZ()>0.0:   
             self.level['water']['waterCamera'].setMat(base.cam.getMat(render)*self.level['water']['wPlane'].getReflectionMat())

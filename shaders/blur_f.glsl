@@ -15,22 +15,22 @@ varying vec2 uv10;
 varying vec2 uv11;
 
 void main() 
-    {
-    vec2 uv=gl_TexCoord[0].xy;
-    vec4 out_tex= vec4(0.16, 0.16, 0.16, 0.16);
+    {    
+    vec4 out_tex= vec4(0.0, 0.0, 0.0, 0.0);
     //Hardcoded blur
-    out_tex += texture2D(input_map, uv0)*0.07;
-    out_tex += texture2D(input_map, uv1)*0.07;
-    out_tex += texture2D(input_map, uv2)*0.07;
-    out_tex += texture2D(input_map, uv3)*0.07;
-    out_tex += texture2D(input_map, uv4)*0.07;
-    out_tex += texture2D(input_map, uv5)*0.07;
-    out_tex += texture2D(input_map, uv6)*0.07;
-    out_tex += texture2D(input_map, uv7)*0.07;
-    out_tex += texture2D(input_map, uv8)*0.07;
-    out_tex += texture2D(input_map, uv9)*0.07;
-    out_tex += texture2D(input_map, uv10)*0.07;
-    out_tex += texture2D(input_map, uv11)*0.07;
+    out_tex += texture2D(input_map, uv0);
+    out_tex += texture2D(input_map, uv1);
+    out_tex += texture2D(input_map, uv2);
+    out_tex += texture2D(input_map, uv3);
+    out_tex += texture2D(input_map, uv4);
+    out_tex += texture2D(input_map, uv5);
+    out_tex += texture2D(input_map, uv6);
+    out_tex += texture2D(input_map, uv7);
+    out_tex += texture2D(input_map, uv8);
+    out_tex += texture2D(input_map, uv9);
+    out_tex += texture2D(input_map, uv10);
+    out_tex += texture2D(input_map, uv11);
+    out_tex/=12.0;
     gl_FragColor = out_tex;
     }
  

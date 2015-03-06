@@ -50,6 +50,7 @@ void main()
         vec3 halfV;
         float NdotL;
         float NdotHV; 
+        float spec;
         L = normalize(gl_LightSource[0].position.xyz); 
         halfV= normalize(gl_LightSource[0].halfVector.xyz);    
         NdotL = max(dot(N,L),0.0);
@@ -58,7 +59,8 @@ void main()
            NdotHV = max(dot(N,halfV),0.0);
            color += gl_LightSource[0].diffuse * NdotL;   
            float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;           
-           color +=pow(NdotHV,150.0);
+           spec=pow(NdotHV,200.0)*clamp(gloss*5.0, 0.0, 1.0)*s;
+           color +=spec;
            }   
         //directional2 = ambient
         L = normalize(gl_LightSource[1].position.xyz);         
@@ -72,10 +74,10 @@ void main()
         gl_FragData[0] = mix(final ,fog_color, fog_factor);     
         //shadows
         //vec4 shadowUV = shadowCoord / shadowCoord.q;
-       // float shadowColor = texture2D(shadow, shadowUV.xy).r;    
+        //float shadowColor = texture2D(shadow, shadowUV.xy).r;    
         //float shade = 1.0;
         //if (shadowColor < shadowUV.z-0.001)
         //    shade=0.0;        
-        gl_FragData[1]=vec4(fog_factor, 1.0,0.0,0.0);
+        gl_FragData[1]=vec4(fog_factor, 1.0, spec*(1.0-fog_factor),0.0);
     //    }
     }

@@ -25,7 +25,7 @@ void main()
     else
         {    
         float h_map=texture2D(height, gl_TexCoord[2].xy).r;
-        if (h_map*100.0>water_level+1.0)
+        if (h_map*100.0>water_level+2.0)
             discard;
         vec4 distortion1 = normalize(texture2D(water_norm, gl_TexCoord[0].xy));
         vec4 distortion2 = normalize(texture2D(water_norm, gl_TexCoord[1].xy));
@@ -52,15 +52,16 @@ void main()
             NdotHV = max(dot(N,halfV),0.0);
             color += gl_LightSource[0].diffuse * NdotL;        
             color+=foam*gl_LightSource[0].diffuse;
-            specular=pow(NdotHV,350.0);
+            float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;
+            specular=pow(NdotHV,450.0)*s;
             }   
         
         
-        vec4 refl=texture2DProj(reflection, gl_TexCoord[3]+distortion1*distortion2*4);
+        vec4 refl=texture2DProj(reflection, gl_TexCoord[3]+distortion1*distortion2*4)-0.5;
         vec4 final=mix(refl, color, 0.2+foam*1.4);
-        final+=specular;    
+        final+=specular*(1.0-fog_factor);    
         final.a=((facing*0.5)+0.4)+foam+specular;
         gl_FragData[0] =mix(final, fog_color, fog_factor);
-        gl_FragData[1] =vec4(fog_factor, 1.0,0.0,0.0);
+        gl_FragData[1] =vec4(fog_factor, 1.0,specular*(1.0-fog_factor),0.0);
         }
     }

@@ -4,30 +4,30 @@
             0.9,
             0.9,
             1.0,
-            0.8
+            1.0
         ],
         "cloudSpeed": 0.008,
-        "cloudTile": 8.0,
+        "cloudTile": 4.0,
         "fog": [
             0.7,
             0.7,
             0.7,
             0.002
         ],
-        "horizont": 40,
+        "horizont": 50,
         "sky": [
             0.4,
             0.6,
             1.0,
             1.0
         ],
-        "speed": 0.01,
-        "tile": 20.0,
+        "speed": 0.002,
+        "tile": 10.0,
         "water_z": 20,
         "wave": [
             32.0,
             32.0,
-            0.3
+            0.1
         ]
     },
     {
@@ -325,6 +325,19 @@
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.1100000143051147
+    },
+    {
+        "model": "models_collision/dis_sphere.egg",
+        "parent_index": 12,
+        "parent_name": "quadD1",
+        "position_x": 338.0,
+        "position_y": 336.0,
+        "position_z": 25.659746170043945,
+        "props": "{'alpha':1}",
+        "rotation_h": 0.0,
+        "rotation_p": 0.0,
+        "rotation_r": 0.0,
+        "scale": 1.0
     },
     {
         "model": "models_walls/fence1/fence1.egg",

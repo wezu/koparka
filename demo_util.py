@@ -21,11 +21,13 @@ def processProps(level, functions):
                         functions[prop](child, props[prop])
                         
                         
-def setupFilters(manager, path):
+def setupFilters(manager, path):    
     colorTex = Texture()#the scene
     auxTex = Texture() # r=blur, g=shadow, b=?, a=?
-    blurTex = Texture() #1/4 size of the shadows to be blured        
-    blurTex2 = Texture()#1/4 size of the shadows to be blured again
+    blurTex = Texture() #1/2 size of the shadows to be blured            
+    blurTex2 = Texture()
+    glareTex = Texture()
+    flareTex = Texture()
     composeTex=Texture()#the scene(colorTex) blured where auxTex.r>0 and with shadows (blurTex2.r) added
     
     final_quad = manager.renderSceneInto(colortex=colorTex, auxtex=auxTex)        
@@ -33,16 +35,32 @@ def setupFilters(manager, path):
     interquad1 = manager.renderQuadInto(colortex=blurTex, div=2)
     interquad1.setShader(Shader.load(Shader.SLGLSL, path+"shaders/blur_v.glsl", path+"shaders/blur_f.glsl"))
     interquad1.setShaderInput("input_map", auxTex)
-    #blurr shadows #2
-    interquad2 = manager.renderQuadInto(colortex=blurTex2, div=2)
-    interquad2.setShader(Shader.load(Shader.SLGLSL, path+"shaders/blur_v.glsl", path+"shaders/blur_f.glsl"))
-    interquad2.setShaderInput("input_map", blurTex)  
+    #blurrscene
+    interquad11 = manager.renderQuadInto(colortex=blurTex2, div=4)
+    interquad11.setShader(Shader.load(Shader.SLGLSL, path+"shaders/blur_v.glsl", path+"shaders/blur_f.glsl"))
+    interquad11.setShaderInput("input_map", colorTex)
+    #glare
+    interquad2 = manager.renderQuadInto(colortex=glareTex, div=4)
+    interquad2.setShader(Shader.load(Shader.SLGLSL, path+"shaders/glare_v.glsl", path+"shaders/glare_f.glsl"))
+    interquad2.setShaderInput("auxTex", auxTex)  
+    interquad2.setShaderInput("colorTex", colorTex)
+    interquad2.setShaderInput("blurTex", blurTex)
+    #lense flare
+    interquad21 = manager.renderQuadInto(colortex=flareTex, div=2)
+    #interquad21.setShader(Shader.load(Shader.SLGLSL, path+"shaders/flare_v.glsl", path+"shaders/flare_f.glsl"))
+    interquad21.setShader(Shader.load(path+"shaders/lens_flare.sha"))
+    interquad21.setShaderInput("tex0", glareTex)
     #compose the scene
     interquad3 = manager.renderQuadInto(colortex=composeTex)
     interquad3.setShader(Shader.load(Shader.SLGLSL, path+"shaders/compose_v.glsl", path+"shaders/compose_f.glsl"))
-    interquad3.setShaderInput("colortex", colorTex)
-    interquad3.setShaderInput("shadow_map", blurTex2)
+    interquad3.setShaderInput("flareTex", flareTex)
+    interquad3.setShaderInput("glareTex", glareTex)
+    interquad3.setShaderInput("colorTex", colorTex)
+    interquad3.setShaderInput("blurTex", blurTex)
+    interquad3.setShaderInput("blurTex2", blurTex2)
     interquad3.setShaderInput("auxTex", auxTex)   
+    interquad3.setShaderInput("noiseTex", loader.loadTexture(path+"data/noise2.png"))    
+    interquad3.setShaderInput('time', 0.0)   
     #fxaa
     final_quad.setShader(Shader.load(Shader.SLGLSL, path+"shaders/fxaa_v.glsl", path+"shaders/fxaa_f.glsl"))
     final_quad.setShaderInput("tex0", composeTex)
@@ -51,7 +69,7 @@ def setupFilters(manager, path):
     final_quad.setShaderInput("FXAA_SPAN_MAX" , float(8.0))
     final_quad.setShaderInput("FXAA_REDUCE_MUL", float(1.0/8.0))
     final_quad.setShaderInput("FXAA_SUBPIX_SHIFT", float(1.0/4.0))
-
+    return [interquad1, interquad3, final_quad]
 
 def loadModel(file, collision=None, animation=None):
     model=None
@@ -204,8 +222,11 @@ def makeQuadTree(root):
 def setupTerrain(path, detail_map1, detail_map2, height_map):
     mesh=loader.loadModel(path+'data/mesh80k.bam')             
     mesh.reparentTo(render)    
-    mesh.setShader(Shader.load(Shader.SLGLSL, path+"shaders/terrain_v.glsl", path+"shaders/terrain_f.glsl"))        
-    mesh.setShaderInput("height", loader.loadTexture(height_map))
+    mesh.setShader(Shader.load(Shader.SLGLSL, path+"shaders/terrain_v.glsl", path+"shaders/terrain_f.glsl"))
+    h_map=loader.loadTexture(height_map) 
+    h_map.setWrapU(Texture.WMClamp)
+    h_map.setWrapV(Texture.WMClamp)
+    mesh.setShaderInput("height", h_map)
     mesh.setShaderInput("atr1", loader.loadTexture(detail_map1))
     mesh.setShaderInput("atr2", loader.loadTexture(detail_map2))           
     mesh.setTransparency(TransparencyAttrib.MNone)
@@ -263,15 +284,16 @@ def setupWater(path, height_map):
     waterNP.setShaderInput('camera',waterCamera)
     waterNP.setShaderInput("reflection",wTexture)
     
-    waterNP.setShader(Shader.load(Shader.SLGLSL, path+"shaders/water_v.glsl", path+"shaders/water_f.glsl"))
+    waterNP.setShader(Shader.load(Shader.SLGLSL, path+"shaders/water2_v.glsl", path+"shaders/water2_f.glsl"))
     waterNP.setShaderInput("water_norm", loader.loadTexture(path+'data/water.png'))  
+    waterNP.setShaderInput("water_height", loader.loadTexture(path+'data/ocen1_h.png'))
     waterNP.setShaderInput("height", loader.loadTexture(height_map))
     waterNP.setShaderInput("tile",10.0)
     waterNP.setShaderInput("water_level",26.0)
     waterNP.setShaderInput("speed",0.02)
     waterNP.setShaderInput("wave",Vec3(32.0, 34.0, 0.2))        
     waterNP.hide(MASK_WATER)
-    waterNP.hide(MASK_SHADOW)
+    #waterNP.hide(MASK_SHADOW)
     return {'waterNP':waterNP, 'waterCamera':waterCamera, 'wBuffer':wBuffer, 'wPlane':wPlane}
     
 def setupLights(sun_color, ambient_color, ambient2_color, sun_hpr):
@@ -295,6 +317,7 @@ def setupLights(sun_color, ambient_color, ambient2_color, sun_hpr):
     render.setShaderInput("dlight1", ambientLight)
     render.setShaderInput("ambient", ambient2_color)         
     
+def setupShadows(sun_hpr, buffer_size=1024):    
     #render shadow map
     depth_map = Texture()
     depth_map.setFormat(Texture.FDepthComponent)
@@ -303,28 +326,36 @@ def setupLights(sun_color, ambient_color, ambient2_color, sun_hpr):
     depth_map.setBorderColor(Vec4(1.0, 1.0, 1.0, 1.0)) 
     #depth_map.setMinfilter(Texture.FTShadow )
     #depth_map.setMagfilter(Texture.FTShadow )        
-    depth_map.setMinfilter(Texture.FTNearest)
-    depth_map.setMagfilter(Texture.FTNearest)
+    depth_map.setMinfilter(Texture.FTLinearMipmapLinear)
+    depth_map.setMagfilter(Texture.FTLinearMipmapLinear)
     props = FrameBufferProperties()
     props.setRgbColor(0)
     props.setDepthBits(1)
     props.setAlphaBits(0)
     props.set_srgb_color(False)
-    depthBuffer = base.win.makeTextureBuffer("Shadow Buffer", 1024,1024, to_ram=False, tex=depth_map, fbp = props)
+    depthBuffer = base.win.makeTextureBuffer("Shadow Buffer", buffer_size, buffer_size, to_ram=False, tex=depth_map, fbp = props)
     depthBuffer.setClearColor(Vec4(1.0,1.0,1.0,1.0)) 
     depthBuffer.setSort(-101)
     shadowCamera = base.makeCamera(depthBuffer) 
     lens = OrthographicLens()
-    lens.setFilmSize(400, 400)
+    lens.setFilmSize(300, 300)
     shadowCamera.node().setLens(lens)
-    shadowCamera.node().getLens().setNearFar(1,400) 
+    shadowCamera.node().getLens().setNearFar(1,300) 
     shadowCamera.node().setCameraMask(MASK_SHADOW)
+    #shadowCamera.node().showFrustum()
     shadowCamera.reparentTo(render)
-    shadowCamera.setPos(400, 256, 256)          
-    shadowCamera.setHpr(mainLight.getHpr())            
+    #startpos=startpos+(400, 256, 256)
+    shadowCamera.setPos(256, 256, 0)              
+    #shadowCamera.setHpr(mainLight.getHpr())    
+    shadowNode=render.attachNewNode('shadowNode')
+    shadowNode.setPos(256, 256, 0)    
+    shadowCamera.wrtReparentTo(shadowNode)
+    shadowCamera.setY(shadowCamera, -100)
+    shadowNode.setHpr(sun_hpr)    
     render.setShaderInput('shadow', depth_map)
-    render.setShaderInput("bias", 0.5)
+    render.setShaderInput("bias", 1.5)
     render.setShaderInput('shadowCamera',shadowCamera)
+    return {'shadowNode':shadowNode, 'shadowCamera':shadowCamera} 
     
 def loadLevel(path, from_dir):    
     #files needed to be read
@@ -427,13 +458,14 @@ def createGrassTile(path, grass_map, height_map, uv_offset, pos, parent, fogcent
     return grass
         
 class CameraControler (DirectObject):
-    def __init__(self, offset=(0, -30, 30),focus_point=(0,0,6), speed=15.0):
+    def __init__(self, offset=(0, -30, 30),focus_point=(0,0,6), speed=15.0, shadows=None):
     
         self.cameraNode  = render.attachNewNode("cameraNode")
         self.cameraGimbal  = self.cameraNode.attachNewNode("cameraGimbal")       
         base.camera.setPos(offset)
         base.camera.lookAt(focus_point)
         base.camera.wrtReparentTo(self.cameraGimbal)
+        self.shadows=shadows
         
         self.keyMap = {'rotate': False}                       
         
@@ -462,22 +494,28 @@ class CameraControler (DirectObject):
         
     def zoom(self, t):
         distance=base.camera.getDistance(self.cameraNode)
-        if t > 0.0 and distance <5.0:
+        if t > 0.0 and distance <15.0:
             return
         if t < 0.0 and distance >100.0:
-            return
-        base.camera.setY(base.camera, t)
-    
+            return        
+        base.camera.setY(base.camera, t)  
+        #lens = self.shadows['shadowCamera'].node().getLens()
+        #film_size=lens.getFilmSize()-Vec2(t*5.0, t*5.0)
+        #print film_size                
+        #lens.setFilmSize(film_size)
+            
     def zoom_control(self, amount):  
-        LerpFunc(self.zoom,fromData=0,toData=amount, duration=.3, blendType='easeOut').start()
+        LerpFunc(self.zoom,fromData=0,toData=amount, duration=.3, blendType='easeOut').start()       
+       
+        
         
     def _rotateCamH(self, t):
         self.cameraNode.setH(self.cameraNode.getH()+ t*self.mouseSpeed)
         
     def _rotateCamP(self, t):
-        if t > 0.0 and self.cameraGimbal.getP(render)<-20.0:
+        if t > 0.0 and self.cameraGimbal.getP(render)<-15.0:
             return
-        elif t < 0.0 and self.cameraGimbal.getP(render)>45.0:
+        elif t < 0.0 and self.cameraGimbal.getP(render)>40.0:
             return    
         self.cameraGimbal.setP(self.cameraGimbal.getP()- t*self.mouseSpeed)
         
@@ -509,6 +547,7 @@ class PointAndClick():
         mask=BitMask32.bit(1)
         mask.setBit(2)   
         self.pickerNode.setFromCollideMask(mask)
+        self.pickerNode.setIntoCollideMask(BitMask32.allOff())
         self.pickerRay = CollisionRay()               
         self.pickerNode.addSolid(self.pickerRay)      
         self.traverser.addCollider(self.pickerNP, self.queue)    
@@ -550,7 +589,10 @@ class Navigator():
             print "Can't get there!"
         
     def AIUpdate(self,task):
-        self.AIworld.update()
+        try:
+            self.AIworld.update()
+        except:
+             print "AI exception!"
         pos=self.seekerNode.getPos(render)        
         pos[2]=self.seeker.getZ()   
         if self.target:            

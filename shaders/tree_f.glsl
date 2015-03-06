@@ -71,6 +71,6 @@ void main()
         //compose all   
         vec4 final= vec4(color.rgb * color_map.xyz, color_map.a);          
         gl_FragData[0] = mix(final ,fog_color, fog_factor);     
-        gl_FragData[1]=vec4(fog_factor, 0.0,0.0,0.0);
+        gl_FragData[1]=vec4(fog_factor, 1.0,0.0,0.0);
         }
     }

@@ -17,17 +17,18 @@ varying vec2 uv11;
 void main()
     {
     gl_Position = p3d_ModelViewProjectionMatrix * gl_Vertex; 
+    float sharpness=0.009;
     vec2 uv=gl_Position.xy*0.5+0.5;
-    uv0 = uv+vec2(-0.00652424,-0.0081161);
-    uv1 = uv+vec2(-0.01680288,-0.0014716);
-    uv2 = uv+vec2(-0.01391828,0.00914274);
-    uv3 = uv+vec2(-0.0040669,0.01241432);
-    uv4 = uv+vec2(0.0192468,-0.00389966);
-    uv5 = uv+vec2(0.00946868,-0.00960052);
-    uv6 = uv+vec2(0.01038912,0.01534044);
-    uv7 = uv+vec2(0.00370922,-0.01786248);
-    uv8 = uv+vec2(0.01014862,0.0012885);
-    uv9 = uv+vec2(0.0179284,0.00824916);
-    uv10 = uv+vec2(-0.0064388,-0.0186523);
-    uv11 = uv+vec2(-0.01583118,-0.0119541);
+    uv0= uv + vec2( -0.326212, -0.405805)*sharpness;
+    uv1= uv + vec2(-0.840144, -0.073580)*sharpness;
+    uv2= uv + vec2(-0.695914, 0.457137)*sharpness;
+    uv3= uv + vec2(-0.203345, 0.620716)*sharpness;
+    uv4= uv + vec2(0.962340, -0.194983)*sharpness;
+    uv5= uv + vec2(0.473434, -0.480026)*sharpness;
+    uv6= uv + vec2(0.519456, 0.767022)*sharpness;
+    uv7= uv + vec2(0.185461, -0.893124)*sharpness;
+    uv8= uv + vec2(0.507431, 0.064425)*sharpness;
+    uv9= uv + vec2(0.896420, 0.412458)*sharpness;
+    uv10= uv + vec2(-0.321940, -0.932615)*sharpness;
+    uv11= uv + vec2(-0.791559, -0.597705)*sharpness;
     }

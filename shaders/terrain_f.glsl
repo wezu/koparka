@@ -47,12 +47,12 @@ void main()
         {
         gl_FragData[0] = fog_color;            
         gl_FragData[1]=vec4(1.0,1.0,0.0,0.0);
-        }
+        }        
     else //full version
         {
         vec3 norm=vec3(0.0,0.0,1.0);    
         const vec3 vLeft=vec3(1.0,0.0,0.0); 
-        float gloss=1.0;        
+        float gloss=0.0;        
         const float pixel=1.0/512.0;
         const float height_scale=50.0;
         
@@ -116,7 +116,7 @@ void main()
         norm.xyz += tangent * norm_gloss.x;
         norm.xyz -= binormal * norm_gloss.y;    
         norm = normalize(norm);
-                   
+                      
         //lights   
         vec4 color =ambient;//vec4(0.0, 0.0, 0.0, 0.0);    
         //directional =sun
@@ -124,6 +124,7 @@ void main()
         vec3 halfV;
         float NdotL;
         float NdotHV; 
+        float spec;
         lightDir = normalize(gl_LightSource[0].position.xyz); 
         halfV= normalize(gl_LightSource[0].halfVector.xyz);    
         NdotL = max(dot(norm,lightDir),0.0);
@@ -132,7 +133,8 @@ void main()
            NdotHV = max(dot(norm,halfV),0.0);
            color += gl_LightSource[0].diffuse * NdotL;   
            float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;
-           color +=pow(NdotHV,200.0)*clamp(gloss*3.0, 0.0, 1.0)*s;
+           spec=pow(NdotHV,200.0)*gloss*s;
+           color +=spec;
            }   
         //directional2 = ambient
         lightDir = normalize(gl_LightSource[1].position.xyz); 
@@ -155,6 +157,7 @@ void main()
             {
             float water_fog_factor=1.0-pow(terrainz/(water_level), 4.0);
             final=mix(final,water_fog ,water_fog_factor*0.95);         
+            spec=0.0;
             }
         else //no shadows under water
             {
@@ -164,7 +167,7 @@ void main()
                 shade=0.0;            
             }
         gl_FragData[0] = mix(final,fog_color ,fogFactor);//+walk;    
-        gl_FragData[1]=vec4(fogFactor, shade,0.0,0.0);        
+        gl_FragData[1]=vec4(fogFactor, shade, spec*(1.0-fogFactor),0.0);        
         }
     }
     
