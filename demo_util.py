@@ -32,13 +32,13 @@ def setupFilters(manager, path):
     
     final_quad = manager.renderSceneInto(colortex=colorTex, auxtex=auxTex)        
     #blurr shadows #1
-    interquad1 = manager.renderQuadInto(colortex=blurTex, div=2)
-    interquad1.setShader(Shader.load(Shader.SLGLSL, path+"shaders/blur_v.glsl", path+"shaders/blur_f.glsl"))
-    interquad1.setShaderInput("input_map", auxTex)
+    interquad0 = manager.renderQuadInto(colortex=blurTex, div=2)
+    interquad0.setShader(Shader.load(Shader.SLGLSL, path+"shaders/blur_v.glsl", path+"shaders/blur_f.glsl"))
+    interquad0.setShaderInput("input_map", auxTex)
     #blurrscene
-    interquad11 = manager.renderQuadInto(colortex=blurTex2, div=4)
-    interquad11.setShader(Shader.load(Shader.SLGLSL, path+"shaders/blur_v.glsl", path+"shaders/blur_f.glsl"))
-    interquad11.setShaderInput("input_map", colorTex)
+    interquad1 = manager.renderQuadInto(colortex=blurTex2, div=4)
+    interquad1.setShader(Shader.load(Shader.SLGLSL, path+"shaders/blur_v.glsl", path+"shaders/blur_f.glsl"))
+    interquad1.setShaderInput("input_map", colorTex)
     #glare
     interquad2 = manager.renderQuadInto(colortex=glareTex, div=4)
     interquad2.setShader(Shader.load(Shader.SLGLSL, path+"shaders/glare_v.glsl", path+"shaders/glare_f.glsl"))
@@ -46,21 +46,20 @@ def setupFilters(manager, path):
     interquad2.setShaderInput("colorTex", colorTex)
     interquad2.setShaderInput("blurTex", blurTex)
     #lense flare
-    interquad21 = manager.renderQuadInto(colortex=flareTex, div=2)
-    #interquad21.setShader(Shader.load(Shader.SLGLSL, path+"shaders/flare_v.glsl", path+"shaders/flare_f.glsl"))
-    interquad21.setShader(Shader.load(path+"shaders/lens_flare.sha"))
-    interquad21.setShaderInput("tex0", glareTex)
+    interquad3 = manager.renderQuadInto(colortex=flareTex, div=2)
+    interquad3.setShader(Shader.load(path+"shaders/lens_flare.sha"))
+    interquad3.setShaderInput("tex0", glareTex)
     #compose the scene
-    interquad3 = manager.renderQuadInto(colortex=composeTex)
-    interquad3.setShader(Shader.load(Shader.SLGLSL, path+"shaders/compose_v.glsl", path+"shaders/compose_f.glsl"))
-    interquad3.setShaderInput("flareTex", flareTex)
-    interquad3.setShaderInput("glareTex", glareTex)
-    interquad3.setShaderInput("colorTex", colorTex)
-    interquad3.setShaderInput("blurTex", blurTex)
-    interquad3.setShaderInput("blurTex2", blurTex2)
-    interquad3.setShaderInput("auxTex", auxTex)   
-    interquad3.setShaderInput("noiseTex", loader.loadTexture(path+"data/noise2.png"))    
-    interquad3.setShaderInput('time', 0.0)   
+    interquad4 = manager.renderQuadInto(colortex=composeTex)
+    interquad4.setShader(Shader.load(Shader.SLGLSL, path+"shaders/compose_v.glsl", path+"shaders/compose_f.glsl"))
+    interquad4.setShaderInput("flareTex", flareTex)
+    interquad4.setShaderInput("glareTex", glareTex)
+    interquad4.setShaderInput("colorTex", colorTex)
+    interquad4.setShaderInput("blurTex", blurTex)
+    interquad4.setShaderInput("blurTex2", blurTex2)
+    interquad4.setShaderInput("auxTex", auxTex)   
+    interquad4.setShaderInput("noiseTex", loader.loadTexture(path+"data/noise2.png"))    
+    interquad4.setShaderInput('time', 0.0)   
     #fxaa
     final_quad.setShader(Shader.load(Shader.SLGLSL, path+"shaders/fxaa_v.glsl", path+"shaders/fxaa_f.glsl"))
     final_quad.setShaderInput("tex0", composeTex)
@@ -69,7 +68,7 @@ def setupFilters(manager, path):
     final_quad.setShaderInput("FXAA_SPAN_MAX" , float(8.0))
     final_quad.setShaderInput("FXAA_REDUCE_MUL", float(1.0/8.0))
     final_quad.setShaderInput("FXAA_SUBPIX_SHIFT", float(1.0/4.0))
-    return [interquad1, interquad3, final_quad]
+    return [interquad0, interquad1, interquad2, interquad3, interquad4, final_quad]
 
 def loadModel(file, collision=None, animation=None):
     model=None

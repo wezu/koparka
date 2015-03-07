@@ -141,7 +141,7 @@ class Demo (DirectObject):
         render.setShaderInput('time', time)   
         self.controler.cameraNode.setPos(self.pcNode.getPos())
         self.shadows['shadowNode'].setPos(self.pcNode.getPos())
-        self.quads[1].setShaderInput('time', time)   
+        self.quads[4].setShaderInput('time', time)   
         #water
         if self.level['water']['waterNP'].getZ()>0.0:   
             self.level['water']['waterCamera'].setMat(base.cam.getMat(render)*self.level['water']['wPlane'].getReflectionMat())
