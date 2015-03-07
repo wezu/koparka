@@ -254,8 +254,8 @@ def loadSkyDome(path):
     return skydome
     
 def setupWater(path, height_map):
-    waterNP = loader.loadModel(path+"data/waterplane") 
-    waterNP.setPos(256, 256, 0)
+    waterNP = loader.loadModel(path+"data/waterplane2") 
+    #waterNP.setPos(256, 256, 0)
     waterNP.setTransparency(TransparencyAttrib.MAlpha)
     waterNP.flattenLight()
     waterNP.setPos(0, 0, 26)
@@ -286,7 +286,7 @@ def setupWater(path, height_map):
     
     waterNP.setShader(Shader.load(Shader.SLGLSL, path+"shaders/water2_v.glsl", path+"shaders/water2_f.glsl"))
     waterNP.setShaderInput("water_norm", loader.loadTexture(path+'data/water.png'))  
-    waterNP.setShaderInput("water_height", loader.loadTexture(path+'data/ocen1_h.png'))
+    waterNP.setShaderInput("water_height", loader.loadTexture(path+'data/ocen2_h.png'))
     waterNP.setShaderInput("height", loader.loadTexture(height_map))
     waterNP.setShaderInput("tile",10.0)
     waterNP.setShaderInput("water_level",26.0)

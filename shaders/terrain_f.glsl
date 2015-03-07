@@ -166,8 +166,9 @@ void main()
             if (shadowColor < shadowUV.z-0.001)
                 shade=0.0;            
             }
+        spec=spec*(1.0-fogFactor)*0.5; 
         gl_FragData[0] = mix(final,fog_color ,fogFactor);//+walk;    
-        gl_FragData[1]=vec4(fogFactor, shade, spec*(1.0-fogFactor),0.0);        
+        gl_FragData[1]=vec4(fogFactor, shade, spec,0.0);
         }
     }
     

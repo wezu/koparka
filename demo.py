@@ -65,7 +65,7 @@ class Demo (DirectObject):
         processProps(self.level, functions)        
         
         #lights and shadows    
-        setupLights(sun_color=Vec4(0.95, 0.95, 0.75, 1), ambient_color=Vec4(.1, .1, .1, 1), ambient2_color=Vec4(.01, .01, .01, 1), sun_hpr=(90, -60, 0))        
+        setupLights(sun_color=Vec4(0.9, 0.9, 0.85, 1), ambient_color=Vec4(.1, .1, .1, 1), ambient2_color=Vec4(.01, .01, .01, 1), sun_hpr=(90, -60, 0))        
         self.shadows=setupShadows(sun_hpr=(90, -60, 0), buffer_size=1024)        
         
         #camera controll
