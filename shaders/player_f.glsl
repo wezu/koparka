@@ -59,7 +59,7 @@ void main()
            NdotHV = max(dot(N,halfV),0.0);
            color += gl_LightSource[0].diffuse * NdotL;   
            float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;           
-           spec=pow(NdotHV,200.0)*clamp(gloss*5.0, 0.0, 1.0)*s;
+           spec=pow(NdotHV,100.0)*gloss*s;
            color +=spec;
            }   
         //directional2 = ambient

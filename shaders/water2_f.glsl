@@ -8,6 +8,7 @@ uniform sampler2D water_height;
 uniform float water_level;
 uniform vec4 ambient;
 uniform vec4 fog;
+uniform vec3 wave;
 
 varying float fog_factor;
 varying vec4 vpos;
@@ -25,7 +26,7 @@ void main()
         vec3 normal=vec3(0.0,0.0,1.0);    
         const vec3 vLeft=vec3(1.0,0.0,0.0);
         const float pixel=1.0/512.0;
-        const float height_scale=20.0;
+        float height_scale=80.0/wave.z;
         vec2 texUV=gl_TexCoord[4].xy;
         //normal vector...
         vec4 me=texture2D(water_height,texUV);
@@ -49,7 +50,7 @@ void main()
         vec3 binormal= gl_NormalMatrix * cross(normal, tangent); 
         
         float h_map=texture2D(height, gl_TexCoord[2].xy).r;
-        if (h_map*100.0>water_level+3.0)
+        if (h_map*100.0>water_level+4.0)
             discard;
         vec4 distortion1 = normalize(texture2D(water_norm, gl_TexCoord[0].xy));
         vec4 distortion2 = normalize(texture2D(water_norm, gl_TexCoord[1].xy));
@@ -90,10 +91,11 @@ void main()
         vec4 final=mix(refl, color, 0.3+foam*0.5);
         final.rgb-=me.r*0.2;
         //final.rgb+=normalmap.a*clamp((me.r-0.5)*4.0, 0.0, 1.0);
-        final+=clamp(specular, 0.0, 1.0)*(1.0-foam);  
+        float final_spec=clamp(specular, 0.0, 1.0)*(1.0-foam);  
+        final+=final_spec;
         final+=full_foam;
         final.a=((facing*0.5)+0.4)+(full_foam.a);
         gl_FragData[0] =mix(final, fog_color, fog_factor);
-        gl_FragData[1] =vec4(fog_factor, 1.0,specular,0.0);
+        gl_FragData[1] =vec4(fog_factor, 1.0,final_spec,0.5);//(fog, shadow, glare, displace)
         }
     }

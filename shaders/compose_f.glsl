@@ -19,7 +19,7 @@ void main()
     vec4 aux=texture2D(auxTex, uv);
     float fogfactor=aux.r;    
     float specfactor=aux.b+blured_aux.b;
-    float distor=aux.a;  
+    float distor=clamp(aux.a-0.5, 0.0, 0.5)*2.0;  
     
     vec2 noise=texture2D(noiseTex,time_uv).rg*2.0 - 1.0;    
     vec4 color=texture2D(colorTex,uv+noise*0.01)*distor;    

@@ -154,13 +154,13 @@ void main()
         vec4 water_fog=vec4(0.0, 0.0, 0.01, 1.0);
         float shade = 1.0;      
         float water_z=water_level+2.0;//new water at different level        
-        if (terrainz<water_z)
+        if (terrainz<water_z)//no shadows under water
             {
             float water_fog_factor=1.0-pow(terrainz/(water_z), 4.0);
             final=mix(final,water_fog ,water_fog_factor*0.95);         
             spec=0.0;
             }
-        else //no shadows under water
+        else 
             {
             vec4 shadowUV = shadowCoord / shadowCoord.q;
             float shadowColor = texture2D(shadow, shadowUV.xy).r;            

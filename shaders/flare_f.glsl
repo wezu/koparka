@@ -4,28 +4,31 @@ uniform sampler2D glareTex;
 
 varying vec2 uv;
 
-void main() 
-    {    
-    int NSAMPLES = 5;
-    float FLARE_HALO_WIDTH = 0.8;
-    float FLARE_DISPERSAL = 0.9;
-    vec3 CHROMA_DISTORT = vec3(0.004, -0.004, 0.0);
-
-    vec2 sample_vector = vec2(0.5, 0.5)-uv * FLARE_DISPERSAL;
-    vec2 halo_vector = normalize(sample_vector) * FLARE_HALO_WIDTH;
-    vec3 tmp = vec3(0.0, 0.0, 0.0);
-    vec3 result = 0.0;
-    result.x = texture2D(glareTex, uv + halo_vector + halo_vector * CHROMA_DISTORT.x).x;
-    result.y = texture2D(glareTex, uv + halo_vector + halo_vector * CHROMA_DISTORT.y).y;
-    result.z = texture2D(glareTex, uv + halo_vector + halo_vector * CHROMA_DISTORT.z).z;
-    for (int i = 0; i < NSAMPLES; ++i) {
-        vec2 offset = sample_vector * float(i);
-        tmp.x = texture2D(glareTex, uv + offset + offset  * CHROMA_DISTORT.x).x;
-        tmp.y = texture2D(glareTex, uv + offset + offset  * CHROMA_DISTORT.y).y;
-        tmp.z = texture2D(glareTex, uv + offset + offset  * CHROMA_DISTORT.z).z;
-        result += tmp;
-    }        
-    result /= float(NSAMPLES); 
-    gl_FragColor =vec4(result.xyz, 1.0);
-    }
+void main()
+    {
+    int uGhosts=8;
+    float uGhostDispersal=0.3;
+    float uHaloWidth=0.45;
+    vec2 texcoord = -uv + vec2(1.0, 1.0);
+    //vec2 texelSize = 1.0 / vec2(textureSize(glareTex, 0));
  
+    // ghost vector to image centre:
+    vec2 ghostVec = (vec2(0.5, 0.5) - texcoord) * uGhostDispersal;
+   
+    // sample ghosts:  
+    vec4 result = vec4(0.0, 0.0, 0.0, 0.0);
+    for (int i = 0; i < uGhosts; ++i)
+        { 
+        vec2 offset =texcoord + ghostVec * float(i); 
+        float weight = length(vec2(0.5, 0.5) - offset) / length(vec2(0.5, 0.5));
+        weight = pow(1.0 - weight, 10.0);  
+        result += texture2D(glareTex, offset)* weight; 
+        } 
+    // sample halo:
+    vec2 haloVec = normalize(ghostVec) * uHaloWidth;
+    float weight = length(vec2(0.5) - fract(texcoord + haloVec)) / length(vec2(0.5));
+    weight = pow(1.0 - weight, 5.0);
+    result += texture2D(glareTex, texcoord + haloVec) * weight;    
+        
+    gl_FragColor = result;
+   }

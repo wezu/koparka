@@ -122,7 +122,8 @@ class Demo (DirectObject):
             self.navi.moveTo(self.target)
             
     def setAlpha(self, node, mode):
-        node.setTransparency(TransparencyAttrib.MAlpha)
+        pass
+        #node.setTransparency(TransparencyAttrib.MAlpha)
         
     def setCollideMaskOn(self, node, mask):
         print "setting mask", mask, "on", node

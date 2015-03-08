@@ -43,7 +43,7 @@ def setupFilters(manager, path, fxaa_only=False):
         interquad1.setShaderInput("input_map", colorTex)
         filters.append(interquad1)
         #glare
-        interquad2 = manager.renderQuadInto(colortex=glareTex, div=4)
+        interquad2 = manager.renderQuadInto(colortex=glareTex, div=2)
         interquad2.setShader(Shader.load(Shader.SLGLSL, path+"shaders/glare_v.glsl", path+"shaders/glare_f.glsl"))
         interquad2.setShaderInput("auxTex", auxTex)  
         interquad2.setShaderInput("colorTex", colorTex)
@@ -52,7 +52,9 @@ def setupFilters(manager, path, fxaa_only=False):
         #lense flare
         interquad3 = manager.renderQuadInto(colortex=flareTex, div=2)
         interquad3.setShader(Shader.load(path+"shaders/lens_flare.sha"))
+        #interquad3.setShader(Shader.load(Shader.SLGLSL, path+"shaders/flare_v.glsl", path+"shaders/flare_f.glsl"))
         interquad3.setShaderInput("tex0", glareTex)
+        #interquad3.setShaderInput("glareTex", glareTex)
         filters.append(interquad3)
         #compose the scene
         interquad4 = manager.renderQuadInto(colortex=composeTex)
@@ -264,8 +266,11 @@ def loadSkyDome(path):
 def setupWater(path, height_map):
     waterNP = loader.loadModel(path+"data/waterplane2") 
     #waterNP.setPos(256, 256, 0)
-    waterNP.setTransparency(TransparencyAttrib.MAlpha)
-    waterNP.flattenLight()
+    waterNP.setTransparency(TransparencyAttrib.MAlpha, 1)
+    #waterNP.setDepthWrite(False)
+    #waterNP.setBin("background", 12)
+    #waterNP.setDepthTest(False)
+    #waterNP.flattenLight()
     waterNP.setPos(0, 0, 26)
     waterNP.reparentTo(render)  
     #Add a buffer and camera that will render the reflection texture
@@ -301,7 +306,7 @@ def setupWater(path, height_map):
     waterNP.setShaderInput("speed",0.02)
     waterNP.setShaderInput("wave",Vec3(32.0, 34.0, 0.2))        
     waterNP.hide(MASK_WATER)
-    #waterNP.hide(MASK_SHADOW)
+    waterNP.hide(MASK_SHADOW)
     return {'waterNP':waterNP, 'waterCamera':waterCamera, 'wBuffer':wBuffer, 'wPlane':wPlane}
     
 def setupLights(sun_color, ambient_color, ambient2_color, sun_hpr):
