@@ -152,10 +152,11 @@ void main()
         //vec4 walk=texture2D(walkmap,texUV);
         //final = mix(final,fog ,fogFactor)+walk; 
         vec4 water_fog=vec4(0.0, 0.0, 0.01, 1.0);
-        float shade = 1.0;            
-        if (terrainz<water_level)
+        float shade = 1.0;      
+        float water_z=water_level+2.0;//new water at different level        
+        if (terrainz<water_z)
             {
-            float water_fog_factor=1.0-pow(terrainz/(water_level), 4.0);
+            float water_fog_factor=1.0-pow(terrainz/(water_z), 4.0);
             final=mix(final,water_fog ,water_fog_factor*0.95);         
             spec=0.0;
             }

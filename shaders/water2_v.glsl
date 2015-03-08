@@ -19,9 +19,9 @@ uniform sampler2D water_height;
 void main()
     {
     vec2 uv=(gl_MultiTexCoord0.xy+vec2(time*wave.x, time*wave.y))*wave.z;
-    float h= texture2DLod(water_height, uv, 0.0).g;   
+    float h= texture2DLod(water_height, uv, 0.0).g;  
     vec4 vert=gl_Vertex;
-    vert.z=(h*2.0); 
+    vert.z+=(h*4.0)+1.0; 
 	gl_Position = p3d_ModelViewProjectionMatrix * vert; 
              
     gl_TexCoord[0] = gl_MultiTexCoord0*tile+time*speed;

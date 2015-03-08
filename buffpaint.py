@@ -9,6 +9,7 @@ class BufferPainter ():
         self.pointer.setLightOff()
         self.pointer.hide(BitMask32.bit(1))
         self.pointer.hide(BitMask32.bit(2))
+        self.pointer.setShader(Shader.load(Shader.SLGLSL, "shaders/editor_v.glsl", "shaders/editor_f.glsl"))
         #the plane will bu used to see where the mouse pointer is
         self.z=25.5
         self.pointer.setZ(self.z)

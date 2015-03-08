@@ -54,8 +54,8 @@ void main()
         vec4 distortion1 = normalize(texture2D(water_norm, gl_TexCoord[0].xy));
         vec4 distortion2 = normalize(texture2D(water_norm, gl_TexCoord[1].xy));
         vec4 normalmap=distortion1+distortion2; 
-        float foam=clamp(h_map*100.0-(water_level-2.5), 0.0, 0.7);
-        foam+=clamp((me.r-0.5)*4.0, 0.0, 1.0);
+        float foam=clamp(h_map*100.0-(water_level-2.0), 0.0, 4.0)/4.0;
+        foam+=clamp((me.r-0.5)*4.0, 0.0, 1.0)*0.5;
         foam=clamp(foam, 0.0, 1.0);
         vec4 full_foam=vec4(foam, foam, foam, foam)*normalmap.a;
         float facing = 1.0 -max(dot(normalize(-vpos.xyz), normalize(normal.xyz)), 0.0);   
@@ -87,12 +87,12 @@ void main()
         specular*=(1.0-fog_factor);
         //specular-=foam;
         vec4 refl=texture2DProj(reflection, gl_TexCoord[3]+distortion1*distortion2*4)-0.2;
-        vec4 final=mix(refl, color, 0.3);
+        vec4 final=mix(refl, color, 0.3+foam*0.5);
         final.rgb-=me.r*0.2;
         //final.rgb+=normalmap.a*clamp((me.r-0.5)*4.0, 0.0, 1.0);
         final+=clamp(specular, 0.0, 1.0)*(1.0-foam);  
         final+=full_foam;
-        final.a=((facing*0.5)+0.4)+(full_foam.a*0.5);
+        final.a=((facing*0.5)+0.4)+(full_foam.a);
         gl_FragData[0] =mix(final, fog_color, fog_factor);
         gl_FragData[1] =vec4(fog_factor, 1.0,specular,0.0);
         }

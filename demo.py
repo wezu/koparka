@@ -49,7 +49,7 @@ class Demo (DirectObject):
         
         #manager for post process filters (fxaa, soft shadows, dof)
         manager=FilterManager(base.win, base.cam)
-        self.quads=setupFilters(manager, path)
+        self.filters=setupFilters(manager, path, fxaa_only=False)
         
         #load a level
         self.level=loadLevel(path=path, from_dir=directory) 
@@ -112,8 +112,8 @@ class Demo (DirectObject):
         
     def windowEventHandler( self, window=None ):    
         if window is not None: # window is none if panda3d is not started
-            self.quads[-1].setShaderInput("rt_w",float(base.win.getXSize()))
-            self.quads[-1].setShaderInput("rt_h",float(base.win.getYSize()))
+            self.filters[-1].setShaderInput("rt_w",float(base.win.getXSize()))
+            self.filters[-1].setShaderInput("rt_h",float(base.win.getYSize()))
                 
     def onMouseClick(self):
         pos=self.pointer.getPos()
@@ -141,7 +141,8 @@ class Demo (DirectObject):
         render.setShaderInput('time', time)   
         self.controler.cameraNode.setPos(self.pcNode.getPos())
         self.shadows['shadowNode'].setPos(self.pcNode.getPos())
-        self.quads[4].setShaderInput('time', time)   
+        if len(self.filters)>1:
+            self.filters[4].setShaderInput('time', time)  
         #water
         if self.level['water']['waterNP'].getZ()>0.0:   
             self.level['water']['waterCamera'].setMat(base.cam.getMat(render)*self.level['water']['wPlane'].getReflectionMat())

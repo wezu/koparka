@@ -246,7 +246,7 @@ class GuiHelper():
         #ordered dict should be used here... but not in python 2.5
         #so the hack...well it looks like it won't be as 'propre' as advertised 
         labels=['Sky Color:','Fog Color:','Cloud Color:','Cloud Tile:','Cloud Speed:','Horizont:','Water Tile:','Water Speed:', 'Water Wave:','Water Level:\n(-1 to disable)']
-        self.SkySeaOptions=[[0.4,0.6,1.0, 1.0],[0.4, 0.4, 0.4, 0.002],[0.9,0.9,1.0, 0.8], 4.0, 0.008, 140.0,10.0,0.01,[32.0, 32.0, 0.3], 26.0]
+        self.SkySeaOptions=[[0.4,0.6,1.0, 1.0],[0.4, 0.4, 0.4, 0.002],[0.9,0.9,1.0, 0.8], 4.0, 0.008, 140.0,10.0,0.01,[0.005, 0.003, 6.0], 30.0]
         text=""
         for item in labels:
             text+=item+'\n'
