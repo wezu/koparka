@@ -14,7 +14,8 @@ uniform vec2 uv_offset;
 uniform vec3 fogcenter;
 uniform vec4 fog;
 
-varying vec3 blend_mask_fog;
+varying vec3 blend_mask;
+varying float fog_factor;
 varying vec3 normal;
 //varying vec3 tangent;
 //varying vec3 binormal;
@@ -40,19 +41,24 @@ void main()
     vec2 uv=vec2(v.x/512.0, v.y/512.0)+uv_offset;
 
     // Set the mask to discard in the fragment shader
-    blend_mask_fog=texture2DLod(grass,uv, 0.0).rgb;
-
-    //mask =1.0;
-    float anim_co=step(0.75, gl_MultiTexCoord0.y);
-    float animation =sin(0.7*time+float(gl_InstanceID))*sin(1.7*time+float(gl_InstanceID))*anim_co;
+    blend_mask=texture2DLod(grass,uv, 0.0).rgb;
     float h= texture2DLod(height,uv, 0.0).r;    
-    
     v.z+=h*100.0; 
-    
-    vec4 cs_position = gl_ModelViewMatrix * v;  
-    float distToEdge=clamp(pow(distance(v.xy, fogcenter.xy)/256.0, 4.0), 0.0, 1.0);
-    float distToCamera =clamp(-cs_position.z*fog.a-0.5, 0.0, 1.0);    
-    blend_mask_fog.b=clamp(distToCamera+distToEdge, 0.0, 1.0);    
-    v.xy += animation;  
-    gl_Position = p3d_ModelViewProjectionMatrix * v;      
+    if(blend_mask.r+blend_mask.g+blend_mask.b > 0.0)
+        {
+        //mask =1.0;
+        float anim_co=step(0.75, gl_MultiTexCoord0.y);
+        float animation =sin(0.7*time+float(gl_InstanceID))*sin(1.7*time+float(gl_InstanceID))*anim_co;
+        
+        vec4 cs_position = gl_ModelViewMatrix * v;  
+        float distToEdge=clamp(pow(distance(v.xy, fogcenter.xy)/256.0, 4.0), 0.0, 1.0);
+        float distToCamera =clamp(-cs_position.z*fog.a-0.5, 0.0, 1.0);    
+        fog_factor=clamp(distToCamera+distToEdge, 0.0, 1.0);    
+        v.xy += animation;  
+        gl_Position = p3d_ModelViewProjectionMatrix * v;      
+        }
+    else
+        {
+        gl_Position = p3d_ModelViewProjectionMatrix * v;
+        }
     }

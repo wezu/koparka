@@ -38,7 +38,7 @@ uniform sampler2D shadow;
 
 void main()
     { 
-    if (dot(p3d_ClipPlane[0], vpos) < 0) 
+    if (dot(p3d_ClipPlane[0], vpos) < 0.0) 
         {
         discard;
         } 
@@ -157,7 +157,7 @@ void main()
         if (terrainz<water_z)//no shadows under water
             {
             float water_fog_factor=1.0-pow(terrainz/(water_z), 4.0);
-            final=mix(final,water_fog ,water_fog_factor*0.95);         
+            final=mix(final,water_fog ,water_fog_factor*0.9);         
             spec=0.0;
             }
         else 

@@ -7,7 +7,7 @@
             1.0
         ],
         "cloudSpeed": 0.008,
-        "cloudTile": 4.0,
+        "cloudTile": 2.0,
         "fog": [
             0.7,
             0.7,
@@ -22,12 +22,12 @@
             1.0
         ],
         "speed": 0.01,
-        "tile": 8.0,
+        "tile": 10.0,
         "water_z": 18,
         "wave": [
             0.005,
-            0.003,
-            6.0
+            0.0,
+            4.0
         ]
     },
     {
@@ -38,6 +38,13 @@
             "tex/diffuse/3.dds",
             "tex/diffuse/4.dds",
             "tex/diffuse/5.dds"
+        ]
+    },
+    {
+        "grass": [
+            "grass/1.png",
+            "grass/7.png",
+            "grass/5.png"
         ]
     },
     {

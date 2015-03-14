@@ -21,7 +21,9 @@ class GuiHelper():
         self.path=path
         
         self.font = DGG.getDefaultFont()
-        self.font.setPixelsPerUnit(16)
+        self.font.setPixelsPerUnit(16)       
+        #self.font.setOutline((0, 0, 0, 0.9), 1, 0.8)
+        
         self.fontBig=self.font.makeCopy()        
         self.fontBig.setPixelsPerUnit(32)
         
@@ -36,31 +38,36 @@ class GuiHelper():
         self.Center=pixel2d.attachNewNode('Center')
         self.updateBaseNodes()
         
-        self.dialog=DirectFrame(frameSize=_rec2d(512,192),
-                                frameColor=(0,0,0, 0.8),
+        self.dialog=DirectFrame(frameSize=_rec2d(512,256),
+                                frameColor=(1,1,1, 1),
+                                frameTexture='icon/dialog.png',
                                 text='This is a dialog, no text was set! Alfa, beta, gamma, delta, tango, lambda, epsilon, omega, zeta.',
                                 text_scale=32,
-                                text_wordwrap=16,
+                                text_wordwrap=15,
                                 text_font=self.fontBig,
-                                text_pos=(-256,164),
+                                text_pos=(-256,220),
                                 text_fg=(1,1,1,1),
                                 text_align=TextNode.ACenter,
                                 parent=self.Center)
         _resetPivot(self.dialog)
-        self.dialog.setPos(_pos2d(-256, -128))
+        self.dialog.setPos(_pos2d(-256, -128))        
+        self.dialog.setTransparency(TransparencyAttrib.MDual)
         self.dialogYes=DirectFrame(frameSize=_rec2d(128,32),
-                                    frameColor=(1,1,1,0.5),  
+                                    frameColor=(1,1,1,1.0),  
                                     text="YES",
-                                    text_scale=32,
+                                    text_scale=32,                                    
+                                    frameTexture='icon/button.png',
                                     text_font=self.fontBig,
                                     text_pos=(-70,7),
                                     text_fg=(0,1,0,1),
                                     state=DGG.NORMAL, 
                                     parent=self.dialog)
         _resetPivot(self.dialogYes)
-        self.dialogYes.setPos(_pos2d(0,132))
+        self.dialogYes.setPos(_pos2d(32,132))
+        self.dialogYes.setTransparency(TransparencyAttrib.MDual)
         self.dialogNo=DirectFrame(frameSize=_rec2d(128,32),
-                                    frameColor=(1,1,1,0.5),  
+                                    frameColor=(1,1,1,1.0),
+                                    frameTexture='icon/button.png',
                                     text="NO",
                                     text_scale=32,
                                     text_font=self.fontBig,
@@ -69,10 +76,12 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.dialog)
         _resetPivot(self.dialogNo)
-        self.dialogNo.setPos(_pos2d(384,132))
+        self.dialogNo.setPos(_pos2d(352,132))
+        self.dialogNo.setTransparency(TransparencyAttrib.MDual)
         self.dialogOk=DirectFrame(frameSize=_rec2d(128,32),
-                                    frameColor=(1,1,1,0.5),  
+                                    frameColor=(1,1,1,1.0),  
                                     text="OK",
+                                    frameTexture='icon/button.png',
                                     text_scale=32,
                                     text_font=self.fontBig,
                                     text_pos=(-70,7),
@@ -80,7 +89,8 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.dialog)
         _resetPivot(self.dialogOk)
-        self.dialogOk.setPos(_pos2d(192,132))
+        self.dialogOk.setPos(_pos2d(192,132))        
+        self.dialogOk.setTransparency(TransparencyAttrib.MDual)
         self.dialog.hide()
         
     def yesNoDialog(self, text, command, arg=[]):
@@ -122,19 +132,19 @@ class GuiHelper():
                 value=self.SkySeaOptions[id-100]    
         if id==0:#size                        
             value=min(10.0, max(0.1, value))
-            self.ConfigOptions['scale']=value
+            self.ConfigOptions[id]=value
         elif id==1:#alpha   
             value=min(1.0, max(0.0, value))
-            self.ConfigOptions['alpha']=value
+            self.ConfigOptions[id]=value
         elif id in (2,3,4): #hpr    
             value=min(360.0, max(0.0, value))
-            self.ConfigOptions['hpr'][id-2]=value
+            self.ConfigOptions[id]=value
         elif id==5:#grid tile
             value=min(512.0, max(1.0, value))
-            self.ConfigOptions['grid']=value
+            self.ConfigOptions[id]=value
         elif id==6:#grid Z
             value=min(101.0, max(0.0, value))    
-            self.ConfigOptions['grid_z']=value
+            self.ConfigOptions[id]=value
         elif id==100:#Sky Color
             #shoul be 4 element tuple/list            
             if len(value)!=4:
@@ -250,21 +260,23 @@ class GuiHelper():
         text=""
         for item in labels:
             text+=item+'\n'
-        self.SkySeaFrame=DirectFrame(frameSize=_rec2d(512,480),
-                                    frameColor=(0,0,0, 0.8),
+        self.SkySeaFrame=DirectFrame(frameSize=_rec2d(512,512),
+                                    frameColor=(1,1,1, 1),
                                     text=text,
                                     text_scale=32,
+                                    frameTexture='icon/sky_dialog.png',
                                     text_font=self.fontBig,
-                                    text_pos=(-300,454),
-                                    text_fg=(0.7,0.7,0.7,1), 
+                                    text_pos=(-280,476),
+                                    text_fg=(0.9,0.9,0.9,1), 
                                     text_align=TextNode.ARight,
                                     parent=self.Center)
         self.SkySeaFrame.hide()
         _resetPivot(self.SkySeaFrame)
+        self.SkySeaFrame.setTransparency(TransparencyAttrib.MDual)
         self.SkySeaFrame.setPos(_pos2d(-256, -240)) 
         
         self.okButton=DirectFrame(frameSize=_rec2d(128,32),
-                                    frameColor=(1,1,1,0.5),  
+                                    frameColor=(1,1,1,0),  
                                     text="OK",
                                     text_scale=32,
                                     text_font=self.fontBig,
@@ -273,10 +285,10 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.SkySeaFrame)
         _resetPivot(self.okButton)        
-        self.okButton.setPos(_pos2d(352,430))
+        self.okButton.setPos(_pos2d(352,400))
         
         self.cancelButton=DirectFrame(frameSize=_rec2d(128,32),
-                                    frameColor=(1,1,1,0.5),  
+                                    frameColor=(1,1,1,0),  
                                     text="CANCEL",
                                     text_scale=32,
                                     text_font=self.fontBig,
@@ -285,7 +297,7 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.SkySeaFrame)
         _resetPivot(self.cancelButton)        
-        self.cancelButton.setPos(_pos2d(32,430)) 
+        self.cancelButton.setPos(_pos2d(32,400)) 
         
         self.okButton.bind(DGG.B1PRESS, self.validateAndExec, [command,2, 10, 100])        
         self.cancelButton.bind(DGG.B1PRESS, command, [False]) 
@@ -294,7 +306,7 @@ class GuiHelper():
         for item in self.SkySeaOptions:
             id=len(self.SkySeaEntry)
             entry=DirectEntry(  frameSize=_rec2d(250,30),
-                                frameColor=(1,1,1, 0.3),
+                                frameColor=(1,1,1, 0),
                                 text = str(item),
                                 text_scale=16,                                                                
                                 text_pos=(-240,14),
@@ -311,160 +323,35 @@ class GuiHelper():
                                 focusOutCommand=self.validateEntry,
                                 focusOutExtraArgs=[100+id])
             _resetPivot(entry)
-            entry.setPos(_pos2d(250,32*id+2))                    
+            entry.setPos(_pos2d(250,32*id+12))                    
             self.SkySeaEntry.append(entry)    
         
         
-    def addConfigDialog(self, command):  
-        self.ConfigOptions={
-                            'grid':16,
-                            'grid_z':1.0,
-                            'hpr':[0,0,0],
-                            'scale':1.0,
-                            'alpha':0.05
-                            }
-        self.ConfigFrame=DirectFrame( frameSize=_rec2d(512,540),
-                                        frameColor=(0,0,0, 0.8),
-                                        text="Scale:\n\nStrength\n(Z offset):\n\nHeading:\n\nPitch:\n\nRoll:\n\nGrid Size:\n\nGrid Z:",
-                                        text_scale=32,
-                                        text_font=self.fontBig,
-                                        text_pos=(-440,505),
-                                        text_fg=(0.7,0.7,0.7,1),
-                                        parent=self.Center)
+    def addConfigDialog(self, command): 
+        labels=['Brush Scale:','Brush Strength(Z):','Heading:','Pitch:','Roll:','Grid Size:','Grid Z:']
+        self.ConfigOptions=[1.0, 1.0, 0.0, 0.0, 0.0, 16, 0.05 ]
+                           # 0    1    2    3    4    5    6
+                           #Scale A    H    P    R  Grid  GridZ  
+        text=""
+        for item in labels:
+            text+=item+'\n'
+        self.ConfigFrame=DirectFrame(frameSize=_rec2d(512,512),
+                                    frameColor=(1,1,1, 1),
+                                    text=text,
+                                    text_scale=32,
+                                    frameTexture='icon/config_dialog.png',
+                                    text_font=self.fontBig,
+                                    text_pos=(-230,476),
+                                    text_fg=(0.9,0.9,0.9,1), 
+                                    text_align=TextNode.ARight,
+                                    parent=self.Center)
         self.ConfigFrame.hide()
         _resetPivot(self.ConfigFrame)
-        self.ConfigFrame.setPos(_pos2d(-256, -256))
-        self.ConfigEntry=[]
-        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
-                        text = '1.0',
-                        text_scale=16,
-                        text_pos=(-308,18),
-                        text_fg=(1,1,1,1),
-                        initialText= '1.0',
-                        numLines = 1,
-                        width=19,
-                        focus=0,
-                        suppressKeys=True,
-                        parent=self.ConfigFrame,
-                        command=self.validateEntry,
-                        extraArgs=[0],
-                        focusOutCommand=self.validateEntry,
-                        focusOutExtraArgs=[0]
-                        ))        
-        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
-                        text = '1.0',
-                        text_scale=16,
-                        text_pos=(-308,18),
-                        text_fg=(1,1,1,1),
-                        initialText= '1.0',
-                        numLines = 1,
-                        width=19,
-                        focus=0,
-                        suppressKeys=True,
-                        parent=self.ConfigFrame,
-                        command=self.validateEntry,
-                        extraArgs=[1],
-                        focusOutCommand=self.validateEntry,
-                        focusOutExtraArgs=[1]
-                        ))
-        
-        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
-                        text = '1.0',
-                        text_scale=16,
-                        text_pos=(-308,18),
-                        text_fg=(1,1,1,1),
-                        initialText= '1.0',
-                        numLines = 1,
-                        width=19,
-                        focus=0,
-                        suppressKeys=True,
-                        parent=self.ConfigFrame,
-                        command=self.validateEntry,
-                        extraArgs=[2],
-                        focusOutCommand=self.validateEntry,
-                        focusOutExtraArgs=[2]
-                        ))        
-        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
-                        text = '1.0',
-                        text_scale=16,
-                        text_pos=(-308,18),
-                        text_fg=(1,1,1,1),
-                        initialText= '1.0',
-                        numLines = 1,
-                        width=19,
-                        focus=0,
-                        suppressKeys=True,
-                        parent=self.ConfigFrame,
-                        command=self.validateEntry,
-                        extraArgs=[3],
-                        focusOutCommand=self.validateEntry,
-                        focusOutExtraArgs=[3]
-                        ))        
-        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
-                        text = '1.0',
-                        text_scale=16,
-                        text_pos=(-308,18),
-                        text_fg=(1,1,1,1),
-                        initialText= '1.0',
-                        numLines = 1,
-                        width=19,
-                        focus=0,
-                        suppressKeys=True,
-                        parent=self.ConfigFrame,
-                        command=self.validateEntry,
-                        extraArgs=[4],
-                        focusOutCommand=self.validateEntry,
-                        focusOutExtraArgs=[4]
-                        ))        
-        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
-                        text = '1.0',
-                        text_scale=16,
-                        text_pos=(-308,18),
-                        text_fg=(1,1,1,1),
-                        initialText= '1.0',
-                        numLines = 1,
-                        width=19,
-                        focus=0,
-                        suppressKeys=True,
-                        parent=self.ConfigFrame,
-                        command=self.validateEntry,
-                        extraArgs=[5],
-                        focusOutCommand=self.validateEntry,
-                        focusOutExtraArgs=[5]
-                        ))        
-        self.ConfigEntry.append(DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
-                        text = '1.0',
-                        text_scale=16,
-                        text_pos=(-308,18),
-                        text_fg=(1,1,1,1),
-                        initialText= '1.0',
-                        numLines = 1,
-                        width=19,
-                        focus=0,
-                        suppressKeys=True,
-                        parent=self.ConfigFrame,
-                        command=self.validateEntry,
-                        extraArgs=[6],
-                        focusOutCommand=self.validateEntry,
-                        focusOutExtraArgs=[6]
-                        ))                        
-                        
-        pos_list=(8,86,170,230,290,355,415)            
-        i=0                
-        for entry in self.ConfigEntry:
-            _resetPivot(entry)
-            entry.setPos(_pos2d(150,pos_list[i]))
-            i+=1
+        self.ConfigFrame.setTransparency(TransparencyAttrib.MDual)
+        self.ConfigFrame.setPos(_pos2d(-256, -240)) 
         
         self.okButton=DirectFrame(frameSize=_rec2d(128,32),
-                                    frameColor=(1,1,1,0.5),  
+                                    frameColor=(0,0,1,0.0),  
                                     text="OK",
                                     text_scale=32,
                                     text_font=self.fontBig,
@@ -473,10 +360,10 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.ConfigFrame)
         _resetPivot(self.okButton)        
-        self.okButton.setPos(_pos2d(352,478))
+        self.okButton.setPos(_pos2d(352,250))
         
         self.cancelButton=DirectFrame(frameSize=_rec2d(128,32),
-                                    frameColor=(1,1,1,0.5),  
+                                    frameColor=(0,0,1,0.0),  
                                     text="CANCEL",
                                     text_scale=32,
                                     text_font=self.fontBig,
@@ -485,10 +372,34 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.ConfigFrame)
         _resetPivot(self.cancelButton)        
-        self.cancelButton.setPos(_pos2d(32,478)) 
+        self.cancelButton.setPos(_pos2d(32,250)) 
         
         self.okButton.bind(DGG.B1PRESS, self.validateAndExec, [command,2, 7, 0])        
-        self.cancelButton.bind(DGG.B1PRESS, command, [False])
+        self.cancelButton.bind(DGG.B1PRESS, command, [False]) 
+        
+        self.ConfigEntry=[]
+        for item in self.ConfigOptions:
+            id=len(self.ConfigEntry)
+            entry=DirectEntry(  frameSize=_rec2d(200,30),
+                                frameColor=(1,0,0, 0.0),
+                                text = str(item),
+                                text_scale=16,                                                                
+                                text_pos=(-200,14),
+                                text_fg=(1,1,1,1),
+                                text_align=TextNode.ALeft,
+                                initialText=str(item),
+                                numLines = 1,
+                                width=19,
+                                focus=0,
+                                suppressKeys=True,
+                                parent=self.ConfigFrame,
+                                command=self.validateEntry,
+                                extraArgs=[id],
+                                focusOutCommand=self.validateEntry,
+                                focusOutExtraArgs=[id])
+            _resetPivot(entry)
+            entry.setPos(_pos2d(290,32*id+12))                    
+            self.ConfigEntry.append(entry)    
         
     def validateAndExec(self, command, arg, max=7, offset=0, event=None):
         for i in range(max):
@@ -497,21 +408,25 @@ class GuiHelper():
         
     def addSaveLoadDialog(self, save_command, load_command, cancel_command):
         #save/load 
-        self.SaveLoadFrame=DirectFrame( frameSize=_rec2d(512,540),
-                                        frameColor=(0,0,0, 0.8),
-                                        text="Directory:\n\nHeight:\n\nDetail:\n\nGrass:\n\nObjects &\nTextures:\n\nCollision:\n\nWalkMap:",
+        self.SaveLoadFrame=DirectFrame( frameSize=_rec2d(512,512),
+                                        frameColor=(1,1,1, 1),
+                                        frameTexture='icon/save_dialog.png',
+                                        text="Directory:\nHeight:\nDetail:\nGrass:\nObjects:\nCollision:\nWalkMap:",
                                         text_scale=32,
                                         text_font=self.fontBig,
-                                        text_pos=(-440,505),
-                                        text_fg=(0.7,0.7,0.7,1),
+                                        text_pos=(-360,474),
+                                        text_fg=(0.9,0.9,0.9,1), 
+                                        text_align=TextNode.ARight,
                                         parent=self.Center)
         _resetPivot(self.SaveLoadFrame)
-        self.SaveLoadFrame.setPos(_pos2d(-256, -256))
-        self.entry1 = DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
+        self.SaveLoadFrame.setPos(_pos2d(-256, -256))        
+        self.SaveLoadFrame.setTransparency(TransparencyAttrib.MDual)
+        self.entry1 = DirectEntry(frameSize=_rec2d(300,30),
+                        frameColor=(1,1,1, 0.0),
                         text = self.path+"save/default1",
                         text_scale=16,
-                        text_pos=(-308,18),
+                        text_pos=(-300,14),
+                        text_align=TextNode.ALeft,
                         text_fg=(1,1,1,1),
                         initialText= self.path+"save/default1",
                         numLines = 2,
@@ -521,12 +436,14 @@ class GuiHelper():
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry1)
-        self.entry1.setPos(_pos2d(150,8))
-        self.entry2 = DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
+        self.entry1.setPos(_pos2d(160,16))
+        
+        self.entry2 = DirectEntry(frameSize=_rec2d(300,30),
+                        frameColor=(1,1,1, 0.0),
                         text = "heightmap",
                         text_scale=16,
-                        text_pos=(-308,18),
+                        text_pos=(-300,14),
+                        text_align=TextNode.ALeft,
                         text_fg=(1,1,1,1),
                         initialText="heightmap",
                         numLines = 2,
@@ -536,12 +453,14 @@ class GuiHelper():
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry2)
-        self.entry2.setPos(_pos2d(150,70))
-        self.entry3 = DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
+        self.entry2.setPos(_pos2d(160,48))
+        
+        self.entry3 = DirectEntry(frameSize=_rec2d(300,30),
+                        frameColor=(1,1,1, 0.0),
                         text = "detail",
                         text_scale=16,
-                        text_pos=(-308,18),
+                        text_pos=(-300,14),
+                        text_align=TextNode.ALeft,
                         text_fg=(1,1,1,1),
                         initialText="detail",
                         numLines = 2,
@@ -551,13 +470,14 @@ class GuiHelper():
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry3)
-        self.entry3.setPos(_pos2d(150,132))        
+        self.entry3.setPos(_pos2d(160,80))        
         
-        self.entry5 = DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
+        self.entry5 = DirectEntry(frameSize=_rec2d(300,30),
+                        frameColor=(1,1,1, 0.0),
                         text ="grass",
                         text_scale=16,
-                        text_pos=(-308,18),
+                        text_pos=(-300,14),
+                        text_align=TextNode.ALeft,
                         text_fg=(1,1,1,1),
                         initialText="grass",
                         numLines = 2,
@@ -567,12 +487,14 @@ class GuiHelper():
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry5)
-        self.entry5.setPos(_pos2d(150,194))
-        self.entry6 = DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
+        self.entry5.setPos(_pos2d(160,112))
+        
+        self.entry6 = DirectEntry(frameSize=_rec2d(300,30),
+                        frameColor=(1,1,1, 0.0),
                         text = "objects",
                         text_scale=16,
-                        text_pos=(-308,18),
+                        text_pos=(-300,14),
+                        text_align=TextNode.ALeft,
                         text_fg=(1,1,1,1),
                         initialText="objects",
                         numLines = 2,
@@ -582,12 +504,14 @@ class GuiHelper():
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry6)
-        self.entry6.setPos(_pos2d(150,270)) 
-        self.entry7 = DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
+        self.entry6.setPos(_pos2d(160,144)) 
+        
+        self.entry7 = DirectEntry(frameSize=_rec2d(300,30),
+                        frameColor=(1,1,1, 0.0),
                         text = "collision",
                         text_scale=16,
-                        text_pos=(-308,18),
+                        text_pos=(-300,14),
+                        text_align=TextNode.ALeft,
                         text_fg=(1,1,1,1),
                         initialText="collision",
                         numLines = 2,
@@ -597,12 +521,14 @@ class GuiHelper():
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry7)
-        self.entry7.setPos(_pos2d(150,350))
-        self.entry8 = DirectEntry(frameSize=_rec2d(310,40),
-                        frameColor=(1,1,1, 0.3),
+        self.entry7.setPos(_pos2d(160,176))
+        
+        self.entry8 = DirectEntry(frameSize=_rec2d(300,30),
+                        frameColor=(1,1,1, 0.0),
                         text = "navmesh",
                         text_scale=16,
-                        text_pos=(-308,18),
+                        text_pos=(-300,14),
+                        text_align=TextNode.ALeft,
                         text_fg=(1,1,1,1),
                         initialText="navmesh",
                         numLines = 2,
@@ -612,7 +538,7 @@ class GuiHelper():
                         parent=self.SaveLoadFrame
                         )
         _resetPivot(self.entry8)
-        self.entry8.setPos(_pos2d(150,420))        
+        self.entry8.setPos(_pos2d(160,208))        
         
         self.check1=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
@@ -620,21 +546,21 @@ class GuiHelper():
                                 state=DGG.NORMAL, 
                                 parent=self.SaveLoadFrame)
         _resetPivot(self.check1)
-        self.check1.setPos(_pos2d(464,72))
+        self.check1.setPos(_pos2d(464,48))
         self.check2=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
                                 frameTexture='icon/yes.png',
                                 state=DGG.NORMAL, 
                                 parent=self.SaveLoadFrame)
         _resetPivot(self.check2)
-        self.check2.setPos(_pos2d(464,134))
+        self.check2.setPos(_pos2d(464,80))
         self.check3=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
                                 frameTexture='icon/yes.png',
                                 state=DGG.NORMAL, 
                                 parent=self.SaveLoadFrame)
         _resetPivot(self.check3)
-        self.check3.setPos(_pos2d(464,196))
+        self.check3.setPos(_pos2d(464,112))
         
         self.check5=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
@@ -642,14 +568,14 @@ class GuiHelper():
                                 state=DGG.NORMAL, 
                                 parent=self.SaveLoadFrame)
         _resetPivot(self.check5)
-        self.check5.setPos(_pos2d(464,272))
+        self.check5.setPos(_pos2d(464,144))
         self.check6=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
                                 frameTexture='icon/yes.png',
                                 state=DGG.NORMAL, 
                                 parent=self.SaveLoadFrame)
         _resetPivot(self.check6)
-        self.check6.setPos(_pos2d(464,352))
+        self.check6.setPos(_pos2d(464,176))
         
         self.check7=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
@@ -657,7 +583,7 @@ class GuiHelper():
                                 state=DGG.NORMAL, 
                                 parent=self.SaveLoadFrame)
         _resetPivot(self.check7)
-        self.check7.setPos(_pos2d(464,422))
+        self.check7.setPos(_pos2d(464,208))
         
         self.check1.bind(DGG.B1PRESS, self.switchFlag, [0])
         self.check2.bind(DGG.B1PRESS, self.switchFlag, [1])
@@ -673,7 +599,7 @@ class GuiHelper():
             self.flags.append(True)
         
         self.saveButton=DirectFrame(frameSize=_rec2d(128,32),
-                                    frameColor=(1,1,1,0.5),  
+                                    frameColor=(1,1,1,0.0),  
                                     text="SAVE",
                                     text_scale=32,
                                     text_font=self.fontBig,
@@ -682,10 +608,10 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.SaveLoadFrame)
         _resetPivot(self.saveButton)
-        self.saveButton.setPos(_pos2d(32,478))
+        self.saveButton.setPos(_pos2d(32,250))
         
         self.loadButton=DirectFrame(frameSize=_rec2d(128,32),
-                                    frameColor=(1,1,1,0.5),  
+                                    frameColor=(1,1,1,0.0),  
                                     text="LOAD",
                                     text_scale=32,
                                     text_font=self.fontBig,
@@ -694,10 +620,10 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.SaveLoadFrame)
         _resetPivot(self.loadButton)
-        self.loadButton.setPos(_pos2d(352,478))
+        self.loadButton.setPos(_pos2d(352,250))
         
         self.cancelButton=DirectFrame(frameSize=_rec2d(128,32),
-                                    frameColor=(1,1,1,0.5),  
+                                    frameColor=(1,1,1,0.0),  
                                     text="CANCEL",
                                     text_scale=32,
                                     text_font=self.fontBig,
@@ -706,7 +632,7 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.SaveLoadFrame)
         _resetPivot(self.cancelButton)
-        self.cancelButton.setPos(_pos2d(192,478))
+        self.cancelButton.setPos(_pos2d(192,250))
         
         self.saveButton.bind(DGG.B1PRESS, save_command, ["ASK"])
         self.loadButton.bind(DGG.B1PRESS, load_command)
@@ -763,7 +689,7 @@ class GuiHelper():
     
     def addScrolledToolbar(self, parent, width, canvas_size, x_offset=0, y_offset=0, hover_command=False, color=(1,0,0, 0)):         
         wp=base.win.getProperties()        
-        height=wp.getYSize()-y_offset-128
+        height=wp.getYSize()-y_offset-256
         frame=DirectScrolledFrame(canvasSize = _rec2d(canvas_size[0],canvas_size[1]),
                                   frameSize = _rec2d(width,height),                              
                                   verticalScroll_frameSize=_rec2d(16,height), 
@@ -916,7 +842,7 @@ class GuiHelper():
         entry.setPos(_pos2d(x,y+offset_y+1))
         self.elements[toolbar]['buttons'].append(entry)
         
-    def addButton(self, toolbar, icon, command, arg=[], tooltip=None, tooltip_text=None):
+    def addButton(self, toolbar, icon, command, arg=[], tooltip=None, tooltip_text=None, back_icon=None):
         size=self.elements[toolbar]['icon_size']
         parent=self.elements[toolbar]['frame']
         max_x=self.elements[toolbar]['size']
@@ -925,7 +851,15 @@ class GuiHelper():
         while x>=max_x:
             y+=size
             x-=max_x
-        
+        if back_icon:
+            back_icon=DirectFrame( frameSize=_rec2d(size,size),
+                        frameColor=(1,1,1,1),
+                        state=DGG.NORMAL,                        
+                        frameTexture=back_icon,
+                        parent=parent)
+            _resetPivot(back_icon)
+            back_icon.setTransparency(TransparencyAttrib.MDual)
+            back_icon.setPos(_pos2d(x,y))
         frame= DirectFrame( frameSize=_rec2d(size,size),
                         frameColor=(1,1,1,1),
                         state=DGG.NORMAL,                        
@@ -938,7 +872,7 @@ class GuiHelper():
         self.elements[toolbar]['buttons'].append(frame)
         if tooltip:            
             frame.bind(DGG.WITHIN, self.setTooltip,[tooltip, tooltip_text])  
-            frame.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])  
+            frame.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])          
             
     def addFloatingButton(self, parent_id, size, icon, pos, command, arg=[], tooltip=None, tooltip_text=None):  
         parent=self.elements[parent_id]['frame']

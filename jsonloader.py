@@ -53,7 +53,7 @@ def loadModel(file, collision=None, animation=None):
                 model.setPythonTag('actor_files', [file,animation,None])
     return model    
         
-def LoadScene(file, quad_tree, actors, terrain, textures, current_textures=None, flatten=False):
+def LoadScene(file, quad_tree, actors, terrain, textures, current_textures, grass, grass_tex, current_grass_tex, flatten=False):
     json_data=None
     with open(file) as f:  
         json_data=json.load(f)
@@ -75,7 +75,19 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures=None,
                 else:
                     print "WARNING: texture '{0}' not found!".format(tex)
                 i+=1
-            continue    
+            continue  
+        elif 'grass' in object:
+            i=0
+            for tex in object['grass']:
+                if tex in grass_tex:
+                    if current_grass_tex:
+                        id=grass_tex.index(tex)                    
+                        current_grass_tex[i]=id
+                    grass.setTexture(grass.findTextureStage('tex{0}'.format(i+1)), loader.loadTexture(tex), 1)                    
+                else:
+                    print "WARNING: grass texture '{0}' not found!".format(tex)
+                i+=1
+            continue        
         elif 'model' in object:
             model=loadModel(object['model'])            
         elif 'actor' in object:
@@ -103,17 +115,11 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures=None,
             flat.wrtReparentTo(node)            
     return return_data
     
-def SaveScene(file, quad_tree, textures, current_textures=None, extra_data=None):
+def SaveScene(file, quad_tree, extra_data=None):
     export_data=[]
     if extra_data:
-        export_data.append(extra_data)
-    if current_textures:
-        temp=[]
-        for id in current_textures:
-            temp.append(textures[id])    
-        export_data.append({'textures':temp})    
-    else:
-        export_data.append({'textures':textures})
+        for item in extra_data:
+            export_data.append(item)    
     for node in quad_tree:
         for child in node.getChildren():
             temp={}

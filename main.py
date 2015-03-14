@@ -1,10 +1,12 @@
 from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
 loadPrcFileData('','win-size 1024 768')
-loadPrcFileData('','show-frame-rate-meter  1')
+loadPrcFileData('','show-frame-rate-meter  0')
 loadPrcFileData('','sync-video 0')
 loadPrcFileData('','framebuffer-srgb true')
 loadPrcFileData('','default-texture-color-space sRGB')
+loadPrcFileData('','texture-minfilter  mipmap') #must have if performance drops after loading textures
+loadPrcFileData('','texture-magfilter  linear')
 #loadPrcFileData('','gl-check-errors #t')
 #loadPrcFileData('','show-buffers 1')
 #loadPrcFileData('','undecorated 1')
@@ -86,8 +88,7 @@ class Editor (DirectObject):
         base = ShowBase.ShowBase()
         
         #manager for post process filters (fxaa, soft shadows, dof)
-        manager=FilterManager(base.win, base.cam)        
-       
+        manager=FilterManager(base.win, base.cam)
         self.filters=self.setupFilters(manager, fxaa_only=False)
         
         #make a grid
@@ -129,18 +130,14 @@ class Editor (DirectObject):
         self.curent_textures=[0,1,2,3,4,5]
         self.textures_diffuse=[]
         self.textures_normal=[]
-       
+        self.grass_textures=[]
+        self.current_grass_textures=[0,1,2]
+        
         #camera control
         base.disableMouse()  
         self.controler=CameraControler()
         self.controler.cameraNode.setZ(25.5)
-        render.setShaderInput('camera', base.cam)
-        #emptyPlane = render.attachNewNode(PlaneNode("emptyPlane", Plane(Vec3(0, 0, 1), Point3(0, 0, -100))))
-        #basecamtmpNP = NodePath("basecamtmpNP")
-        #render.setClipPlane(emptyPlane)
-        #basecamtmpNP.setAttrib(ColorScaleAttrib.make(Vec4(1.0, 0.0, 0.0, 1.0)))
-        #base.cam.node().setInitialState(basecamtmpNP.getState())
-        
+        render.setShaderInput('camera', base.cam)        
         
         #painter        
         self.brushList=[]
@@ -148,16 +145,16 @@ class Editor (DirectObject):
         for fname in dirList:
             if  Filename(fname).getExtension() in ('png', 'tga', 'dds'):
                 self.brushList.append("brush/"+fname)
+                
         self.painter=BufferPainter(self.brushList, showBuff=False)
-        #2 buffers should do, but painting in an alpha channel is strange, so I use 3 (+1 for grass)
         #BUFFER_HEIGHT
         self.painter.addCanvas(default_tex='data/def_height.png') 
         #BUFFER_ATR
         self.painter.addCanvas(default_tex='data/atr_def.png')
         #BUFFER_GRASS
-        self.painter.addCanvas(brush_shader=loader.loadShader('shaders/brush_a_to_g.cg')) 
+        self.painter.addCanvas() 
         #BUFFER_WALK =3
-        self.painter.addCanvas(size=128,  brush_shader=loader.loadShader('shaders/brush3.cg'))   
+        self.painter.addCanvas(size=256,  brush_shader=loader.loadShader('shaders/brush3.cg'))   
         #BUFFER_ATR2=4
         self.painter.addCanvas()
         
@@ -167,10 +164,10 @@ class Editor (DirectObject):
         self.tooltip=self.gui.addTooltip(self.gui.BottomLeft, (564, 32),y_offset=-96)
         self.tooltip.hide()
         #the toolbar_id here is just an int, not a 'toolbar object'!
-        self.toolbar_id=self.gui.addToolbar(self.gui.TopLeft, (864, 32),hover_command=self.onToolbarHover, color=(1,1,1, 0.8))        
+        self.toolbar_id=self.gui.addToolbar(self.gui.TopLeft, (864, 32),icon_size=48, hover_command=self.onToolbarHover, color=(1,1,1, 0.0))        
         id=0
         for brush in self.brushList:            
-            self.gui.addButton(self.toolbar_id,brush, self.setBrush, [id],tooltip=self.tooltip, tooltip_text='Set Brush Shape')
+            self.gui.addButton(self.toolbar_id,brush, self.setBrush, [id],tooltip=self.tooltip, tooltip_text='Set Brush Shape', back_icon='icon/icon.png')
             id+=1
         #texture palette    
         self.palette_id=self.gui.addToolbar(self.gui.TopRight, (80, 512),icon_size=80, x_offset=-80, y_offset=0, hover_command=self.onToolbarHover)
@@ -203,7 +200,21 @@ class Editor (DirectObject):
         self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[48, 368], self.changeTex,[4] ,tooltip=self.tooltip, tooltip_text='Change texture')        
         self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[48, 448], self.changeTex,[5] ,tooltip=self.tooltip, tooltip_text='Change texture')        
         
-        
+        #grass 'palette'
+        self.grass_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (80, 512),icon_size=80, x_offset=-80, y_offset=0, hover_command=self.onToolbarHover)
+        dirList=os.listdir(Filename(path+"grass").toOsSpecific())
+        for fname in dirList:
+            if  Filename(fname).getExtension() in ('dds', 'png'):
+                self.grass_textures.append('grass/'+fname)        
+        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[0], self.setGrassMapColor, [(1.0, 0.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon='icon/icon.png')
+        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[1], self.setGrassMapColor, [(0.0, 1.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon='icon/icon.png')
+        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[2], self.setGrassMapColor, [(0.0, 0.0, 1.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon='icon/icon.png')        
+        self.gui.addButton(self.grass_toolbar_id, 'icon/del.png', self.setGrassMapColor, [(0.0, 0.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Remove Grass', back_icon='icon/icon.png')
+        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], 'icon/change.png',[48, 48], self.changeGrassTex,[0] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], 'icon/change.png',[48, 128], self.changeGrassTex,[1] ,tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], 'icon/change.png',[48, 208], self.changeGrassTex,[2] ,tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.hideElement(self.grass_toolbar_id)        
+                
         #save/load
         self.gui.addSaveLoadDialog(self.save, self.load, self.hideSaveMenu)
         #config
@@ -285,7 +296,7 @@ class Editor (DirectObject):
         
         
         #extra buttons for height paint mode (up/down/level)
-        self.heightmode_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (192, 32), icon_size=32, y_offset=-32,x_offset=-96, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))        
+        self.heightmode_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (192, 32), icon_size=64, y_offset=-64,x_offset=-192, hover_command=self.onToolbarHover, color=(1,1,1, 0.0))        
         self.gui.addButton(self.heightmode_toolbar_id, 'icon/up.png', self.changeHeightMode,[HEIGHT_MODE_UP],tooltip=self.tooltip, tooltip_text='Raise terrain mode (click to set mode)')
         self.gui.addButton(self.heightmode_toolbar_id, 'icon/down.png', self.changeHeightMode,[HEIGHT_MODE_DOWN],tooltip=self.tooltip, tooltip_text='Lower terrain mode (click to set mode)')
         self.gui.addButton(self.heightmode_toolbar_id, 'icon/level.png', self.changeHeightMode,[HEIGHT_MODE_LEVEL],tooltip=self.tooltip, tooltip_text='Level terrain mode (click to set mode)')
@@ -298,11 +309,11 @@ class Editor (DirectObject):
         self.gui.grayOutButtons(self.walkmap_toolbar_id, (0,2), 0)
         
         #extra buttons for grass paint (add/remove)
-        self.grass_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (128, 64), icon_size=64, y_offset=-64,x_offset=-128, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))                
-        self.gui.addButton(self.grass_toolbar_id, 'icon/no_grass.png', self.changeGrassMode,[GRASS_MODE_REMOVE],tooltip=self.tooltip, tooltip_text='Remove grass')        
-        self.gui.addButton(self.grass_toolbar_id, 'icon/grass.png', self.changeGrassMode,[GRASS_MODE_PAINT],tooltip=self.tooltip, tooltip_text='Paint grass')
-        self.gui.grayOutButtons(self.grass_toolbar_id, (0,2), 1)
-        self.painter.brushes[BUFFER_GRASS].setColor(1,0,0,1)
+        #self.grass_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (128, 64), icon_size=64, y_offset=-64,x_offset=-128, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))                
+        #self.gui.addButton(self.grass_toolbar_id, 'icon/no_grass.png', self.changeGrassMode,[GRASS_MODE_REMOVE],tooltip=self.tooltip, tooltip_text='Remove grass')        
+        #self.gui.addButton(self.grass_toolbar_id, 'icon/grass.png', self.changeGrassMode,[GRASS_MODE_PAINT],tooltip=self.tooltip, tooltip_text='Paint grass')
+        #self.gui.grayOutButtons(self.grass_toolbar_id, (0,2), 1)
+        #self.painter.brushes[BUFFER_GRASS].setColor(1,0,0,1)
         
         #properties panel
         self.prop_panel_id=self.gui.addPropPanel()
@@ -333,18 +344,39 @@ class Editor (DirectObject):
         self.mesh.setTransparency(TransparencyAttrib.MNone)
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
-        self.mesh.setBin("background", 11)
-        self.mesh.setShaderInput("water_level",30.0)
+        self.mesh.setBin("background", 11)        
         
         #grass
         self.grass=render.attachNewNode('grass')
         self.CreateGrassTile(uv_offset=Vec2(0,0), pos=(0,0,0), parent=self.grass, fogcenter=Vec3(256,256,0))
         self.CreateGrassTile(uv_offset=Vec2(0,0.5), pos=(0, 256, 0), parent=self.grass, fogcenter=Vec3(256,0,0))
         self.CreateGrassTile(uv_offset=Vec2(0.5,0), pos=(256, 0, 0), parent=self.grass, fogcenter=Vec3(0,256,0))
-        self.CreateGrassTile(uv_offset=Vec2(0.5,0.5), pos=(256, 256, 0), parent=self.grass, fogcenter=Vec3(0,0,0))  
+        self.CreateGrassTile(uv_offset=Vec2(0.5,0.5), pos=(256, 256, 0), parent=self.grass, fogcenter=Vec3(0,0,0))
         self.grass.setBin("background", 11)       
         self.grass.hide(MASK_WATER)
         self.grass.hide(MASK_SHADOW)
+
+        grass_tex0=loader.loadTexture('grass/1.png')
+        grass_tex0.setWrapU(Texture.WMClamp)
+        grass_tex0.setWrapV(Texture.WMClamp)
+        grass_tex0.setMinfilter(Texture.FTLinearMipmapLinear)
+        grass_tex0.setMagfilter(Texture.FTLinear)
+        
+        grass_tex1=loader.loadTexture('grass/2.png')
+        grass_tex1.setWrapU(Texture.WMClamp)
+        grass_tex1.setWrapV(Texture.WMClamp)
+        grass_tex1.setMinfilter(Texture.FTLinearMipmapLinear)
+        grass_tex1.setMagfilter(Texture.FTLinear)
+        
+        grass_tex2=loader.loadTexture('grass/3.png')
+        grass_tex2.setWrapU(Texture.WMClamp)
+        grass_tex2.setWrapV(Texture.WMClamp)
+        grass_tex2.setMinfilter(Texture.FTLinearMipmapLinear)
+        grass_tex2.setMagfilter(Texture.FTLinear)        
+              
+        self.grass.setTexture(self.grass.findTextureStage('tex1'), grass_tex0, 1)
+        self.grass.setTexture(self.grass.findTextureStage('tex2'), grass_tex1, 1)
+        self.grass.setTexture(self.grass.findTextureStage('tex3'), grass_tex2, 1)             
         
         #skydome
         self.skydome = loader.loadModel("data/skydome") 
@@ -391,7 +423,6 @@ class Editor (DirectObject):
         tmpNP = NodePath("StateInitializer")
         tmpNP.setClipPlane(wPlaneNP)
         tmpNP.setAttrib(CullFaceAttrib.makeReverse())
-        #tmpNP.setAttrib(ColorScaleAttrib.make(Vec4(24.0/200.0, 1.0, 1.0, 1.0)))
         self.waterCamera.node().setInitialState(tmpNP.getState())
         #self.waterCamera.node().showFrustum()
         #self.waterNP.projectTexture(TextureStage("reflection"), wTexture, self.waterCamera)
@@ -401,7 +432,7 @@ class Editor (DirectObject):
         
         self.waterNP.setShader(Shader.load(Shader.SLGLSL, "shaders/water2_v.glsl", "shaders/water2_f.glsl"))
         self.waterNP.setShaderInput("water_norm", loader.loadTexture('data/water.png'))   
-        self.waterNP.setShaderInput("water_height", loader.loadTexture('data/ocen2_h.png')) 
+        self.waterNP.setShaderInput("water_height", loader.loadTexture('data/ocen3.png')) 
         self.waterNP.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
         self.waterNP.setShaderInput("tile",8.0)
         self.waterNP.setShaderInput("water_level",30.0)
@@ -409,12 +440,11 @@ class Editor (DirectObject):
         self.waterNP.setShaderInput("wave",Vec3(0.005, 0.002, 6.0))        
         self.waterNP.hide(MASK_WATER)
         self.waterNP.hide(MASK_SHADOW)
+        #hide water by default
+        self.waterNP.hide()
+        self.wBuffer.setActive(False)
+        self.mesh.setShaderInput("water_level",-1.0)
         
-        #self.controler.waterNP=self.waterNP
-        #self.controler.waterCamera=self.waterCamera
-        #self.controler.wPlane=self.wPlane
-                
-        #render.setAttrib(ColorScaleAttrib.make(Vec4(0.0, 0.0, 0.0, 1.0)))
         #light
         #sun
         self.dlight = DirectionalLight('dlight') 
@@ -511,7 +541,7 @@ class Editor (DirectObject):
         self.accept('f3', self.setMode,[MODE_GRASS,'hotkey'])        
         self.accept('f4', self.setMode,[MODE_OBJECT,'hotkey'])        
         self.accept('f5', self.setMode,[MODE_WALK,'hotkey']) 
-        #self.accept('f6',self.showSaveMenu)
+        self.accept('f6',self.configSkySea, [True])
         self.accept('f7',self.showSaveMenu)
         self.accept('1', self.setAxis,['H: '])
         self.accept('2', self.setAxis,['P: '])
@@ -717,40 +747,40 @@ class Editor (DirectObject):
             self.ignoreHover=False
             self.gui.ConfigFrame.hide()
             self.setMode(self.mode) 
-            self.grid.setTexScale(TextureStage.getDefault(), self.gui.ConfigOptions['grid'], self.gui.ConfigOptions['grid'], 1)
-            self.grid.setZ(self.gui.ConfigOptions['grid_z'])   
-            self.grid_scale=self.gui.ConfigOptions['grid']
-            self.grid_z=self.gui.ConfigOptions['grid_z']
-            self.painter.pointer.setZ(self.gui.ConfigOptions['grid_z'])
-            self.painter.plane = Plane(Vec3(0, 0, 1), Point3(0, 0, self.gui.ConfigOptions['grid_z'])) 
-            self.controler.cameraNode.setZ(self.gui.ConfigOptions['grid_z'])
+            self.grid.setTexScale(TextureStage.getDefault(), self.gui.ConfigOptions[5], self.gui.ConfigOptions[5], 1)
+            self.grid.setZ(self.gui.ConfigOptions[6])   
+            self.grid_scale=self.gui.ConfigOptions[5]
+            self.grid_z=self.gui.ConfigOptions[6]
+            self.painter.pointer.setZ(self.gui.ConfigOptions[6])
+            self.painter.plane = Plane(Vec3(0, 0, 1), Point3(0, 0, self.gui.ConfigOptions[6])) 
+            self.controler.cameraNode.setZ(self.gui.ConfigOptions[6])
             if self.mode==MODE_OBJECT:
                 #hpr
                 self.setAxis='H: '
-                self.heading_info['text']=self.setAxis+str(self.gui.ConfigOptions['hpr'][0])
-                self.objectPainter.currentHPR=self.gui.ConfigOptions['hpr']                
+                self.heading_info['text']=self.setAxis+str(self.gui.ConfigOptions[2])
+                self.objectPainter.currentHPR=(self.gui.ConfigOptions[2],self.gui.ConfigOptions[3], self.gui.ConfigOptions[4])                
                 #scale
-                self.objectPainter.currentScale=self.gui.ConfigOptions['scale']
+                self.objectPainter.currentScale=self.gui.ConfigOptions[0]
                 self.size_info['text']='%.2f'%self.objectPainter.currentScale
                 #alpha (Z)
-                self.objectPainter.currentZ=self.gui.ConfigOptions['alpha']
+                self.objectPainter.currentZ=self.gui.ConfigOptions[1]
                 self.color_info['text']='%.2f'%self.objectPainter.currentZ    
             else:
                 #hpr                                
                 for brush in self.painter.brushes:            
-                    brush.setH(self.gui.ConfigOptions['hpr'][0])
+                    brush.setH(self.gui.ConfigOptions[2])
                 self.heading_info['text']=self.hpr_axis+'%.0f'%self.painter.brushes[0].getH()                
                 #scale                               
-                self.painter.brushSize=self.gui.ConfigOptions['scale']                
+                self.painter.brushSize=self.gui.ConfigOptions[0]                
                 self.painter.adjustBrushSize(0)
                 self.size_info['text']='%.2f'%self.painter.brushSize
                 #alpha (color)
                 if self.mode==MODE_HEIGHT and self.height_mode==HEIGHT_MODE_LEVEL:
-                    self.tempColor=self.gui.ConfigOptions['alpha']
+                    self.tempColor=self.gui.ConfigOptions[1]
                     self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
                     self.color_info['text']='%.2f'%self.tempColor                
                 else:
-                    self.painter.brushAlpha=self.gui.ConfigOptions['alpha']
+                    self.painter.brushAlpha=self.gui.ConfigOptions[1]
                     self.painter.adjustBrushAlpha(0)                    
                     self.color_info['text']='%.2f'%self.painter.brushAlpha    
                     
@@ -931,6 +961,7 @@ class Editor (DirectObject):
         
     def CreateGrassTile(self, uv_offset, pos, parent, fogcenter=Vec3(0,0,0), count=256):
         grass=loader.loadModel("data/grass_model")
+        grass.setTransparency(TransparencyAttrib.MBinary, 1)
         grass.reparentTo(parent)
         grass.setInstanceCount(count) 
         grass.node().setBounds(BoundingBox((0,0,0), (256,256,128)))
@@ -984,11 +1015,23 @@ class Editor (DirectObject):
             print "loading objects",
             file=path+save_dir+"/"+self.gui.entry6.get()+'.json' 
             if os.path.exists(file):
-                data=LoadScene(file, self.objectPainter.quadtree, self.objectPainter.actors, self.mesh, self.textures_diffuse, self.curent_textures)
+                data=LoadScene(file,
+                               self.objectPainter.quadtree,
+                               self.objectPainter.actors,
+                               self.mesh,
+                               self.textures_diffuse,
+                               self.curent_textures,
+                               self.grass,
+                               self.grass_textures,
+                               self.current_grass_textures)
                 i=0
                 for id in self.curent_textures:
                     self.gui.elements[self.palette_id]['buttons'][i]['frameTexture']=self.textures_diffuse[id]
                     i+=1
+                i=0
+                for id in self.current_grass_textures:
+                    self.gui.elements[self.grass_toolbar_id]['buttons'][i]['frameTexture']=self.grass_textures[id]
+                    i+=1    
                 #load sky and water data
                 self.gui.setSkySeaValues(data)
                 sky=Vec4(data[0]['sky'][0], data[0]['sky'][1], data[0]['sky'][2], data[0]['sky'][3])
@@ -1108,7 +1151,14 @@ class Editor (DirectObject):
                         'speed':speed, 
                         'wave':wave,
                         'water_z':water_z}
-            SaveScene(path+save_dir+"/"+self.gui.entry6.get()+'.json', self.objectPainter.quadtree, self.textures_diffuse, self.curent_textures, sky_water)
+            tex=[]
+            for id in self.curent_textures:
+                tex.append(self.textures_diffuse[id])    
+            grs=[]
+            for id in self.current_grass_textures:
+                grs.append(self.grass_textures[id])     
+            extra_data=[sky_water, {'textures':tex}, {'grass':grs}]            
+            SaveScene(path+save_dir+"/"+self.gui.entry6.get()+'.json', self.objectPainter.quadtree, extra_data)
             print "done"        
         if self.gui.flags[5]:#collison
             print "saving collision mesh...",
@@ -1142,12 +1192,31 @@ class Editor (DirectObject):
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), loader.loadTexture(self.textures_diffuse[id]), 1)
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)+'n'), loader.loadTexture(self.textures_normal[id]), 1)        
         self.gui.elements[self.palette_id]['buttons'][layer]['frameTexture']=self.textures_diffuse[id]
-                    
+        
+    def changeGrassTex(self, layer, guiEvent=None):
+        id=self.current_grass_textures[layer]+1
+        while id in self.current_grass_textures:            
+            if id>len(self.grass_textures)-1:
+                id=0
+            else:
+                id+=1
+        if id>len(self.grass_textures)-1:
+            id=0        
+        self.current_grass_textures[layer]=id
+        grass_tex=loader.loadTexture(self.grass_textures[id])
+        grass_tex.setWrapU(Texture.WMClamp)
+        grass_tex.setWrapV(Texture.WMClamp)
+        grass_tex.setMinfilter(Texture.FTLinearMipmapLinear)
+        grass_tex.setMagfilter(Texture.FTLinear)
+        self.grass.setTexture(self.grass.findTextureStage('tex'+str(layer+1)), grass_tex, 1)        
+        self.gui.elements[self.grass_toolbar_id]['buttons'][layer]['frameTexture']=self.grass_textures[id]
+        
+        
     def setBrush(self, id, guiEvent=None):
         self.painter.setBrushTex(id)
         for button in self.gui.elements[0]['buttons']:
             button.setColor(0,0,0, 1)
-        self.gui.elements[0]['buttons'][id].setColor(0,0,1, 1)
+        self.gui.elements[0]['buttons'][id].setColor(0,0.4,0, 1)
      
     def paint(self):
         if self.mode==MODE_OBJECT:
@@ -1452,6 +1521,9 @@ class Editor (DirectObject):
     def setAtrMapColor(self, color1, color2, event=None):        
         self.painter.brushes[BUFFER_ATR].setColor(color1[0],color1[1],color1[2],self.painter.brushAlpha)
         self.painter.brushes[BUFFER_ATR2].setColor(color2[0],color2[1],color2[2],self.painter.brushAlpha)
- 
+        
+    def setGrassMapColor(self, color, event=None):
+        self.painter.brushes[BUFFER_GRASS].setColor(color[0],color[1],color[2],self.painter.brushAlpha)
+        
 app=Editor()
 run()    

@@ -65,7 +65,7 @@ def setupFilters(manager, path, fxaa_only=False):
         interquad4.setShaderInput("blurTex", blurTex)
         interquad4.setShaderInput("blurTex2", blurTex2)
         interquad4.setShaderInput("auxTex", auxTex)   
-        interquad4.setShaderInput("noiseTex", loader.loadTexture(path+"data/noise2.png"))    
+        interquad4.setShaderInput("noiseTex", loader.loadTexture(path+"data/noise.png"))    
         interquad4.setShaderInput('time', 0.0)  
         filters.append(interquad4)
     else:
@@ -132,7 +132,7 @@ def loadModel(file, collision=None, animation=None):
                 model.setPythonTag('actor_files', [file,animation,None])
     return model
     
-def LoadScene(path, file, quad_tree, actors, terrain, flatten=False):
+def LoadScene(path, file, quad_tree, actors, terrain, grass, flatten=False):
     json_data=None
     with open(path+file) as f:  
         json_data=json.load(f)
@@ -147,7 +147,16 @@ def LoadScene(path, file, quad_tree, actors, terrain, flatten=False):
                 normal_tex=tex.replace('/diffuse/','/normal/')
                 terrain.setTexture(terrain.findTextureStage('tex{0}n'.format(i+1)), loader.loadTexture(path+normal_tex), 1)                
                 i+=1
-            continue    
+            continue  
+        elif 'grass' in object:
+            i=0
+            for tex in object['grass']:
+                grs_tex= loader.loadTexture(path+tex)
+                grs_tex.setWrapU(Texture.WMClamp)
+                grs_tex.setWrapV(Texture.WMClamp)
+                grass.setTexture(grass.findTextureStage('tex{0}'.format(i+1)), grs_tex, 1)                
+                i+=1
+            continue         
         elif 'model' in object:
             model=loadModel(path+object['model'])            
         elif 'actor' in object:
@@ -299,7 +308,7 @@ def setupWater(path, height_map):
     
     waterNP.setShader(Shader.load(Shader.SLGLSL, path+"shaders/water2_v.glsl", path+"shaders/water2_f.glsl"))
     waterNP.setShaderInput("water_norm", loader.loadTexture(path+'data/water.png'))  
-    waterNP.setShaderInput("water_height", loader.loadTexture(path+'data/ocen2_h.png'))
+    waterNP.setShaderInput("water_height", loader.loadTexture(path+'data/ocen3.png'))
     waterNP.setShaderInput("height", loader.loadTexture(height_map))
     waterNP.setShaderInput("tile",10.0)
     waterNP.setShaderInput("water_level",26.0)
@@ -406,7 +415,7 @@ def loadLevel(path, from_dir):
     grass.hide(MASK_SHADOW)
     
     #load the json scene
-    data=LoadScene(path, objects, quadtree, actors, mesh, flatten=False)
+    data=LoadScene(path, objects, quadtree, actors, mesh, grass, flatten=False)
     
     #load sky and water data
     sky=Vec4(data[0]['sky'][0], data[0]['sky'][1], data[0]['sky'][2], data[0]['sky'][3])

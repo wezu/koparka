@@ -13,15 +13,20 @@ uniform vec3 wave;
 varying float fog_factor;
 
 varying vec4 vpos;
+varying float blend;
+varying float height_scale;
 
 uniform sampler2D water_height;
 
 void main()
     {
     vec2 uv=(gl_MultiTexCoord0.xy+vec2(time*wave.x, time*wave.y))*wave.z;
-    float h= texture2DLod(water_height, uv, 0.0).g;  
+    blend=(sin(time*0.5)+1.0)*0.5;
+    vec4 h_tex=texture2DLod(water_height, uv, 0.0);  
+    float h= mix(h_tex.b, h_tex.a, blend);  
     vec4 vert=gl_Vertex;
-    vert.z+=(h*4.0)+1.0; 
+    vert.z=(h*4.0); 
+    height_scale=vert.z*10.0;
 	gl_Position = p3d_ModelViewProjectionMatrix * vert; 
              
     gl_TexCoord[0] = gl_MultiTexCoord0*tile+time*speed;

@@ -13,6 +13,9 @@ uniform vec3 wave;
 varying float fog_factor;
 varying vec4 vpos;
 
+varying float blend;
+varying float height_scale;
+
 void main()
     {  
     vec4 fog_color=vec4(fog.rgb, 0.0);      
@@ -25,15 +28,21 @@ void main()
         {    
         vec3 normal=vec3(0.0,0.0,1.0);    
         const vec3 vLeft=vec3(1.0,0.0,0.0);
-        const float pixel=1.0/512.0;
-        float height_scale=80.0/wave.z;
+        const float pixel=1.0/256.0;
+        //float height_scale=15.0;
         vec2 texUV=gl_TexCoord[4].xy;
         //normal vector...
-        vec4 me=texture2D(water_height,texUV);
-        vec4 n=texture2D(water_height, vec2(texUV.x,texUV.y+pixel)); 
-        vec4 s=texture2D(water_height, vec2(texUV.x,texUV.y-pixel));   
-        vec4 e=texture2D(water_height, vec2(texUV.x+pixel,texUV.y));    
-        vec4 w=texture2D(water_height, vec2(texUV.x-pixel,texUV.y));
+        vec4 me_tex=texture2D(water_height, texUV);
+        vec4 n_tex=texture2D(water_height, vec2(texUV.x,texUV.y+pixel)); 
+        vec4 s_tex=texture2D(water_height, vec2(texUV.x,texUV.y-pixel));   
+        vec4 e_tex=texture2D(water_height, vec2(texUV.x+pixel,texUV.y));    
+        vec4 w_tex=texture2D(water_height, vec2(texUV.x-pixel,texUV.y));
+        float me=mix(me_tex.r, me_tex.g, blend);
+        float n=mix(n_tex.r, n_tex.g, blend);
+        float s=mix(s_tex.r, s_tex.g, blend);
+        float e=mix(e_tex.r, e_tex.g, blend);
+        float w=mix(w_tex.r, w_tex.g, blend);
+        
         //find perpendicular vector to norm:        
         vec3 temp = normal; //a temporary vector that is not parallel to norm    
         temp.x+=0.5;
@@ -41,7 +50,7 @@ void main()
         vec3 perp1 = normalize(cross(normal,temp));
         vec3 perp2 = normalize(cross(normal,perp1));
         //use the basis to move the normal in its own space by the offset        
-        vec3 normalOffset = -height_scale*(((n.r-me.r)-(s.r-me.r))*perp1 - ((e.r-me.r)-(w.r-me.r))*perp2);
+        vec3 normalOffset = -height_scale*(((n-me)-(s-me))*perp1 - ((e-me)-(w-me))*perp2);
         normal += normalOffset;  
         normal = normalize(gl_NormalMatrix * normal);
         
@@ -50,13 +59,13 @@ void main()
         vec3 binormal= gl_NormalMatrix * cross(normal, tangent); 
         
         float h_map=texture2D(height, gl_TexCoord[2].xy).r;
-        if (h_map*100.0>water_level+4.0)
+        if (h_map*100.0>water_level+6.0) //the water level is (map*6.0)+1.0, map should always be under 1.0 
             discard;
         vec4 distortion1 = normalize(texture2D(water_norm, gl_TexCoord[0].xy));
         vec4 distortion2 = normalize(texture2D(water_norm, gl_TexCoord[1].xy));
         vec4 normalmap=distortion1+distortion2; 
         float foam=clamp(h_map*100.0-(water_level-2.0), 0.0, 4.0)/4.0;
-        foam+=clamp((me.r-0.5)*4.0, 0.0, 1.0)*0.5;
+        foam+=clamp((me-0.5)*4.0, 0.0, 1.0)*0.7;
         foam=clamp(foam, 0.0, 1.0);
         vec4 full_foam=vec4(foam, foam, foam, foam)*normalmap.a;
         float facing = 1.0 -max(dot(normalize(-vpos.xyz), normalize(normal.xyz)), 0.0);   
@@ -68,7 +77,7 @@ void main()
         N.xyz -= binormal * tsnormal.y;	
         N.xyz = normalize(N.xyz); 
         //do lights
-        vec4 color =ambient;  
+        vec4 color =ambient;//+vec4(0.0, 0.135, 0.195, 1.0)*me;
         //directional =sun
         vec3 L, halfV;
         float NdotL, NdotHV, specular; 
@@ -88,14 +97,13 @@ void main()
         specular*=(1.0-fog_factor);
         //specular-=foam;
         vec4 refl=texture2DProj(reflection, gl_TexCoord[3]+distortion1*distortion2*4)-0.2;
-        vec4 final=mix(refl, color, 0.3+foam*0.5);
-        final.rgb-=me.r*0.2;
+        vec4 final=mix(refl, color, 0.2+foam*0.5);        
         //final.rgb+=normalmap.a*clamp((me.r-0.5)*4.0, 0.0, 1.0);
         float final_spec=clamp(specular, 0.0, 1.0)*(1.0-foam);  
         final+=final_spec;
         final+=full_foam;
-        final.a=((facing*0.5)+0.4)+(full_foam.a);
+        final.a=((facing*0.5)+0.3)+(full_foam.a);
         gl_FragData[0] =mix(final, fog_color, fog_factor);
-        gl_FragData[1] =vec4(fog_factor, 1.0,final_spec,0.5);//(fog, shadow, glare, displace)
+        gl_FragData[1] =vec4(fog_factor, 1.0,final_spec*0.5,0.55+(1.0-final.a)*0.5);//(fog, shadow, glare, displace)
         }
     }

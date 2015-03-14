@@ -22,8 +22,8 @@ void main()
     float distor=clamp(aux.a-0.5, 0.0, 0.5)*2.0;  
     
     vec2 noise=texture2D(noiseTex,time_uv).rg*2.0 - 1.0;    
-    vec4 color=texture2D(colorTex,uv+noise*0.01)*distor;    
-    color+=texture2D(colorTex,uv)*(1.0-distor);
+    vec4 color=texture2D(colorTex,uv+noise*0.01*distor);    
+    //color+=texture2D(colorTex,uv)*(1.0-distor);
     color*=shadow;
     color=mix(color, texture2D(blurTex2, uv), fogfactor);
     //vec4 color=vec4(0.0, 0.0, 0.0, 0.0);

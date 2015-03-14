@@ -1,11 +1,14 @@
 //GLSL
 #version 110
 
-uniform sampler2D p3d_Texture0; //rgb color texture 
-uniform sampler2D p3d_Texture1; //rgb color texture 
+uniform sampler2D p3d_Texture0; //rgb color texture
+uniform sampler2D p3d_Texture1; //rgb color texture
+uniform sampler2D p3d_Texture2; //rgb color texture
+
 //uniform sampler2D p3d_Texture1; //normal map
 
-varying vec3 blend_mask_fog;
+varying vec3 blend_mask;
+varying float fog_factor;
 varying vec3 normal;
 //varying vec3 tangent;
 //varying vec3 binormal;
@@ -15,15 +18,19 @@ uniform vec4 fog;
 
 void main()
     {    
-    if(blend_mask_fog.r < 0.5)
+    if(blend_mask.r+blend_mask.g+blend_mask.b < 0.1)
         discard;               
     else
         {
-        vec2 texUV=gl_TexCoord[0].xy;  
-        vec4 color_tex0=texture2D(p3d_Texture0,texUV);
-        vec4 color_tex1=texture2D(p3d_Texture1,texUV);
-        vec4 color_tex=mix(color_tex0, color_tex1, blend_mask_fog.g);
+        vec2 texUV=gl_TexCoord[0].xy; 
+        vec4 color_tex = vec4(0.0,0.0,0.0,0.0);        
+        color_tex+=texture2D(p3d_Texture0,texUV)*blend_mask.r;
+        color_tex+=texture2D(p3d_Texture1,texUV)*blend_mask.g;
+        color_tex+=texture2D(p3d_Texture2,texUV)*blend_mask.b;        
         
+        //if (color_tex.a<0.5)
+        //    discard;
+            
         vec3 norm = normalize(normal);  
        
 
@@ -58,9 +65,9 @@ void main()
         color +=(gl_LightSource[0].diffuse)*0.2*step(0.4,1.0-NdotL);
         //vec4 fog_color=vec4(fog.rgb, 1.0);
         vec4 final = color*color_tex;
-        gl_FragData[0] = mix(final,fog ,blend_mask_fog.b);
+        gl_FragData[0] = mix(final,fog ,fog_factor);
         gl_FragData[0].a=color_tex.a;
-        gl_FragData[1]=vec4(blend_mask_fog.b, 1.0,0.0,0.0);
+        gl_FragData[1]=vec4(fog_factor, 1.0,0.0,0.0);
         }
     }
     

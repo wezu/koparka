@@ -114,7 +114,7 @@ class BufferPainter ():
             brush.setH(brush.getH()+heading)
             
     def adjustBrushSize(self, size):
-        new_size=min(10.00, max(0.11, self.brushSize+size))                        
+        new_size=min(10.00, max(0.01, self.brushSize+size))                        
         self.brushSize=new_size 
         for brush in self.brushes:                         
             brush.setScale(new_size)
