@@ -18,6 +18,8 @@ def loadModel(file, collision=None, animation=None):
     model.setPythonTag('model_file', file)
     #load shaders
     for geom in model.findAllMatches('**/+GeomNode'):
+        if geom.hasTag('light'):
+            model.setPythonTag('hasLight', True)
         if geom.hasTag('cg_shader'):            
             geom.setShader(loader.loadShader("shaders/"+geom.getTag('cg_shader')))
         elif geom.hasTag('glsl_shader'):  
@@ -83,7 +85,10 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures, gras
                     if current_grass_tex:
                         id=grass_tex.index(tex)                    
                         current_grass_tex[i]=id
-                    grass.setTexture(grass.findTextureStage('tex{0}'.format(i+1)), loader.loadTexture(tex), 1)                    
+                        grs_tex=loader.loadTexture(tex)
+                        grs_tex.setWrapU(Texture.WMClamp)
+                        grs_tex.setWrapV(Texture.WMClamp)
+                    grass.setTexture(grass.findTextureStage('tex{0}'.format(i+1)), grs_tex, 1)                    
                 else:
                     print "WARNING: grass texture '{0}' not found!".format(tex)
                 i+=1

@@ -16,6 +16,10 @@ varying vec4 vpos;
 varying float blend;
 varying float height_scale;
 
+varying vec4 pointLight [10];
+uniform vec4 light_color[10];
+uniform float num_lights;
+
 void main()
     {  
     vec4 fog_color=vec4(fog.rgb, 0.0);      
@@ -87,13 +91,35 @@ void main()
         if (NdotL > 0.0)
             {
             NdotHV = max(dot(N,halfV),0.0);
-            color += gl_LightSource[0].diffuse * NdotL; 
-            full_foam*=color;   
+            color += gl_LightSource[0].diffuse * NdotL;               
             //color+=foam*gl_LightSource[0].diffuse;
             float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;
             specular=pow(NdotHV,450.0)*s;
             }   
-        
+        //point lights 
+        vec3 E;
+        vec3 R;        
+        float att;
+        float dist;
+        for (int i=0; i<num_lights; ++i)
+            {  
+            dist=dist=distance(vpos.xyz, pointLight[i].xyz);
+            dist*=dist;            
+            att = clamp(1.0 - dist/(pointLight[i].w), 0.0, 1.0);            
+            if (att>0.0)
+                {      
+                L = normalize(pointLight[i].xyz-vpos.xyz);
+                NdotL = max(dot(N,L),0.0);
+                if (NdotL > 0.0)
+                    { 
+                    E = normalize(-vpos.xyz);
+                    R = reflect(-L.xyz, N.xyz);
+                    specular+=pow( max(dot(R, E), 0.0),450.0)*att;
+                    color += light_color[i] * NdotL*att;
+                    }
+                }
+            }
+        full_foam*=color;          
         specular*=(1.0-fog_factor);
         //specular-=foam;
         vec4 refl=texture2DProj(reflection, gl_TexCoord[3]+distortion1*distortion2*4)-0.2;

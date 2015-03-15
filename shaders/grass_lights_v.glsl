@@ -62,7 +62,7 @@ void main()
         v.xy += animation;  
         gl_Position = p3d_ModelViewProjectionMatrix * v;
         
-        //vpos = gl_ModelViewMatrix * v; 
+        vpos = gl_ModelViewMatrix * v; 
         //point lights
         //for (int i=0; i<10; ++i)
         //    {

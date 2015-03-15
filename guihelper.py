@@ -145,6 +145,9 @@ class GuiHelper():
         elif id==6:#grid Z
             value=min(101.0, max(0.0, value))    
             self.ConfigOptions[id]=value
+        elif id==7:#light
+            value=min(1.0, max(0.01, value))    
+            self.ConfigOptions[id]=value 
         elif id==100:#Sky Color
             #shoul be 4 element tuple/list            
             if len(value)!=4:
@@ -328,10 +331,10 @@ class GuiHelper():
         
         
     def addConfigDialog(self, command): 
-        labels=['Brush Scale:','Brush Strength(Z):','Heading:','Pitch:','Roll:','Grid Size:','Grid Z:']
-        self.ConfigOptions=[1.0, 1.0, 0.0, 0.0, 0.0, 16, 0.05 ]
-                           # 0    1    2    3    4    5    6
-                           #Scale A    H    P    R  Grid  GridZ  
+        labels=['Brush Scale:','Brush Strength(Z):','Heading:','Pitch:','Roll:','Grid Size:','Grid Z:','Brightness:']
+        self.ConfigOptions=[1.0, 1.0, 0.0, 0.0, 0.0, 16, 0.05, 0.8 ]
+                           # 0    1    2    3    4    5    6    7
+                           #Scale A    H    P    R  Grid  GridZ Sun 
         text=""
         for item in labels:
             text+=item+'\n'
@@ -360,7 +363,7 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.ConfigFrame)
         _resetPivot(self.okButton)        
-        self.okButton.setPos(_pos2d(352,250))
+        self.okButton.setPos(_pos2d(352,282))
         
         self.cancelButton=DirectFrame(frameSize=_rec2d(128,32),
                                     frameColor=(0,0,1,0.0),  
@@ -372,9 +375,9 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.ConfigFrame)
         _resetPivot(self.cancelButton)        
-        self.cancelButton.setPos(_pos2d(32,250)) 
+        self.cancelButton.setPos(_pos2d(32,282)) 
         
-        self.okButton.bind(DGG.B1PRESS, self.validateAndExec, [command,2, 7, 0])        
+        self.okButton.bind(DGG.B1PRESS, self.validateAndExec, [command,2, 8, 0])        
         self.cancelButton.bind(DGG.B1PRESS, command, [False]) 
         
         self.ConfigEntry=[]

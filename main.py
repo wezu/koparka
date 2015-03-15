@@ -1,7 +1,7 @@
 from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
 loadPrcFileData('','win-size 1024 768')
-loadPrcFileData('','show-frame-rate-meter  0')
+loadPrcFileData('','show-frame-rate-meter  1')
 loadPrcFileData('','sync-video 0')
 loadPrcFileData('','framebuffer-srgb true')
 loadPrcFileData('','default-texture-color-space sRGB')
@@ -39,6 +39,7 @@ from collisiongen import GenerateCollisionEgg
 from navmeshgen import GenerateNavmeshCSV
 from objectpainter import ObjectPainter
 from jsonloader import SaveScene, LoadScene
+from lightmanager import LightManager
 import os, sys
 import random
 import re
@@ -90,6 +91,10 @@ class Editor (DirectObject):
         #manager for post process filters (fxaa, soft shadows, dof)
         manager=FilterManager(base.win, base.cam)
         self.filters=self.setupFilters(manager, fxaa_only=False)
+        
+        #manager for point lights
+        self.lManager=LightManager()
+        #self.lManager.addLight((256.0, 256.0, 30.0), (1.0, 0.0, 0.0), 40.0)
         
         #make a grid
         cm = CardMaker("plane")
@@ -223,7 +228,7 @@ class Editor (DirectObject):
         self.gui.addSkySeaDialog(self.configSkySea)
         
         #extra tools and info at the bottom
-        self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (704, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover, color=(1,1,1, 0.0))
+        self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (704, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover, color=(1,1,1, 0.2))
         self.size_info=self.gui.addInfoIcon(self.statusbar, 'icon/resize.png', '1.0', tooltip=self.tooltip, tooltip_text='Brush Size or Object Scale:   [A]-Decrease    [D]-Increase')
         self.color_info=self.gui.addInfoIcon(self.statusbar, 'icon/color.png', '0.05',tooltip=self.tooltip, tooltip_text='Brush Strength or Object Z offset:   [W]-Increase   [S]-Decrease')
         self.heading_info=self.gui.addInfoIcon(self.statusbar, 'icon/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Brush Rotation ([1][2][3] to change axis in Object Mode):   [Q]-Left   [E]-Right')        
@@ -321,7 +326,7 @@ class Editor (DirectObject):
         self.snap=self.gui.elements[self.prop_panel_id]['entry_snap']        
                 
         #object painter
-        self.objectPainter=ObjectPainter()
+        self.objectPainter=ObjectPainter(self.lManager)
         
         #terrain mesh
         #the 80k mesh loads to slow from egg, using bam
@@ -448,7 +453,7 @@ class Editor (DirectObject):
         #light
         #sun
         self.dlight = DirectionalLight('dlight') 
-        self.dlight.setColor(VBase4(0.95, 0.95, 0.9, 1))     
+        self.dlight.setColor(VBase4(0.8, 0.8, 0.8, 1))     
         self.mainLight = render.attachNewNode(self.dlight)
         self.mainLight.setP(-60)       
         self.mainLight.setH(90)
@@ -467,7 +472,7 @@ class Editor (DirectObject):
         
         render.setShaderInput("dlight0", self.mainLight)
         render.setShaderInput("dlight1", self.ambientLight)
-        render.setShaderInput("ambient", Vec4(.1, .1, .1, 1)) 
+        render.setShaderInput("ambient", Vec4(.01, .01, .01, 1)) 
         
         #render shadow map
         depth_map = Texture()
@@ -558,7 +563,17 @@ class Editor (DirectObject):
         
         #tasks
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task', sort=46)  
-        
+    
+    def findLights(self):    
+        for node in self.objectPainter.quadtree:
+            for child in node.getChildren():            
+                if child.hasPythonTag('hasLight'):
+                    pos=child.getPos(render)
+                    color=[child.getH()/255.0, child.getP()/255.0, child.getR()/255.0,]
+                    radi=child.getScale()[0]*10.0
+                    id=self.lManager.addLight(pos, color, radi)
+                    child.setPythonTag('hasLight', id)
+                
     def setupFilters(self, manager, path="", fxaa_only=False):    
         colorTex = Texture()#the scene
         auxTex = Texture() # r=blur, g=shadow, b=?, a=?        
@@ -621,6 +636,9 @@ class Editor (DirectObject):
     def deleteObject(self, not_used=None, guiEvent=None):
         node=self.objectPainter.selectedObject
         if node:
+            if  node.hasPythonTag('hasLight'):
+                l=node.getPythonTag('hasLight')
+                self.lManager.removeLight(l)
             if node in self.objectPainter.actors:
                 self.objectPainter.actors.pop(self.objectPainter.actors.index(node)).cleanup() 
             node.removeNode()
@@ -645,6 +663,10 @@ class Editor (DirectObject):
         scale=self.objectPainter._stringToFloat(scale)
         self.objectPainter.selectedObject.setPosHpr((x,y,z), (h,p,r))
         self.objectPainter.selectedObject.setScale(scale)
+        if self.objectPainter.selectedObject.hasPythonTag('hasLight'):
+            id=self.objectPainter.selectedObject.getPythonTag('hasLight')
+            color=(round(h/255.0, 5), round(p/255.0, 5), round(r/255.0, 5))
+            self.lManager.setLight(id, self.objectPainter.selectedObject.getPos(render), color, 10.0*scale)
         self.gui.elements[self.select_toolbar_id]['buttons'][0]['focus']=0
         self.gui.elements[self.select_toolbar_id]['buttons'][1]['focus']=0
         self.gui.elements[self.select_toolbar_id]['buttons'][2]['focus']=0
@@ -660,7 +682,14 @@ class Editor (DirectObject):
         self.gui.hideElement(self.select_toolbar_id)
         self.setObjectMode(OBJECT_MODE_SELECT)
         
-    def pickUp(self, not_used=None, guiEvent=None):   
+    def pickUp(self, not_used=None, guiEvent=None):
+        h=self.gui.elements[self.select_toolbar_id]['buttons'][3].get()
+        p=self.gui.elements[self.select_toolbar_id]['buttons'][4].get()
+        r=self.gui.elements[self.select_toolbar_id]['buttons'][5].get()
+        h=self.objectPainter._stringToFloat(h)
+        p=self.objectPainter._stringToFloat(p)
+        r=self.objectPainter._stringToFloat(r)
+        self.objectPainter.currentHPR=[h,p,r]
         self.objectPainter.pickup()
         self.setObjectMode(OBJECT_MODE_ONE)
         self.heading_info['text']=self.objectPainter.adjustHpr(0,self.hpr_axis)
@@ -754,6 +783,9 @@ class Editor (DirectObject):
             self.painter.pointer.setZ(self.gui.ConfigOptions[6])
             self.painter.plane = Plane(Vec3(0, 0, 1), Point3(0, 0, self.gui.ConfigOptions[6])) 
             self.controler.cameraNode.setZ(self.gui.ConfigOptions[6])
+            color=float(self.gui.ConfigOptions[7])
+            print color
+            self.dlight.setColor(Vec4(color, color, color, 1)) 
             if self.mode==MODE_OBJECT:
                 #hpr
                 self.setAxis='H: '
@@ -966,7 +998,7 @@ class Editor (DirectObject):
         grass.setInstanceCount(count) 
         grass.node().setBounds(BoundingBox((0,0,0), (256,256,128)))
         grass.node().setFinal(1)
-        grass.setShader(Shader.load(Shader.SLGLSL, "shaders/grass_v.glsl", "shaders/grass_f.glsl"))
+        grass.setShader(Shader.load(Shader.SLGLSL, "shaders/grass_lights_v.glsl", "shaders/grass_lights_f.glsl"))
         grass.setShaderInput('height', self.painter.textures[BUFFER_HEIGHT]) 
         grass.setShaderInput('grass', self.painter.textures[BUFFER_GRASS])
         grass.setShaderInput('uv_offset', uv_offset)   
@@ -1069,7 +1101,8 @@ class Editor (DirectObject):
                     self.waterCamera.node().setInitialState(tmpNP.getState())
                 else:
                     self.waterNP.hide()
-                    self.wBuffer.setActive(False)    
+                    self.wBuffer.setActive(False)  
+                self.findLights()        
                 print "done"
             else:
                 print "FILE NOT FOUND!"  
@@ -1250,9 +1283,9 @@ class Editor (DirectObject):
                     self.gui.elements[self.select_toolbar_id]['buttons'][0].enterText('%.2f'%pos[0])
                     self.gui.elements[self.select_toolbar_id]['buttons'][1].enterText('%.2f'%pos[1])
                     self.gui.elements[self.select_toolbar_id]['buttons'][2].enterText('%.2f'%pos[2])
-                    self.gui.elements[self.select_toolbar_id]['buttons'][3].enterText('%.2f'%hpr[0])
-                    self.gui.elements[self.select_toolbar_id]['buttons'][4].enterText('%.2f'%hpr[1])
-                    self.gui.elements[self.select_toolbar_id]['buttons'][5].enterText('%.2f'%hpr[2])
+                    self.gui.elements[self.select_toolbar_id]['buttons'][3].enterText('%.2f'%(hpr[0]%360.0))
+                    self.gui.elements[self.select_toolbar_id]['buttons'][4].enterText('%.2f'%(hpr[1]%360.0))
+                    self.gui.elements[self.select_toolbar_id]['buttons'][5].enterText('%.2f'%(hpr[2]%360.0))
                     self.gui.elements[self.select_toolbar_id]['buttons'][6].enterText('%.2f'%scale[0])
                     self.props.enterText(props)
                     
@@ -1288,6 +1321,7 @@ class Editor (DirectObject):
             self.objectPainter.stop()
             self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
             self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_f.glsl"))  
+            render.setShaderInput("show_lights", 0.0)
         elif mode==MODE_TEXTURE:
             if guiEvent!=None:    
                 self.painter.brushAlpha=1.0
@@ -1318,6 +1352,7 @@ class Editor (DirectObject):
             self.objectPainter.stop()
             self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
             self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_f.glsl"))  
+            render.setShaderInput("show_lights", 0.0)
         elif mode==MODE_GRASS:
             if guiEvent!=None:
                 self.painter.brushAlpha=1.0
@@ -1349,6 +1384,7 @@ class Editor (DirectObject):
             self.objectPainter.stop()
             self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
             self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_f.glsl"))              
+            render.setShaderInput("show_lights", 0.0)
         elif mode==MODE_OBJECT:
             if guiEvent!=None:                
                 self.hpr_axis='H: '
@@ -1369,6 +1405,7 @@ class Editor (DirectObject):
             self.ignore('mouse1-up')
             self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_WALK])
             self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_w_f.glsl"))  
+            render.setShaderInput("show_lights", 0.3)
         elif mode==MODE_WALK:
             if guiEvent!=None:
                 self.painter.brushAlpha=1.0
@@ -1399,7 +1436,8 @@ class Editor (DirectObject):
             self.gui.hideElement(self.select_toolbar_id)
             self.objectPainter.stop() 
             self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_WALK])
-            self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_w_f.glsl"))              
+            self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_w_f.glsl")) 
+            render.setShaderInput("show_lights", 0.0)            
         self.mode=mode
         self.heading_info['text']=self.hpr_axis+'%.0f'%self.painter.brushes[0].getH()
         
@@ -1442,9 +1480,9 @@ class Editor (DirectObject):
                 self.painter.paint(BUFFER_WALK)          
         elif self.mode==MODE_OBJECT:   
             if self.keyMap['rotate_l']:                
-                self.heading_info['text']=self.objectPainter.adjustHpr(2.5,self.hpr_axis)
+                self.heading_info['text']=self.objectPainter.adjustHpr(-0.5,self.hpr_axis)
             if self.keyMap['rotate_r']:                    
-                self.heading_info['text']=self.objectPainter.adjustHpr(-2.5,self.hpr_axis)
+                self.heading_info['text']=self.objectPainter.adjustHpr(0.5,self.hpr_axis)
             if self.keyMap['scale_up']:
                 self.objectPainter.adjustScale(0.01)
                 self.size_info['text']='%.2f'%self.objectPainter.currentScale

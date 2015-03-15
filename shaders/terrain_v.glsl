@@ -4,6 +4,7 @@
 uniform sampler2D height;
 uniform mat4 p3d_ModelViewProjectionMatrix;
 uniform vec4 fog;
+uniform float time;
 
 varying float fogFactor;
 varying vec2 texUV;
@@ -14,6 +15,11 @@ varying float terrainz;
 uniform float bias;
 uniform mat4 trans_model_to_clip_of_shadowCamera;
 varying vec4 shadowCoord;
+
+
+uniform float num_lights;
+uniform vec4 light_pos[10];
+varying vec4 pointLight [10];
 
 void main()
     {    
@@ -30,8 +36,19 @@ void main()
     texUV=gl_TexCoord[0].xy;
     texUVrepeat=gl_TexCoord[0].xy*40.0;
     vpos=gl_ModelViewMatrix * vert;
-    terrainz=vert.z;
-    
+    terrainz=vert.z;     
+    //point lights
+    float dist; 
+    float att; 
+    for (int i=0; i<num_lights; ++i)
+        {
+        pointLight[i]=gl_ModelViewMatrix *vec4(light_pos[i].xyz, 1.0);    
+        dist=distance(vpos.xyz, pointLight[i].xyz);
+        dist*=dist;            
+        att = clamp(1.0 - dist/(light_pos[i].w), 0.0, 1.0);
+        pointLight[i].w=att;
+        }
+        
      // Calculate light-space clip position.
     vec4 pushed = vert + vec4(gl_Normal * bias, 0);
     vec4 lightclip = trans_model_to_clip_of_shadowCamera * pushed;

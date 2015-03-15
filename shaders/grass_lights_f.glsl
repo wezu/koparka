@@ -16,10 +16,12 @@ varying vec3 normal;
 uniform vec4 ambient;
 uniform vec4 fog;
 
-varying vec4 pointLight [10];
+uniform vec4 light_pos[10];
 uniform vec4 light_color[10];
 uniform float num_lights;
 varying vec4 vpos;
+uniform mat4 p3d_ViewMatrix;
+
 void main()
     {    
     if(blend_mask.r+blend_mask.g+blend_mask.b < 0.1)
@@ -51,40 +53,30 @@ void main()
         NdotL = max(dot(norm,lightDir),0.0);
         if (NdotL > 0.0)
             {
-           //NdotHV = max(dot(norm,halfV),0.0);
-           color += gl_LightSource[0].diffuse* NdotL;
-          // float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0; 
-           //color +=pow(NdotHV,50.0)*s;
+           color += gl_LightSource[0].diffuse* NdotL;          
            }
-        //directional2 = ambient
-        //lightDir = normalize(gl_LightSource[1].position.xyz); 
-        //halfV= normalize(gl_LightSource[0].halfVector.xyz);    
-        //NdotL = max(dot(norm,lightDir),0.0);
-        //if (NdotL > 0.0)
-        //  {
-           //NdotHV = max(dot(norm,halfV),0.0);
-        //   color += gl_LightSource[1].diffuse * NdotL;        
-           //color +=pow(NdotHV,500.0*gloss)*gloss*2.0;
-         //  }    
-        //point lights                 
-        //float att;
-        //float dist;
-        //for (int i=0; i<num_lights; ++i)
-        //    {  
-        //    dist=dist=distance(vpos.xyz, pointLight[i].xyz);
-        //    dist*=dist;            
-        //    att = clamp(1.0 - dist/(pointLight[i].w), 0.0, 1.0);            
-        //    if (att>0.0)
-        //        {      
-        //        lightDir = normalize(pointLight[i].xyz-vpos.xyz);
-        //        NdotL = max(dot(norm,lightDir),0.0);
-        //        if (NdotL > 0.0)
-        //            {
-        //            color += light_color[i] * NdotL*att;
-        //            }
-        //        }
-        //    }    
         color +=(gl_LightSource[0].diffuse)*0.2*step(0.4,1.0-NdotL);
+        //point lights                 
+        float att;
+        float dist;
+        vec4 pointLight;
+        for (int i=0; i<num_lights; ++i)
+            {  
+            pointLight=p3d_ViewMatrix*vec4(light_pos[i].xyz, 1.0);
+            dist=dist=distance(vpos.xyz, pointLight.xyz);
+            dist*=dist;            
+            att = clamp(1.0 - dist/(light_pos[i].w), 0.0, 1.0);            
+            if (att>0.0)
+                {      
+                lightDir = normalize(pointLight.xyz-vpos.xyz);
+                NdotL = max(dot(norm,lightDir),0.0);
+                if (NdotL > 0.0)
+                    {
+                    color += light_color[i] * NdotL*att;
+                    }
+                color += light_color[i]*step(0.4,1.0-NdotL)*att*0.2;
+                }
+            }    
         //vec4 fog_color=vec4(fog.rgb, 1.0);
         vec4 final = color*color_tex;
         gl_FragData[0] = mix(final,fog ,fog_factor);

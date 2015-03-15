@@ -20,6 +20,11 @@ uniform float bias;
 uniform mat4 trans_model_to_clip_of_shadowCamera;
 varying vec4 shadowCoord;
 
+uniform float num_lights;
+uniform vec4 light_pos[10];
+varying vec4 pointLight [10];
+uniform mat4 p3d_ViewMatrix;
+
 void main()
     {
     gl_Position = p3d_ModelViewProjectionMatrix * gl_Vertex;     
@@ -34,6 +39,13 @@ void main()
     float distToEdge=clamp(pow(distance(wpos.xy, vec2(256.0, 256.0))/256.0, 4.0), 0.0, 1.0);
     float distToCamera =clamp(-vpos.z*fog.a-0.5, 0.0, 1.0);
     fog_factor=clamp(distToCamera+distToEdge, 0.0, 1.0);  
+    
+    //point lights
+    for (int i=0; i<num_lights; ++i)
+        {
+        pointLight[i]=p3d_ViewMatrix*vec4(light_pos[i].xyz, 1.0);       
+        pointLight[i].w=light_pos[i].w;
+        }
     
     // Calculate light-space clip position.
     vec4 pushed = gl_Vertex + vec4(gl_Normal * bias, 0);

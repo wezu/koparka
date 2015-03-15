@@ -36,6 +36,10 @@ varying float terrainz;
 //varying vec4 shadowCoord;//not using this
 //uniform sampler2D shadow;//not using this
 
+varying vec4 pointLight [10];
+uniform vec4 light_color[10];
+uniform float num_lights;
+
 void main()
     { 
     if (dot(p3d_ClipPlane[0], vpos) < 0) 
@@ -124,6 +128,7 @@ void main()
         vec3 halfV;
         float NdotL;
         float NdotHV; 
+        float spec=0.0;
         lightDir = normalize(gl_LightSource[0].position.xyz); 
         halfV= normalize(gl_LightSource[0].halfVector.xyz);    
         NdotL = max(dot(norm,lightDir),0.0);
@@ -132,7 +137,7 @@ void main()
            NdotHV = max(dot(norm,halfV),0.0);
            color += gl_LightSource[0].diffuse * NdotL;
            float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;
-           color +=pow(NdotHV,200.0)*clamp(gloss*3.0, 0.0, 1.0)*s;
+           spec+=pow(NdotHV,200.0)*gloss*s;
            }   
         //directional2 = ambient
         lightDir = normalize(gl_LightSource[1].position.xyz); 
@@ -144,7 +149,25 @@ void main()
            color += gl_LightSource[1].diffuse * NdotL;        
            //color +=pow(NdotHV,500.0*gloss)*gloss*2.0;
            } 
-           
+        //point lights 
+        vec3 E;
+        vec3 R;                 
+        for (int i=0; i<num_lights; ++i)
+            {  
+            if (pointLight[i].w>0.0)
+                {      
+                lightDir = normalize(pointLight[i].xyz-vpos.xyz);
+                NdotL = max(dot(norm,lightDir),0.0);
+                if (NdotL > 0.0)
+                    { 
+                    E = normalize(-vpos.xyz);
+                    R = reflect(-lightDir.xyz, norm.xyz);
+                    spec+=pow( max(dot(R, E), 0.0),200.0)*gloss*pointLight[i].w;
+                    color += light_color[i] * NdotL*pointLight[i].w;
+                    }
+                }
+            }    
+        color +=spec;   
         vec4 final= vec4(color.rgb * detail.xyz, 1.0);     
         vec4 walk=vec4(1.0,1.0,1.0,1.0)- step(texture2D(walkmap,texUV), vec4(0.5,0.5,0.5,0.5));
         //vec4 walk=texture2D(walkmap,texUV);
@@ -160,7 +183,7 @@ void main()
         //float shade = 1.0;
         //if (shadowColor < shadowUV.z-0.001)
         //    shade=0.0;        
-        gl_FragData[1]=vec4(fogFactor, 1.0,0.0,0.0);        
+        gl_FragData[1]=vec4(fogFactor, 1.0,spec,0.0);        
         }
     }
     

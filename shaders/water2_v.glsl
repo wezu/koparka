@@ -18,6 +18,11 @@ varying float height_scale;
 
 uniform sampler2D water_height;
 
+uniform float num_lights;
+uniform vec4 light_pos[10];
+varying vec4 pointLight [10];
+uniform mat4 p3d_ViewMatrix;
+
 void main()
     {
     vec2 uv=(gl_MultiTexCoord0.xy+vec2(time*wave.x, time*wave.y))*wave.z;
@@ -40,7 +45,13 @@ void main()
     float distToEdge=clamp(pow(distance(wpos.xy, vec2(256.0, 256.0))/256.0, 4.0), 0.0, 1.0);
     float distToCamera =clamp(-vpos.z*fog.a-0.5, 0.0, 1.0);
     fog_factor=clamp(distToCamera+distToEdge, 0.0, 1.0); 
-
+    
+    //point lights
+    for (int i=0; i<num_lights; ++i)
+        {
+        pointLight[i]=p3d_ViewMatrix*vec4(light_pos[i].xyz, 1.0);       
+        pointLight[i].w=light_pos[i].w;
+        }
     
     vec4 camclip = trans_model_to_clip_of_camera* vert;    
     gl_TexCoord[3] = camclip * vec4(0.5,0.5,0.5,1.0) + camclip.w * vec4(0.5,0.5,0.5,0.0);

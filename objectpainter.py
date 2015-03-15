@@ -5,7 +5,8 @@ import os
 
 
 class ObjectPainter():
-    def __init__(self): 
+    def __init__(self, lightManager): 
+        self.lightManager=lightManager
         #collision detection setup
         self.traverser = CollisionTraverser()   
         #self.traverser.showCollisions(render)
@@ -19,6 +20,7 @@ class ObjectPainter():
         self.traverser.addCollider(self.pickerNP, self.queue)
                 
         self.currentObject=None
+        self.currentLight=None
         self.selectedObject=None
         self.hitNode=None
         self.currentHPR=[0,0,0]
@@ -73,6 +75,13 @@ class ObjectPainter():
                        nodeB1,nodeB2,nodeB3,nodeB4,
                        nodeC1,nodeC2,nodeC3,nodeC4,
                        nodeD1,nodeD2,nodeD3,nodeD4]
+
+    def normalizeHPR(self):
+        newHpr=[]
+        for i in range(3):
+            temp=self.currentHPR[i]%360.0            
+            newHpr.append(temp)    
+        self.currentHPR=newHpr
         
     def adjustHpr(self, amount, axis):
         if axis=='H: ':
@@ -82,13 +91,13 @@ class ObjectPainter():
         elif axis=='R: ':
             i=2         
         new=self.currentHPR[i]+amount
-        if new >360.0:
-            new-=360.0
-        if new <-0.0:
-            new+=360.0    
         self.currentHPR[i]=new 
+        self.normalizeHPR()
         if self.currentObject!=None:
             self.currentObject.setHpr(self.currentHPR[0],self.currentHPR[1],self.currentHPR[2])
+        if self.currentLight is not None:
+            color=(self.currentHPR[0]/255.0,self.currentHPR[1]/255.0,self.currentHPR[2]/255.0)                    
+            self.lightManager.setColor(self.currentLight, color)
         return axis+'%.0f'%self.currentHPR[i]
         
     def adjustScale(self, amount):
@@ -96,9 +105,11 @@ class ObjectPainter():
         self.currentScale=new
         if self.currentObject!=None:
             self.currentObject.setScale(self.currentScale)
+        if self.currentLight is not None:                               
+            self.lightManager.setRadius(self.currentLight, 10.0*self.currentScale)
             
     def adjustZ(self, amount):
-        new=min(10.0, max(-10.0, self.currentZ+amount)) 
+        new=min(100.0, max(-100.0, self.currentZ+amount)) 
         self.currentZ=new
         if self.currentObject!=None:
             self.currentObject.setZ(self.currentZ)
@@ -142,6 +153,10 @@ class ObjectPainter():
         self.currentObject.setHpr(self.currentHPR[0],self.currentHPR[1],self.currentHPR[2])
         self.currentObject.setZ(self.currentZ)
         self.currentObject.setScale(self.currentScale)        
+        if self.currentObject.hasPythonTag('hasLight'):
+            self.currentLight=self.lightManager.addLight(pos=self.currentObject.getPos(), color=(1.0, 1.0, 1.0), radius=10.0)
+            self.currentObject.setPythonTag('hasLight', self.currentLight)
+            self.currentHPR=[255.0, 255.0, 255.0]    
             
     def loadWall(self, model, change_model=False):
         pos=self.hit_pos   
@@ -186,15 +201,20 @@ class ObjectPainter():
             if next:
                 self.hit_pos =next.getPos(render)
             self.currentObject=None
+            self.currentLight=None
             
     def pickup(self): 
         if self.selectedObject:
             self.currentObject=self.selectedObject
             self.currentObject.wrtReparentTo(render) 
-            self.currentHPR=[self.currentObject.getH(render), self.currentObject.getP(render), self.currentObject.getR(render)]
+            #self.currentHPR=[self.currentObject.getH(), self.currentObject.getP(), self.currentObject.getR()]
+            self.normalizeHPR()
             #self.currentZ=self.currentObject.getZ(render)
             self.currentScales=self.currentObject.getScale()[0]
-       
+            if self.currentObject.hasPythonTag('hasLight'):
+                self.currentLight=self.currentObject.getPythonTag('hasLight')
+            
+            
     def select(self):            
         if self.hitNode:
             if self.hitNode.hasPythonTag('object'):                
@@ -231,3 +251,7 @@ class ObjectPainter():
                     self.currentObject.setZ(self.hit_pos[2]+self.currentZ)
                     if self.currentWall:
                         self.currentWall.lookAt(self.currentObject)
+                    if self.currentLight is not None:
+                        lpos=self.currentObject.getPos()
+                        lpos[2]=lpos[2]+1.0
+                        self.lightManager.moveLight(self.currentLight, lpos)
