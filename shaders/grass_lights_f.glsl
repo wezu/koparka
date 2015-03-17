@@ -18,7 +18,7 @@ uniform vec4 fog;
 
 uniform vec4 light_pos[10];
 uniform vec4 light_color[10];
-uniform float num_lights;
+uniform int num_lights;
 varying vec4 vpos;
 uniform mat4 p3d_ViewMatrix;
 

@@ -18,7 +18,7 @@ varying float height_scale;
 
 uniform sampler2D water_height;
 
-uniform float num_lights;
+uniform int num_lights;
 uniform vec4 light_pos[10];
 varying vec4 pointLight [10];
 uniform mat4 p3d_ViewMatrix;

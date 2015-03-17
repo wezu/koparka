@@ -38,11 +38,11 @@ varying float terrainz;
 
 varying vec4 pointLight [10];
 uniform vec4 light_color[10];
-uniform float num_lights;
+uniform int num_lights;
 
 void main()
     { 
-    if (dot(p3d_ClipPlane[0], vpos) < 0) 
+    if (dot(p3d_ClipPlane[0], vpos) < 0.0) 
         {
         discard;
         } 
