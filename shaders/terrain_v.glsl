@@ -17,7 +17,7 @@ uniform mat4 trans_model_to_clip_of_shadowCamera;
 varying vec4 shadowCoord;
 
 
-uniform float num_lights;
+uniform int num_lights;
 uniform vec4 light_pos[10];
 varying vec4 pointLight [10];
 
