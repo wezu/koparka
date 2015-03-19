@@ -18,7 +18,7 @@ uniform vec4 fog;
 
 uniform vec4 light_pos[10];
 uniform vec4 light_color[10];
-uniform int num_lights;
+uniform float num_lights;
 varying vec4 vpos;
 uniform mat4 p3d_ViewMatrix;
 
@@ -60,10 +60,10 @@ void main()
         float att;
         float dist;
         vec4 pointLight;
-        for (int i=0; i<num_lights; ++i)
+        for (int i=0; i<int(num_lights); ++i)
             {  
             pointLight=p3d_ViewMatrix*vec4(light_pos[i].xyz, 1.0);
-            dist=dist=distance(vpos.xyz, pointLight.xyz);
+            dist=distance(vpos.xyz, pointLight.xyz);
             dist*=dist;            
             att = clamp(1.0 - dist/(light_pos[i].w), 0.0, 1.0);            
             if (att>0.0)

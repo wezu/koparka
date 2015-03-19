@@ -18,7 +18,7 @@ varying float height_scale;
 
 uniform sampler2D water_height;
 
-uniform int num_lights;
+uniform float num_lights;
 uniform vec4 light_pos[10];
 varying vec4 pointLight [10];
 uniform mat4 p3d_ViewMatrix;
@@ -47,7 +47,7 @@ void main()
     fog_factor=clamp(distToCamera+distToEdge, 0.0, 1.0); 
     
     //point lights
-    for (int i=0; i<num_lights; ++i)
+    for (int i=0; i<int(num_lights); ++i)
         {
         pointLight[i]=p3d_ViewMatrix*vec4(light_pos[i].xyz, 1.0);       
         pointLight[i].w=light_pos[i].w;

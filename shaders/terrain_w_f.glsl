@@ -38,7 +38,7 @@ varying float terrainz;
 
 varying vec4 pointLight [10];
 uniform vec4 light_color[10];
-uniform int num_lights;
+uniform float num_lights;
 
 void main()
     { 
@@ -152,7 +152,7 @@ void main()
         //point lights 
         vec3 E;
         vec3 R;                 
-        for (int i=0; i<num_lights; ++i)
+        for (int i=0; i<int(num_lights); ++i)
             {  
             if (pointLight[i].w>0.0)
                 {      

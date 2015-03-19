@@ -19,7 +19,7 @@ uniform sampler2D shadow;
 
 varying vec4 pointLight [10];
 uniform vec4 light_color[10];
-uniform int num_lights;
+uniform float num_lights;
 
 void main()
     {    
@@ -78,7 +78,7 @@ void main()
         vec3 R;        
         float att;
         float dist;
-        for (int i=0; i<num_lights; ++i)
+        for (int i=0; i<int(num_lights); ++i)
             {  
             dist=dist=distance(vpos.xyz, pointLight[i].xyz);
             dist*=dist;            

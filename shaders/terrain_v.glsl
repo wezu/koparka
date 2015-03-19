@@ -17,7 +17,7 @@ uniform mat4 trans_model_to_clip_of_shadowCamera;
 varying vec4 shadowCoord;
 
 
-uniform int num_lights;
+uniform float num_lights;
 uniform vec4 light_pos[10];
 varying vec4 pointLight [10];
 
@@ -40,7 +40,7 @@ void main()
     //point lights
     float dist; 
     float att; 
-    for (int i=0; i<num_lights; ++i)
+    for (int i=0; i<int(num_lights); ++i)
         {
         pointLight[i]=gl_ModelViewMatrix *vec4(light_pos[i].xyz, 1.0);    
         dist=distance(vpos.xyz, pointLight[i].xyz);
