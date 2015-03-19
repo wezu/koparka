@@ -152,7 +152,8 @@ void main()
         //point lights 
         vec3 E;
         vec3 R;                 
-        for (int i=0; i<num_lights; ++i)
+        int iNumLights = int(num_lights);
+        for (int i=0; i<iNumLights; ++i)
             {  
             if (pointLight[i].w>0.0)
                 {      

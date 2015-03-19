@@ -1,0 +1,78 @@
+//Cg
+/* Generated shader for render state 09EFA598:
+  AlphaTestAttrib:greater,0
+  ColorAttrib:vertex
+  ColorBlendAttrib:add(one_minus_incoming_color,one)
+  LightAttrib:on
+    render/dlight
+    render/cameraNode/cameraGimbal/camera/dlight
+  ShaderAttrib
+  TexMatrixAttrib: default(T:(identity))
+  TextureAttrib:on default:smoke1
+  TexGenAttrib:
+  TransparencyAttrib:alpha
+*/
+void vshader(
+	 in float4 vtx_texcoord : TEXCOORD0,
+	 out float4 l_texcoord : TEXCOORD0,
+	 in float4 vtx_color : COLOR0,
+	 out float4 l_color : COLOR0,
+	 uniform float4x4 tpose_view_to_model,
+	 out float4 l_eye_normal : TEXCOORD1,
+	 in float3 vtx_normal : NORMAL,
+	 float4 vtx_position : POSITION,
+	 out float4 l_position : POSITION,
+	 uniform float4x4 mat_modelproj
+) {
+	 l_position = mul(mat_modelproj, vtx_position);
+	 l_eye_normal.xyz = mul((float3x3)tpose_view_to_model, vtx_normal);
+	 l_eye_normal.w = 0;
+	 l_texcoord = vtx_texcoord;
+	 l_color = vtx_color;
+}
+
+void fshader(
+	 in float4 l_eye_normal : TEXCOORD1,
+	 in float4 l_texcoord : TEXCOORD0,
+	 uniform sampler2D tex_0,
+	 uniform float4x4 texmat_0,
+	 uniform float4x4 dlight_dlight0_rel_view,
+	 uniform float4x4 dlight_dlight1_rel_view,
+	 out float4 o_color : COLOR0,
+	 in float4 l_color : COLOR0,
+	 uniform float4 attr_colorscale
+) {
+	 float4 result;
+	 float4 texcoord0 = l_texcoord;
+	 texcoord0 = mul(texmat_0, texcoord0);
+	 texcoord0.xyz /= texcoord0.w;
+	 // Fetch all textures.
+	 float4 tex0 = tex2D(tex_0, texcoord0.xy);
+	 // Correct the surface normal for interpolation effects
+	 l_eye_normal.xyz = normalize(l_eye_normal.xyz);
+	 // Begin view-space light calculations
+	 float ldist,lattenv,langle;
+	 float4 lcolor,lspec,lvec,lpoint,latten,ldir,leye,lhalf;
+	 float4 tot_diffuse = float4(0,0,0,0);
+	 // Directional Light 0
+	 lcolor = dlight_dlight0_rel_view[0];
+	 lspec  = dlight_dlight0_rel_view[1];
+	 lvec   = dlight_dlight0_rel_view[2];
+	 lcolor *= saturate(dot(l_eye_normal.xyz, lvec.xyz));
+	 tot_diffuse += lcolor;
+	 // Directional Light 1
+	 lcolor = dlight_dlight1_rel_view[0];
+	 lspec  = dlight_dlight1_rel_view[1];
+	 lvec   = dlight_dlight1_rel_view[2];
+	 lcolor *= saturate(dot(l_eye_normal.xyz, lvec.xyz));
+	 tot_diffuse += lcolor;
+	 // Begin view-space light summation
+	 result = float4(0,0,0,0);
+	 result += tot_diffuse * l_color;
+	 result = saturate(result);
+	 // End view-space light calculations
+	 result.a = l_color.a;
+	 result.rgba *= tex0.rgba;
+	 result *= attr_colorscale;
+	 o_color = result * 1.000001;
+}

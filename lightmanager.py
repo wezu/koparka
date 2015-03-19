@@ -20,7 +20,7 @@ class LightManager():
             light_color.pushBack(UnalignedLVecBase4f(0.0,0.0,0.0,0.0))            
         render.setShaderInput('light_pos', light_pos)
         render.setShaderInput('light_color', light_color)
-        render.setShaderInput('num_lights', num_lights)              
+        render.setShaderInput('num_lights', float(num_lights))#this should be an int, damn you outdated ATI driver!              
         
     def addLight(self, pos, color, radius):
         new_light=[float(pos[0]),float(pos[1]),float(pos[2]),float(radius*radius),float(color[0]), float(color[1]), float(color[2])]

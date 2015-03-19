@@ -101,7 +101,8 @@ void main()
         vec3 R;        
         float att;
         float dist;
-        for (int i=0; i<num_lights; ++i)
+        int iNumLights = int(num_lights);
+        for (int i=0; i<iNumLights; ++i)
             {  
             dist=dist=distance(vpos.xyz, pointLight[i].xyz);
             dist*=dist;            
@@ -119,7 +120,7 @@ void main()
                     }
                 }
             }
-        full_foam*=color;          
+        //full_foam*=color;          
         specular*=(1.0-fog_factor);
         //specular-=foam;
         vec4 refl=texture2DProj(reflection, gl_TexCoord[3]+distortion1*distortion2*4)-0.2;

@@ -11,7 +11,7 @@ loadPrcFileData('','texture-magfilter  linear')
 #loadPrcFileData('','show-buffers 1')
 #loadPrcFileData('','undecorated 1')
 #loadPrcFileData('','win-size 854 480')
-#loadPrcFileData("", "dump-generated-shaders 1")
+loadPrcFileData("", "dump-generated-shaders 1")
 from direct.showbase.AppRunnerGlobal import appRunner
 from panda3d.core import Filename
 if appRunner: 
@@ -87,6 +87,7 @@ class Editor (DirectObject):
     def __init__(self):
         #init ShowBase
         base = ShowBase.ShowBase()
+        base.enableParticles()
         
         #manager for post process filters (fxaa, soft shadows, dof)
         manager=FilterManager(base.win, base.cam)
@@ -231,7 +232,7 @@ class Editor (DirectObject):
         self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (704, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover, color=(1,1,1, 0.2))
         self.size_info=self.gui.addInfoIcon(self.statusbar, 'icon/resize.png', '1.0', tooltip=self.tooltip, tooltip_text='Brush Size or Object Scale:   [A]-Decrease    [D]-Increase')
         self.color_info=self.gui.addInfoIcon(self.statusbar, 'icon/color.png', '0.05',tooltip=self.tooltip, tooltip_text='Brush Strength or Object Z offset:   [W]-Increase   [S]-Decrease')
-        self.heading_info=self.gui.addInfoIcon(self.statusbar, 'icon/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Brush Rotation ([1][2][3] to change axis in Object Mode):   [Q]-Left   [E]-Right')        
+        self.heading_info=self.gui.addInfoIcon(self.statusbar, 'icon/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Rotation ([1][2][3] to change axis in Object Mode):   [Q]-Left   [E]-Right')        
         self.gui.addButton(self.statusbar, 'icon/config.png', self.configBrush, [True], self.tooltip, 'Configure brush and grid (numeric values)')
         self.gui.addButton(self.statusbar, 'icon/hm_icon.png', self.setMode, [MODE_HEIGHT], self.tooltip, 'Paint Heightmap Mode [F1]')
         self.gui.addButton(self.statusbar, 'icon/tex_icon.png', self.setMode, [MODE_TEXTURE], self.tooltip, 'Paint Texture Mode [F2]')
@@ -282,12 +283,12 @@ class Editor (DirectObject):
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_wall.png', self.setObjectMode,[OBJECT_MODE_WALL],tooltip=self.tooltip, tooltip_text='Place walls')
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_pointer.png', self.setObjectMode,[OBJECT_MODE_SELECT],tooltip=self.tooltip, tooltip_text='Pickup placed objects')
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_actor.png', self.setObjectMode,[OBJECT_MODE_ACTOR],tooltip=self.tooltip, tooltip_text='Place actors (models with animations)')
-        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_collision.png', self.setObjectMode,[OBJECT_MODE_COLLISION],tooltip=self.tooltip, tooltip_text='Place Collision solids')
+        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_collision.png', self.setObjectMode,[OBJECT_MODE_COLLISION],tooltip=self.tooltip, tooltip_text='Place Collision solids, lights and particles')
         self.gui.grayOutButtons(self.mode_toolbar_id, (0,6), 0)
         #object-mode select toolbar
         self.select_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 384), icon_size=32, x_offset=-192, y_offset=128, hover_command=self.onToolbarHover, color=(0,0,0, 0.5)) 
         #hack to add text
-        self.gui.elements[self.select_toolbar_id]['frame']['text']="X:\nY:\nZ:\nH:\nP:\nR:\n      Scale:"
+        self.gui.elements[self.select_toolbar_id]['frame']['text']="X:\nY:\nZ:\nH:\nP:\nR:\n      Scale:\n    RGB:"
         self.gui.elements[self.select_toolbar_id]['frame']['text_scale']=32
         self.gui.elements[self.select_toolbar_id]['frame']['text_fg']=(1,1,1,1)
         self.gui.elements[self.select_toolbar_id]['frame']['text_font']=self.gui.fontBig
@@ -295,9 +296,10 @@ class Editor (DirectObject):
         for i in range(6):
             self.gui.addEntry(self.select_toolbar_id, size_x=180, offset_x=30)
         self.gui.addEntry(self.select_toolbar_id, size_x=125, offset_x=85)
-        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/apply.png',[32, 232], self.applyTransform,[0] ,tooltip=self.tooltip, tooltip_text='Apply changes in position, rotation and scale')        
-        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/pickup.png',[32, 272], self.pickUp,[0] ,tooltip=self.tooltip, tooltip_text='Pick up the selected object and move it manualy')        
-        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/delete.png',[32, 312], self.deleteObject,[0] ,tooltip=self.tooltip, tooltip_text='Delete the selected object')        
+        self.gui.addEntry(self.select_toolbar_id, size_x=125, offset_x=85)
+        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/apply.png',[32, 264], self.applyTransform,[0] ,tooltip=self.tooltip, tooltip_text='Apply changes in position, rotation and scale')        
+        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/pickup.png',[32, 304], self.pickUp,[0] ,tooltip=self.tooltip, tooltip_text='Pick up the selected object and move it manualy')        
+        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/delete.png',[32, 344], self.deleteObject,[0] ,tooltip=self.tooltip, tooltip_text='Delete the selected object')        
         
         
         #extra buttons for height paint mode (up/down/level)
@@ -447,6 +449,8 @@ class Editor (DirectObject):
         self.waterNP.hide(MASK_SHADOW)
         #hide water by default
         self.waterNP.hide()
+        #self.waterNP.setDepthWrite(False)
+        self.waterNP.setBin("transparent", 31)
         self.wBuffer.setActive(False)
         self.mesh.setShaderInput("water_level",-1.0)
         
@@ -618,6 +622,7 @@ class Editor (DirectObject):
             interquad4.setShaderInput("auxTex", auxTex)   
             interquad4.setShaderInput("noiseTex", loader.loadTexture(path+"data/noise2.png"))    
             interquad4.setShaderInput('time', 0.0)  
+            interquad4.setShaderInput('screen_size', Vec2(float(base.win.getXSize()),float(base.win.getYSize())))
             filters.append(interquad4)
         else:
             final_quad = manager.renderSceneInto(colortex=composeTex)
@@ -654,13 +659,15 @@ class Editor (DirectObject):
         p=self.gui.elements[self.select_toolbar_id]['buttons'][4].get()
         r=self.gui.elements[self.select_toolbar_id]['buttons'][5].get()
         scale=self.gui.elements[self.select_toolbar_id]['buttons'][6].get()
+        rgb=self.gui.elements[self.select_toolbar_id]['buttons'][7].get()
         x=self.objectPainter._stringToFloat(x)
         y=self.objectPainter._stringToFloat(y)
         z=self.objectPainter._stringToFloat(z)
         h=self.objectPainter._stringToFloat(h)
         p=self.objectPainter._stringToFloat(p)
         r=self.objectPainter._stringToFloat(r)
-        scale=self.objectPainter._stringToFloat(scale)
+        scale=self.objectPainter._stringToFloat(scale)        
+        rgb=self.gui.string2value(rgb, [1.0, 1.0, 1.0])
         self.objectPainter.selectedObject.setPosHpr((x,y,z), (h,p,r))
         self.objectPainter.selectedObject.setScale(scale)
         if self.objectPainter.selectedObject.hasPythonTag('hasLight'):
@@ -855,8 +862,8 @@ class Editor (DirectObject):
         self.props['focus']=1
         
     def setRandomWall(self, model_path=None, id=None, guiEvent=None):        
-        if id!=None:
-            self.gui.blink(self.multi_toolbar_id, id)
+        #if id!=None:
+        #    self.gui.blink(self.multi_toolbar_id, id)
         if model_path==None:
             model_path=self.last_model_path
         models=[]
@@ -882,8 +889,8 @@ class Editor (DirectObject):
         self.last_model_path=model_path
     
     def setRandomObject(self, model_path=None, id=None, guiEvent=None):
-        if id!=None:
-            self.gui.blink(self.multi_toolbar_id, id)
+        #if id!=None:
+        #    self.gui.blink(self.multi_toolbar_id, id)
         if model_path==None:
             model_path=self.last_model_path
         models=[]
@@ -900,12 +907,12 @@ class Editor (DirectObject):
         
     def setActor(self, model, id=None, guiEvent=None): 
         if id!=None:
-            self.gui.blink(self.object_toolbar_id, id)
+            #self.gui.blink(self.object_toolbar_id, id)
             self.objectPainter.loadActor(model)
             
     def setObject(self, model, id=None, guiEvent=None): 
         if id!=None:
-            self.gui.blink(self.object_toolbar_id, id)
+            #self.gui.blink(self.object_toolbar_id, id)
             self.objectPainter.loadModel(model)
             
     def setAxis(self, axis):        
@@ -1555,6 +1562,8 @@ class Editor (DirectObject):
                 self.gui.updateBaseNodes()  
                 self.filters[-1].setShaderInput("rt_w",float(base.win.getXSize()))
                 self.filters[-1].setShaderInput("rt_h",float(base.win.getYSize()))                
+                if len(self.filters)>1:
+                    self.filters[-2].setShaderInput('screen_size', Vec2(float(base.win.getXSize()),float(base.win.getYSize())))
                 
     def setAtrMapColor(self, color1, color2, event=None):        
         self.painter.brushes[BUFFER_ATR].setColor(color1[0],color1[1],color1[2],self.painter.brushAlpha)

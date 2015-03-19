@@ -80,7 +80,8 @@ void main()
         vec3 R;        
         float att;
         float dist;
-        for (int i=0; i<num_lights; ++i)
+        int iNumLights = int(num_lights);
+        for (int i=0; i<iNumLights; ++i)
             {  
             dist=dist=distance(vpos.xyz, pointLight[i].xyz);
             dist*=dist;            

@@ -1,5 +1,6 @@
 from panda3d.core import *
 from direct.actor.Actor import Actor
+from direct.particles.ParticleEffect import ParticleEffect
 from jsonloader import loadModel
 import os
 
@@ -29,6 +30,7 @@ class ObjectPainter():
         self.currentWall=None
         self.hit_pos=(0,0,0)
         self.actors=[]
+        self.particles=[]
         
         #quadtree structure
         nodeA=render.attachNewNode('quadA')
@@ -157,6 +159,19 @@ class ObjectPainter():
             self.currentLight=self.lightManager.addLight(pos=self.currentObject.getPos(), color=(1.0, 1.0, 1.0), radius=10.0)
             self.currentObject.setPythonTag('hasLight', self.currentLight)
             self.currentHPR=[255.0, 255.0, 255.0]    
+        if self.currentObject.hasPythonTag('particle'):            
+            p=ParticleEffect()
+            p.loadConfig( 'partices/'+self.currentObject.getPythonTag('particle')+'.ptf')            
+            for geom in p.findAllMatches('**/+GeomNode'):
+                geom.setDepthWrite(False)
+                #geom.setBin("transparent", 31)
+                #geom.setTransparency(TransparencyAttrib.MNone, 1)
+                geom.setShader(Shader.load(Shader.SLGLSL, "shaders/vfx_v.glsl","shaders/vfx_f.glsl"), 1) 
+                geom.setShaderInput('distortion',0.51)
+                #geom.setShaderAuto()
+            p.ls()
+            p.start(parent = self.currentObject, renderParent = render)
+            self.particles.append(p)
             
     def loadWall(self, model, change_model=False):
         pos=self.hit_pos   

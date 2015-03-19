@@ -20,6 +20,8 @@ def loadModel(file, collision=None, animation=None):
     for geom in model.findAllMatches('**/+GeomNode'):
         if geom.hasTag('light'):
             model.setPythonTag('hasLight', True)
+        if geom.hasTag('particle'):
+            model.setPythonTag('particle', geom.getTag('particle'))    
         if geom.hasTag('cg_shader'):            
             geom.setShader(loader.loadShader("shaders/"+geom.getTag('cg_shader')))
         elif geom.hasTag('glsl_shader'):  

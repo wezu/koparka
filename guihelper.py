@@ -13,8 +13,7 @@ def _resetPivot(frame):
     size=frame['frameSize']    
     frame.setPos(-size[0], 0, -size[3])        
     frame.flattenLight()
-
-
+    
 class GuiHelper():
     def __init__(self, path=""):
         self.elements=[]
@@ -104,6 +103,16 @@ class GuiHelper():
         self.dialogYes.bind(DGG.B1PRESS, command, yes_arg)
         self.dialogNo.bind(DGG.B1PRESS, command, no_arg)
         
+    def string2value(self, text, fail_value):
+        value=None
+        try:
+            value=astEval(text)
+            if isinstance(value, basestring):
+                value=fail_value
+        except:
+            value=fail_value    
+        return value    
+        
     def okDialog(self, text, command, arg=[]):
         self.dialog.show()
         self.dialogYes.hide()
@@ -123,13 +132,7 @@ class GuiHelper():
             except ValueError:
                 value=0.0
         else:
-            text=self.SkySeaEntry[id-100].get()
-            try:
-                value=astEval(text)
-                if isinstance(value, basestring):
-                    value=self.SkySeaOptions[id-100]
-            except:
-                value=self.SkySeaOptions[id-100]    
+            value=self.string2value(self.SkySeaEntry[id-100].get(), self.SkySeaOptions[id-100])            
         if id==0:#size                        
             value=min(10.0, max(0.1, value))
             self.ConfigOptions[id]=value

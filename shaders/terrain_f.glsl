@@ -129,6 +129,7 @@ void main()
         float NdotL;
         float NdotHV; 
         float spec=0.0;
+        float light_spec;
         lightDir = normalize(gl_LightSource[0].position.xyz); 
         halfV= normalize(gl_LightSource[0].halfVector.xyz);    
         NdotL = max(dot(norm,lightDir),0.0);
@@ -136,8 +137,8 @@ void main()
             {
            NdotHV = max(dot(norm,halfV),0.0);
            color += gl_LightSource[0].diffuse * NdotL;   
-           float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;
-           spec+=pow(NdotHV,200.0)*gloss*s;           
+           light_spec=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;
+           spec+=pow(NdotHV,200.0)*gloss*light_spec;           
            }   
         //directional2 = ambient
         lightDir = normalize(gl_LightSource[1].position.xyz); 
@@ -152,8 +153,9 @@ void main()
         
         //point lights 
         vec3 E;
-        vec3 R;                 
-        for (int i=0; i<num_lights; ++i)
+        vec3 R;          
+        int iNumLights = int(num_lights);
+        for (int i=0; i<iNumLights; ++i)
             {  
             if (pointLight[i].w>0.0)
                 {      
@@ -163,7 +165,8 @@ void main()
                     { 
                     E = normalize(-vpos.xyz);
                     R = reflect(-lightDir.xyz, norm.xyz);
-                    spec+=pow( max(dot(R, E), 0.0),200.0)*gloss*pointLight[i].w;
+                    light_spec=(light_color[i].r+light_color[i].g+light_color[i].b)/3.0;
+                    spec+=pow( max(dot(R, E), 0.0),20.0)*gloss*pointLight[i].w*light_spec;
                     color += light_color[i] * NdotL*pointLight[i].w;
                     }
                 }
@@ -173,13 +176,13 @@ void main()
         //vec4 walk=vec4(1.0,1.0,1.0,1.0)- step(texture2D(walkmap,texUV), vec4(0.5,0.5,0.5,0.5));
         //vec4 walk=texture2D(walkmap,texUV);
         //final = mix(final,fog ,fogFactor)+walk; 
-        vec4 water_fog=vec4(0.0, 0.0, 0.01, 1.0);
+        vec4 water_fog=vec4(0.0, 0.01, 0.04, 1.0);
         float shade = 1.0;      
         float water_z=water_level+2.0;//new water at different level        
         if (terrainz<water_z)//no shadows under water
             {
             float water_fog_factor=1.0-pow(terrainz/(water_z), 4.0);
-            final=mix(final,water_fog ,water_fog_factor*0.9);         
+            final=mix(final,water_fog ,water_fog_factor*0.98);         
             spec=0.0;
             }
         else 
