@@ -60,7 +60,8 @@ void main()
         float att;
         float dist;
         vec4 pointLight;
-        for (int i=0; i<num_lights; ++i)
+        int iNumLights = int(num_lights);
+        for (int i=0; i<iNumLights; ++i)
             {  
             pointLight=p3d_ViewMatrix*vec4(light_pos[i].xyz, 1.0);
             dist=dist=distance(vpos.xyz, pointLight.xyz);

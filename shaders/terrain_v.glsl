@@ -40,7 +40,8 @@ void main()
     //point lights
     float dist; 
     float att; 
-    for (int i=0; i<num_lights; ++i)
+    int iNumLights = int(num_lights);
+    for (int i=0; i<iNumLights; ++i)
         {
         pointLight[i]=gl_ModelViewMatrix *vec4(light_pos[i].xyz, 1.0);    
         dist=distance(vpos.xyz, pointLight[i].xyz);

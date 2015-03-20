@@ -41,7 +41,8 @@ void main()
     fog_factor=clamp(distToCamera+distToEdge, 0.0, 1.0); 
     
     //point lights
-    for (int i=0; i<num_lights; ++i)
+    int iNumLights = int(num_lights);
+        for (int i=0; i<iNumLights; ++i)
         {
         pointLight[i]=p3d_ViewMatrix*vec4(light_pos[i].xyz, 1.0);       
         pointLight[i].w=light_pos[i].w;

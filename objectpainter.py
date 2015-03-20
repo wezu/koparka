@@ -190,34 +190,22 @@ class ObjectPainter():
         self.currentWall.setPythonTag('props', '')
         self.currentWall.setPos(render,pos)
         self.currentWall.setScale(self.currentScale)
-        
+            
     def drop(self, props=''):
         if self.currentWall:
-            best_node=None
-            best_distance=725.0
-            for node in self.quadtree:
-                distance=node.getDistance(self.currentWall)
-                if distance < best_distance:
-                    best_distance=distance
-                    best_node=node
-            self.currentWall.wrtReparentTo(best_node) 
-            self.currentWall.setPythonTag('props', props)            
+            best_node = min(self.quadtree, key=lambda n: n.getDistance(self.currentWall))
+            self.currentWall.wrtReparentTo(best_node)
+            self.currentWall.setPythonTag('props', props)
         elif self.currentObject:
-            best_node=None
-            best_distance=725.0
-            for node in self.quadtree:
-                distance=node.getDistance(self.currentObject)
-                if distance < best_distance:
-                    best_distance=distance
-                    best_node=node
+            best_node = min(self.quadtree, key=lambda n: n.getDistance(self.currentObject))
             self.currentObject.wrtReparentTo(best_node)
             self.currentObject.setPythonTag('props', props)
             next=self.currentObject.find('**/next')  
             if next:
-                self.hit_pos =next.getPos(render)
+                self.hit_pos = next.getPos(render)
             self.currentObject=None
             self.currentLight=None
-            
+
     def pickup(self): 
         if self.selectedObject:
             self.currentObject=self.selectedObject

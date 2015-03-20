@@ -84,7 +84,7 @@ void main()
         vec4 color =ambient;//+vec4(0.0, 0.135, 0.195, 1.0)*me;
         //directional =sun
         vec3 L, halfV;
-        float NdotL, NdotHV, specular; 
+        float NdotL, NdotHV, specular = 0.0; 
         L = normalize(gl_LightSource[0].position.xyz); 
         halfV= normalize(gl_LightSource[0].halfVector.xyz);    
         NdotL = max(dot(N,L),0.0);

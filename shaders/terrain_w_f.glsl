@@ -42,7 +42,7 @@ uniform float num_lights;
 
 void main()
     { 
-    if (dot(p3d_ClipPlane[0], vpos) < 0) 
+    if (dot(p3d_ClipPlane[0], vpos) < 0.0) 
         {
         discard;
         } 
