@@ -1573,4 +1573,4 @@ class Editor (DirectObject):
         self.painter.brushes[BUFFER_GRASS].setColor(color[0],color[1],color[2],self.painter.brushAlpha)
         
 app=Editor()
-run()    
+base.run()    
