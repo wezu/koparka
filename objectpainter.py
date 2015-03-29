@@ -168,6 +168,8 @@ class ObjectPainter():
                 #geom.setTransparency(TransparencyAttrib.MNone, 1)
                 geom.setShader(Shader.load(Shader.SLGLSL, "shaders/vfx_v.glsl","shaders/vfx_f.glsl"), 1) 
                 geom.setShaderInput('distortion',0.51)
+                geom.hide(BitMask32.bit(1))
+                geom.hide(BitMask32.bit(2))
                 #geom.setShaderAuto()
             p.ls()
             p.start(parent = self.currentObject, renderParent = render)

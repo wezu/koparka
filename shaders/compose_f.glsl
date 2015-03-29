@@ -14,7 +14,7 @@ void main()
     vec2 time_uv=gl_TexCoord[1].xy;
     
     vec4 blured_aux=texture2D(blurTex,uv);
-    float shadow=blured_aux.g*0.5+0.5;
+    float shadow=blured_aux.g*0.2+0.8;
     
     vec4 aux=texture2D(auxTex, uv);
     float fogfactor=aux.r;    

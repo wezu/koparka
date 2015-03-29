@@ -7,11 +7,12 @@ loadPrcFileData('','framebuffer-srgb true')
 loadPrcFileData('','default-texture-color-space sRGB')
 loadPrcFileData('','texture-minfilter  mipmap') #must have if performance drops after loading textures
 loadPrcFileData('','texture-magfilter  linear')
+#loadPrcFileData('','multisamples 2')
 #loadPrcFileData('','gl-check-errors #t')
 #loadPrcFileData('','show-buffers 1')
 #loadPrcFileData('','undecorated 1')
 #loadPrcFileData('','win-size 854 480')
-loadPrcFileData("", "dump-generated-shaders 1")
+#loadPrcFileData("", "dump-generated-shaders 1")
 from direct.showbase.AppRunnerGlobal import appRunner
 from panda3d.core import Filename
 if appRunner: 

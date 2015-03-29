@@ -12,7 +12,6 @@ varying float fog_factor;
 uniform vec4 fog;
 varying vec4 vpos;
 //varying float blend;
-
 void main()
     { 
     vec4 fog_color=vec4(fog.rgb, 1.0);     
@@ -24,7 +23,6 @@ void main()
     //float shape=shape_map.r*(blend)+ shape_map.g*(1.0-blend);
     vec4 final_color= vec4(color_map.rgb, color_map.a*shape);    
     //vec4 final_color= vec4(color_map.rgb, shape_map.r+shape_map2.r); 
-    //final_color.r=blend;
     float distToCamera =clamp(-vpos.z*0.01, 0.0, 1.0);
     gl_FragData[0]=final_color;   
     //gl_FragData[0]=vec4(distToCamera, 0.0, 0.0, 1.0);

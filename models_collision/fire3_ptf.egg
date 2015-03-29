@@ -2,7 +2,7 @@
 
 <Group> editor {
   <Tag> glsl_shader {light}
-  <Tag> particle { fire2 }
+  <Tag> particle { fire3 }
   <VertexPool> Sphere001.verts {
     <Vertex> 0 {
       0 0 1
