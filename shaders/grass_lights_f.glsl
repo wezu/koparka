@@ -4,10 +4,11 @@
 uniform sampler2D p3d_Texture0; //rgb color texture
 uniform sampler2D p3d_Texture1; //rgb color texture
 uniform sampler2D p3d_Texture2; //rgb color texture
+uniform sampler2D grass;
 
 //uniform sampler2D p3d_Texture1; //normal map
 
-varying vec3 blend_mask;
+varying vec2 uv;
 varying float fog_factor;
 varying vec3 normal;
 //varying vec3 tangent;
@@ -24,6 +25,7 @@ uniform mat4 p3d_ViewMatrix;
 
 void main()
     {    
+    vec4 blend_mask=texture2D(grass,uv);
     if(blend_mask.r+blend_mask.g+blend_mask.b < 0.1)
         discard;               
     else
@@ -67,8 +69,8 @@ void main()
             dist=dist=distance(vpos.xyz, pointLight.xyz);
             dist*=dist;            
             att = clamp(1.0 - dist/(light_pos[i].w), 0.0, 1.0);            
-            if (att>0.0)
-                {      
+            //if (att>0.0)
+            //    {      
                 lightDir = normalize(pointLight.xyz-vpos.xyz);
                 NdotL = max(dot(norm,lightDir),0.0);
                 if (NdotL > 0.0)
@@ -76,7 +78,7 @@ void main()
                     color += light_color[i] * NdotL*att;
                     }
                 color += light_color[i]*step(0.4,1.0-NdotL)*att*0.2;
-                }
+            //    }
             }    
         //vec4 fog_color=vec4(fog.rgb, 1.0);
         vec4 final = color*color_tex;

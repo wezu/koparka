@@ -387,7 +387,7 @@ class Editor (DirectObject):
         self.grass.setTexture(self.grass.findTextureStage('tex3'), grass_tex2, 1)             
         
         #skydome
-        self.skydome = loader.loadModel("data/skydome") 
+        self.skydome = loader.loadModel("data/skydome2") 
         self.skydome.setScale(10)                 
         self.skydome.reparentTo(render)            
         self.skydome.setShaderInput("sky", Vec4(0.4,0.6,1.0, 1.0))   
@@ -402,7 +402,7 @@ class Editor (DirectObject):
         self.skydome.node().setFinal(1)
         self.skydome.setShader(Shader.load(Shader.SLGLSL, "shaders/cloud_v.glsl", "shaders/cloud_f.glsl"))
         self.skydome.hide(MASK_SHADOW)
-        self.skydome.setTransparency(TransparencyAttrib.MNone)
+        self.skydome.setTransparency(TransparencyAttrib.MNone, 1)
         
         #waterplane
         self.waterNP = loader.loadModel("data/waterplane") 
@@ -1007,6 +1007,7 @@ class Editor (DirectObject):
         grass.node().setBounds(BoundingBox((0,0,0), (256,256,128)))
         grass.node().setFinal(1)
         grass.setShader(Shader.load(Shader.SLGLSL, "shaders/grass_lights_v.glsl", "shaders/grass_lights_f.glsl"))
+        #grass.setShader(Shader.load(Shader.SLGLSL, "shaders/grass_v.glsl", "shaders/grass_f.glsl"))
         grass.setShaderInput('height', self.painter.textures[BUFFER_HEIGHT]) 
         grass.setShaderInput('grass', self.painter.textures[BUFFER_GRASS])
         grass.setShaderInput('uv_offset', uv_offset)   

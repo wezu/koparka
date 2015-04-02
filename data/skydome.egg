@@ -6,7 +6,7 @@
   <Scalar> wrapu { repeat }
   <Scalar> wrapv { repeat }
   <Scalar> minfilter { linear_mipmap_linear }
-  <Scalar> magfilter { linear }
+  <Scalar> magfilter { linear_mipmap_linear }
   <Scalar> envtype { modulate }
 }
 <Group> Box001 {
