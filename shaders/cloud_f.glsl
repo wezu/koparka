@@ -26,13 +26,13 @@ void main()
     vec4 out_color=sky; 
     vec4 cloud=((cloudColor-out_color)*(tex1.r*tex2.r)*blend)*cloudColor.a;
     float sun=tex3.a*(1.0-(tex1.r*tex2.r)*blend);
-    sun=mix(0.0, sun, blend);    
+    sun=mix(0.0, sun, h);    
     cloud-=tex3.a*0.5;
     out_color+=cloud;
-    out_color=mix(out_color, vec4(1.0,1.0,0.5, 0.0), sun);
-    out_color=mix(fog*1.05, out_color, blend); 
+    out_color=mix(out_color, vec4(1.0,1.0,0.9, 0.0), sun);
+    out_color=mix(fog*1.05, out_color, h); 
     out_color.a=1.0;
     gl_FragData[0]=out_color;
-    gl_FragData[1]=vec4(0.0, 1.0,sun*0.2,0.5);
+    gl_FragData[1]=vec4(0.0, 1.0,sun*0.1,0.5);
     }
     

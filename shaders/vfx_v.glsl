@@ -15,15 +15,15 @@ void main()
     vert.x-=size*uv.x;
     vert.y+=size*uv.y;
     gl_Position =vert;   
-    gl_TexCoord[0] = gl_MultiTexCoord0;
+    //gl_TexCoord[0] = gl_MultiTexCoord0;
     float offset=0.125*round(gl_Color.r/0.125);
-    gl_TexCoord[1] = (gl_MultiTexCoord0*vec4(0.125, 1.0, 1.0, 1.0))+vec4(offset, 0.0, 0.0, 0.0);
-    gl_TexCoord[2] =(gl_MultiTexCoord0*vec4(0.125, 1.0, 1.0, 1.0))+vec4(offset, 0.0, 0.0, 0.0)-vec4(0.125, 0.0, 0.0, 1.0);
+    gl_TexCoord[0] = (gl_MultiTexCoord0*vec4(0.125, 1.0, 1.0, 1.0))+vec4(offset, 0.0, 0.0, 0.0);
+    gl_TexCoord[1] =(gl_MultiTexCoord0*vec4(0.125, 1.0, 1.0, 1.0))+vec4(offset, 0.0, 0.0, 0.0)-vec4(0.125, 0.0, 0.0, 1.0);
     color=gl_Color;
     
-    vec4 wpos=trans_model_to_world* vert; 
-    vpos = gl_ModelViewMatrix * vert;
-    float distToEdge=clamp(pow(distance(wpos.xy, vec2(256.0, 256.0))/256.0, 4.0), 0.0, 1.0);
+    vec4 wpos=trans_model_to_world* gl_Vertex; 
+    vpos = gl_ModelViewMatrix * gl_Vertex;
+    float distToEdge=clamp(pow(distance(wpos.xy, vec2(256.0, 256.0))*0.00390625, 4.0), 0.0, 1.0);
     float distToCamera =clamp(-vpos.z*fog.a-0.5, 0.0, 1.0);
     fog_factor=clamp(distToCamera+distToEdge, 0.0, 1.0);
     }

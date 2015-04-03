@@ -18,10 +18,6 @@ varying vec2 uv;
 varying float fog_factor;
 varying vec3 normal;
 
-
-uniform float num_lights;
-uniform vec4 light_pos[10];
-varying vec4 pointLight [10];
 uniform mat4 p3d_ViewMatrix;
 varying vec4 vpos;
 
@@ -29,36 +25,17 @@ void main()
     {   
     gl_TexCoord[0] = gl_MultiTexCoord0; 
     normal = gl_NormalMatrix * gl_Normal; 
-    //tangent =gl_NormalMatrix * p3d_Tangent; 
-    //binormal =gl_NormalMatrix * p3d_Binormal; 
-    int id=gl_InstanceID;    
-    float offset=0.0;
-    while (id>15)
-            {
-            offset+=16.0;
-            id-=16;
-            }
-    vec4 v = vec4(gl_Vertex);        
-    v.x +=float(id)*16.0;    
-    v.y +=offset;
-    uv=vec2(v.x/512.0, v.y/512.0)+uv_offset;
-
-    // Set the mask to discard in the fragment shader
-    //blend_mask=texture2DLod(grass,uv, 0.0).rgb;
-    float h= texture2DLod(height,uv, 0.0).r;    
-    v.z+=h*100.0;     
-    //mask =1.0;
+    vec4 offset=vec4(mod(float(gl_InstanceID), 16.0)*16.0, round(float(gl_InstanceID)*0.0625)*16.0,0.0, 0.0);    
+    vec4 v = vec4(gl_Vertex)+offset;    
+    uv=vec2(v.x*0.001953125, v.y*0.001953125)+uv_offset;    
+    v.z+=texture2DLod(height,uv, 0.0).r*100.0;     
     float anim_co=step(0.75, gl_MultiTexCoord0.y);
     float animation =sin(0.7*time+float(gl_InstanceID))*sin(1.7*time+float(gl_InstanceID))*anim_co;
-    
-    vec4 cs_position = gl_ModelViewMatrix * v;  
-    float distToEdge=clamp(pow(distance(v.xy, fogcenter.xy)/256.0, 4.0), 0.0, 1.0);
-    float distToCamera =clamp(-cs_position.z*fog.a-0.5, 0.0, 1.0);    
-    fog_factor=clamp(distToCamera+distToEdge, 0.0, 1.0);    
-    v.xy += animation;  
-    //gl_Position = p3d_ModelViewProjectionMatrix * v;
-    
+    v.xy += animation;     
     vpos = gl_ModelViewMatrix * v;         
-            
+    float distToEdge=clamp(pow(distance(v.xy, fogcenter.xy)*0.00390625, 4.0), 0.0, 1.0);
+    float distToCamera =clamp(-vpos.z*fog.a-0.5, 0.0, 1.0);    
+    fog_factor=clamp(distToCamera+distToEdge, 0.0, 1.0);    
+       
     gl_Position = p3d_ModelViewProjectionMatrix * v;    
     }

@@ -1,6 +1,8 @@
 from panda3d.core import *
 import json
+import os
 from direct.actor.Actor import Actor
+from vfx_loader import createEffect
 
 def loadModel(file, collision=None, animation=None):
     model=None
@@ -21,7 +23,13 @@ def loadModel(file, collision=None, animation=None):
         if geom.hasTag('light'):
             model.setPythonTag('hasLight', True)
         if geom.hasTag('particle'):
-            model.setPythonTag('particle', geom.getTag('particle'))    
+            file='particle/'+geom.getTag('particle')
+            if os.path.exists(file):
+                with open(file) as f:  
+                    values=json.load(f)
+                p=createEffect(values)                
+                model.setPythonTag('particle', p)    
+                p.start(parent=model, renderParent=render) 
         if geom.hasTag('cg_shader'):            
             geom.setShader(loader.loadShader("shaders/"+geom.getTag('cg_shader')))
         elif geom.hasTag('glsl_shader'):  

@@ -1,7 +1,8 @@
 from panda3d.core import loadPrcFileData
 #loadPrcFileData('','show-frame-rate-meter  1')
-loadPrcFileData('','win-size 1024 768')
+loadPrcFileData('','win-size 1024 720')
 loadPrcFileData('','sync-video 0')
+#loadPrcFileData('','undecorated 1')
 from panda3d.core import *
 from direct.particles.ParticleEffect import ParticleEffect
 from direct.particles import Particles
@@ -64,17 +65,14 @@ class Editor (DirectObject):
         self.p=None
         self.values={}
         self.massDependant=[1,1,1,1,1]        
-        self.root = NodePath("root")
-        self.saveDir="effect"
-        files = os.walk('.')
-        dirs=[x[0].strip(".\\") for x in files]        
+        self.root = NodePath("root")        
+        self.saveDir="particle/effect"        
         i=0
-        dir=self.saveDir
-        while dir in dirs:
-            dir=self.saveDir+str(i)
+        p=self.saveDir
+        while(os.path.exists(p)):
+            p=self.saveDir+str(i)
             i+=1
-        self.saveDir=dir    
-        os.makedirs(self.saveDir)        
+        self.saveDir=p
         self.currentColorGradient=loader.loadTexture("blank.png")
         self.currentSizeGradient=loader.loadTexture("blank.png")
         self.currentShapeGradient=loader.loadTexture("blank.png")
@@ -213,7 +211,7 @@ class Editor (DirectObject):
         #save
         saveFrame=DirectFrame(frameSize=_rec2d(base.win.getXSize(),16),
                               frameColor=(0,0,0,0.6),
-                              text='Save dir:',
+                              text='Save as:',
                               text_scale=16,          
                               text_pos=(-base.win.getXSize(),4),
                               text_align=TextNode.ALeft,
@@ -221,19 +219,31 @@ class Editor (DirectObject):
                               parent=pixel2d)
         _resetPivot(saveFrame)
         saveFrame.setPos(_pos2d(0, base.win.getYSize()-16))
-        saveEntry=DirectEntry(frameSize=_rec2d(512,15),
+        self.saveEntry=DirectEntry(frameSize=_rec2d(256,15),
                               frameColor=(1,1,1, 0.5),
                               text = self.saveDir,
                               text_scale=16,
-                              text_pos=(-512,4),
+                              text_pos=(-256,4),
                               text_align=TextNode.ALeft,
                               text_fg=(1,1,1,1),
                               initialText= self.saveDir,
                               numLines = 1,                        
                               focus=0,
                               parent=saveFrame)
-        _resetPivot(saveEntry)
-        saveEntry.setPos(_pos2d(offset,0))                              
+        _resetPivot(self.saveEntry)
+        self.saveEntry.setPos(_pos2d(offset,0))  
+        self.saveButton=DirectFrame(frameSize=_rec2d(256,16),
+                              frameColor=(0.5,0.5,0.5,0.5),
+                              text='Click here to save!',
+                              text_scale=16,          
+                              text_pos=(-200,4),
+                              text_align=TextNode.ALeft,
+                              text_fg=(1,1,1,1),
+                              state=DGG.NORMAL,
+                              parent=saveFrame)
+        _resetPivot(self.saveButton)
+        self.saveButton.setPos(_pos2d(offset+256, 0))
+        self.saveButton.bind(DGG.B1PRESS, self.export)
         #particle config 
         self.configFrame=DirectFrame(frameSize=_rec2d(256,128),
                                  frameColor=(0,0,0,0.6),
@@ -678,6 +688,26 @@ class Editor (DirectObject):
         self.getValues()
         self.setMode(3)
         #self.restartParticles()
+
+    def export(self, event=None):
+        self.saveDir=self.saveEntry.get()
+        dir=os.path.dirname(self.saveDir)
+        print dir
+        if not os.path.exists(dir):
+           os.makedirs(dir)   
+        self.values['color_gradient']=self.saveDir+"_color.png"
+        self.values['size_gradient']=self.saveDir+"_size.png"
+        self.values['shape_gradient']=self.saveDir+"_shape.png"
+        self.currentColorGradient.write(self.saveDir+"_color.png")
+        self.currentSizeGradient.write(self.saveDir+"_size.png")
+        self.currentShapeGradient.write(self.saveDir+"_shape.png")
+        with open(self.saveDir+".json", 'w') as outfile:
+            json.dump(self.values, outfile, indent=4, separators=(',', ': '), sort_keys=True)
+        if self.saveButton['text']=="Saved!":
+            self.saveButton['text']="Saved Again!"
+        else:
+            self.saveButton['text']="Saved!"
+           
         
     def setMassFlag(self, id, button, event=None):
         if self.massDependant[id]==1:
@@ -907,8 +937,8 @@ class Editor (DirectObject):
         self.forceEntries[17].set(str(self.values["forceVertex"][3]))   
         if  'mode' in  self.values:        
             self.restartParticles()
-            with open(self.saveDir+"/effect.json", 'w') as outfile:
-                json.dump(self.values, outfile, indent=4, separators=(',', ': '), sort_keys=True)
+            #with open(self.saveDir+"/effect.json", 'w') as outfile:
+            #    json.dump(self.values, outfile, indent=4, separators=(',', ': '), sort_keys=True)
             
     def setEmiter(self, arg=None):
         self.setMode(3)
@@ -1000,16 +1030,17 @@ class Editor (DirectObject):
             new.read(self.shapeButtons[i]['frameTexture']) 
             img.copySubImage(new, 64*i, 0, 0, 0, 64, 64)
             
-        img.write(self.saveDir+'/shape.png')
+        #img.write(self.saveDir+'/shape.png')
         tex = Texture()
         tex.load(img)  
         tex.setWrapU(Texture.WMClamp)
         tex.setWrapV(Texture.WMClamp)
         loader.unloadTexture(self.currentShapeGradient)
-        self.currentShapeGradient=loader.loadTexture(self.saveDir+'/shape.png')
-        self.currentShapeGradient.setWrapU(Texture.WMClamp)
-        self.currentShapeGradient.setWrapV(Texture.WMClamp) 
-        self.values["shape_gradient"]='shape.png'
+        #self.currentShapeGradient=loader.loadTexture(self.saveDir+'/shape.png')
+        #self.currentShapeGradient.setWrapU(Texture.WMClamp)
+        #self.currentShapeGradient.setWrapV(Texture.WMClamp) 
+        self.currentShapeGradient=tex
+        #self.values["shape_gradient"]='shape.png'
         #self.p.cleanup()            
         self.restartParticles(shape_gradient=tex)
         
@@ -1057,16 +1088,17 @@ class Editor (DirectObject):
                     self.sizeButtons[i]['frameColor']=color
                     self.sizeButtons[i].setShaderInput('size', color[0])
                     img.setXel(i, 0, color[0])    
-        img.write(self.saveDir+'/size.png')
+        #img.write(self.saveDir+'/size.png')
         tex = Texture()
         tex.load(img)
         tex.setWrapU(Texture.WMClamp)
         tex.setWrapV(Texture.WMClamp)
         loader.unloadTexture(self.currentSizeGradient)
-        self.currentSizeGradient=loader.loadTexture(self.saveDir+'/size.png')
-        self.currentSizeGradient.setWrapU(Texture.WMClamp)
-        self.currentSizeGradient.setWrapV(Texture.WMClamp) 
-        self.values["size_gradient"]='size.png'
+        #self.currentSizeGradient=loader.loadTexture(self.saveDir+'/size.png')
+        #self.currentSizeGradient.setWrapU(Texture.WMClamp)
+        #self.currentSizeGradient.setWrapV(Texture.WMClamp) 
+        #self.values["size_gradient"]='size.png'
+        self.currentSizeGradient=tex
         #self.p.cleanup()            
         self.restartParticles(None, tex)
         
@@ -1108,7 +1140,8 @@ class Editor (DirectObject):
                 elif i<next:
                     color1=self.colorButtons[current]['frameColor']
                     color2=self.colorButtons[next]['frameColor']
-                    distance=float(next-i)/float(next)                                          
+                    #distance=float(next-i)/float(next)  
+                    distance=1.0-(float(i-current)/float(next-current))                    
                     color=(linstep(color1[0], color2[0], distance),
                            linstep(color1[1], color2[1], distance),
                            linstep(color1[2], color2[2], distance),
@@ -1153,7 +1186,8 @@ class Editor (DirectObject):
                 elif i<next:
                     color1=self.alphaButtons[current]['frameColor']
                     color2=self.alphaButtons[next]['frameColor']
-                    distance=float(next-i)/float(next)                                          
+                    #distance=float(next-i)/float(next) 
+                    distance=1.0-(float(i-current)/float(next-current))    
                     a=linstep(color1[0], color2[0], distance)
                     self.alphaButtons[i]['frameColor']=color                      
                     self.alphaButtons[i].setShaderInput('glsl_color', Vec4(a, a, a, 1.0))
@@ -1163,16 +1197,17 @@ class Editor (DirectObject):
                     self.alphaButtons[i]['frameColor']=color
                     self.alphaButtons[i].setShaderInput('glsl_color', Vec4(color[0], color[1], color[2], 1.0))
                     img.setAlpha(i, 0, color[0])    
-        img.write(self.saveDir+'/color.png')
+        #img.write(self.saveDir+'/color.png')
         tex = Texture()
         tex.load(img)
         tex.setWrapU(Texture.WMClamp)
         tex.setWrapV(Texture.WMClamp)
         loader.unloadTexture(self.currentColorGradient)        
-        self.currentColorGradient=loader.loadTexture(self.saveDir+'/color.png')
-        self.currentColorGradient.setWrapU(Texture.WMClamp)
-        self.currentColorGradient.setWrapV(Texture.WMClamp) 
-        self.values["color_gradient"]='color.png'        
+        self.currentColorGradient=tex
+        #self.currentColorGradient=loader.loadTexture(self.saveDir+'/color.png')
+        #self.currentColorGradient.setWrapU(Texture.WMClamp)
+        #self.currentColorGradient.setWrapV(Texture.WMClamp) 
+        #self.values["color_gradient"]='color.png'        
         #self.p.cleanup()            
         self.restartParticles(tex)  
     

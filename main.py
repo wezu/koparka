@@ -1,18 +1,5 @@
-from panda3d.core import loadPrcFileData
-loadPrcFileData('','textures-power-2 None')#needed for fxaa
-loadPrcFileData('','win-size 1024 768')
-loadPrcFileData('','show-frame-rate-meter  1')
-loadPrcFileData('','sync-video 0')
-loadPrcFileData('','framebuffer-srgb true')
-loadPrcFileData('','default-texture-color-space sRGB')
-loadPrcFileData('','texture-minfilter  mipmap') #must have if performance drops after loading textures
-loadPrcFileData('','texture-magfilter  linear')
-#loadPrcFileData('','multisamples 2')
-#loadPrcFileData('','gl-check-errors #t')
-#loadPrcFileData('','show-buffers 1')
-#loadPrcFileData('','undecorated 1')
-#loadPrcFileData('','win-size 854 480')
-#loadPrcFileData("", "dump-generated-shaders 1")
+from panda3d.core import loadPrcFile
+loadPrcFile("cfg.prc")
 from direct.showbase.AppRunnerGlobal import appRunner
 from panda3d.core import Filename
 if appRunner: 
@@ -23,19 +10,16 @@ else:
 from panda3d.core import WindowProperties
 wp = WindowProperties.getDefault() 
 wp.setOrigin(-2,-2)  
-#wp.setUndecorated(True) 
 wp.setTitle("Koparka - Panda3D Level Editor")  
 WindowProperties.setDefault(wp)
 
 from panda3d.core import *
-#import direct.directbase.DirectStart
 from direct.showbase import ShowBase
 from direct.showbase.DirectObject import DirectObject
 from direct.filter.FilterManager import FilterManager
 from camcon import CameraControler
 from buffpaint import BufferPainter
 from guihelper import GuiHelper
-#from fxaa import makeFXAA moved into code
 from collisiongen import GenerateCollisionEgg
 from navmeshgen import GenerateNavmeshCSV
 from objectpainter import ObjectPainter
@@ -89,6 +73,7 @@ class Editor (DirectObject):
         #init ShowBase
         base = ShowBase.ShowBase()
         base.enableParticles()
+        #PStatClient.connect()
         
         #manager for post process filters (fxaa, soft shadows, dof)
         manager=FilterManager(base.win, base.cam)
@@ -1000,7 +985,8 @@ class Editor (DirectObject):
         self.setMode(self.mode)
         
     def CreateGrassTile(self, uv_offset, pos, parent, fogcenter=Vec3(0,0,0), count=256):
-        grass=loader.loadModel("data/grass_model")
+        grass=loader.loadModel("data/grass_model_lo")
+        #grass.setTwoSided(True)
         grass.setTransparency(TransparencyAttrib.MBinary, 1)
         grass.reparentTo(parent)
         grass.setInstanceCount(count) 

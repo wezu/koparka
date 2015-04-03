@@ -26,7 +26,7 @@ uniform mat4 p3d_ViewMatrix;
 void main()
     {    
     vec4 blend_mask=texture2D(grass,uv);
-    if(blend_mask.r+blend_mask.g+blend_mask.b < 0.1)
+    if(dot(blend_mask.rgb, vec3(1.0, 1.0, 1.0)) < 0.1)
         discard;               
     else
         {
@@ -34,30 +34,26 @@ void main()
         vec4 color_tex = vec4(0.0,0.0,0.0,0.0);        
         color_tex+=texture2D(p3d_Texture0,texUV)*blend_mask.r;
         color_tex+=texture2D(p3d_Texture1,texUV)*blend_mask.g;
-        color_tex+=texture2D(p3d_Texture2,texUV)*blend_mask.b;        
-        
-        //if (color_tex.a<0.5)
-        //    discard;
-            
+        color_tex+=texture2D(p3d_Texture2,texUV)*blend_mask.b;                    
+        if (color_tex.a<0.5)
+            discard;    
         vec3 norm = normalize(normal);  
        
-
-        //lights
-        //vec4 color =vec4(0.1, 0.15, 0.1, 1.0)+ambient;    
+        //lights        
         vec4 color =ambient+(gl_LightSource[1].diffuse)*0.5;    
         //directional =sun
         vec3 lightDir;
-        vec3 halfV;
+        //vec3 halfV;
         float NdotL;
-        float NdotHV; 
+        //float NdotHV; 
         lightDir = vec3(gl_LightSource[0].position); 
-        halfV = gl_LightSource[0].halfVector.xyz;    
-        NdotL = max(dot(norm,lightDir),0.0);
+        //halfV = gl_LightSource[0].halfVector.xyz;    
+        NdotL = max(dot(norm,lightDir),0.2);
         if (NdotL > 0.0)
             {
            color += gl_LightSource[0].diffuse* NdotL;          
            }
-        color +=(gl_LightSource[0].diffuse)*0.2*step(0.4,1.0-NdotL);
+        //color +=(gl_LightSource[0].diffuse)*0.2*step(0.4,1.0-NdotL);
         //point lights                 
         float att;
         float dist;
@@ -69,16 +65,16 @@ void main()
             dist=dist=distance(vpos.xyz, pointLight.xyz);
             dist*=dist;            
             att = clamp(1.0 - dist/(light_pos[i].w), 0.0, 1.0);            
-            //if (att>0.0)
-            //    {      
+            if (att>0.0)
+                {      
                 lightDir = normalize(pointLight.xyz-vpos.xyz);
-                NdotL = max(dot(norm,lightDir),0.0);
+                NdotL = max(dot(norm,lightDir),0.2);
                 if (NdotL > 0.0)
                     {
                     color += light_color[i] * NdotL*att;
                     }
-                color += light_color[i]*step(0.4,1.0-NdotL)*att*0.2;
-            //    }
+                //color += light_color[i]*step(0.4,1.0-NdotL)*att*0.2;
+               }
             }    
         //vec4 fog_color=vec4(fog.rgb, 1.0);
         vec4 final = color*color_tex;
