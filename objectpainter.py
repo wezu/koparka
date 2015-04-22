@@ -97,9 +97,9 @@ class ObjectPainter():
         self.normalizeHPR()
         if self.currentObject!=None:
             self.currentObject.setHpr(self.currentHPR[0],self.currentHPR[1],self.currentHPR[2])
-        if self.currentLight is not None:
-            color=(self.currentHPR[0]/255.0,self.currentHPR[1]/255.0,self.currentHPR[2]/255.0)                    
-            self.lightManager.setColor(self.currentLight, color)
+        #if self.currentLight is not None:
+        #    color=(self.currentHPR[0]/255.0,self.currentHPR[1]/255.0,self.currentHPR[2]/255.0)                    
+        #    self.lightManager.setColor(self.currentLight, color)
         return axis+'%.0f'%self.currentHPR[i]
         
     def adjustScale(self, amount):

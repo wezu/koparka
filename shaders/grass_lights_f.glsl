@@ -40,19 +40,19 @@ void main()
         vec3 norm = normalize(normal);  
        
         //lights        
-        vec4 color =ambient+(gl_LightSource[1].diffuse)*0.5;    
+        vec4 color =ambient+(gl_LightSource[0].diffuse)*0.5;    
         //directional =sun
         vec3 lightDir;
         //vec3 halfV;
         float NdotL;
         //float NdotHV; 
-        lightDir = vec3(gl_LightSource[0].position); 
+        //lightDir = vec3(gl_LightSource[0].position); 
         //halfV = gl_LightSource[0].halfVector.xyz;    
-        NdotL = max(dot(norm,lightDir),0.2);
-        if (NdotL > 0.0)
-            {
-           color += gl_LightSource[0].diffuse* NdotL;          
-           }
+        //NdotL = max(dot(norm,lightDir),0.2);
+        //if (NdotL > 0.0)
+        //    {
+        //   color += gl_LightSource[0].diffuse* NdotL;          
+        //   }
         //color +=(gl_LightSource[0].diffuse)*0.2*step(0.4,1.0-NdotL);
         //point lights                 
         float att;
@@ -62,17 +62,17 @@ void main()
         for (int i=0; i<iNumLights; ++i)
             {  
             pointLight=p3d_ViewMatrix*vec4(light_pos[i].xyz, 1.0);
-            dist=dist=distance(vpos.xyz, pointLight.xyz);
-            dist*=dist;            
+            dist=pow(distance(vpos.xyz, pointLight.xyz), 2.0);
+            //dist*=dist;            
             att = clamp(1.0 - dist/(light_pos[i].w), 0.0, 1.0);            
             if (att>0.0)
                 {      
                 lightDir = normalize(pointLight.xyz-vpos.xyz);
                 NdotL = max(dot(norm,lightDir),0.2);
-                if (NdotL > 0.0)
-                    {
+                //if (NdotL > 0.0)
+                //    {
                     color += light_color[i] * NdotL*att;
-                    }
+                //    }
                 //color += light_color[i]*step(0.4,1.0-NdotL)*att*0.2;
                }
             }    

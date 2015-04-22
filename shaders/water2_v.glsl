@@ -5,10 +5,10 @@ uniform mat4 trans_model_to_world;
 uniform mat4 trans_model_to_clip_of_camera;
 uniform mat4 p3d_ModelViewMatrix;
 uniform vec4 fog;
-uniform float time;
+uniform float osg_FrameTime;
 uniform float tile;
 uniform float speed;
-uniform vec3 wave;
+uniform vec4 wave;
 
 varying float fog_factor;
 
@@ -25,17 +25,17 @@ uniform mat4 p3d_ViewMatrix;
 
 void main()
     {
-    vec2 uv=(gl_MultiTexCoord0.xy+vec2(time*wave.x, time*wave.y))*wave.z;
-    blend=(sin(time*0.5)+1.0)*0.5;
+    vec2 uv=(gl_MultiTexCoord0.xy+vec2(osg_FrameTime*wave.x, osg_FrameTime*wave.y))*wave.z;
+    blend=(sin(osg_FrameTime*0.5)+1.0)*0.5;
     vec4 h_tex=texture2DLod(water_height, uv, 0.0);  
-    float h= mix(h_tex.b, h_tex.a, blend);  
+    float h= mix(h_tex.b, h_tex.a, blend)*wave.w;  
     vec4 vert=gl_Vertex;
     vert.z=(h*4.0); 
     height_scale=vert.z*10.0;
 	gl_Position = p3d_ModelViewProjectionMatrix * vert; 
              
-    gl_TexCoord[0] = gl_MultiTexCoord0*tile+time*speed;
-    gl_TexCoord[1] = gl_MultiTexCoord0*tile*1.77-time*speed*1.77;
+    gl_TexCoord[0] = gl_MultiTexCoord0*tile+osg_FrameTime*speed;
+    gl_TexCoord[1] = gl_MultiTexCoord0*tile*1.77-osg_FrameTime*speed*1.77;
     gl_TexCoord[2] = gl_MultiTexCoord0;
     gl_TexCoord[4] = vec4(uv.xy, 1.0, 1.0);
     

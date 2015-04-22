@@ -85,22 +85,23 @@ void main()
         //directional =sun
         vec3 L, halfV;
         float NdotL, NdotHV, specular = 0.0; 
-        L = normalize(gl_LightSource[0].position.xyz); 
-        halfV= normalize(gl_LightSource[0].halfVector.xyz);    
-        NdotL = max(dot(N,L),0.0);
-        if (NdotL > 0.0)
-            {
-            NdotHV = max(dot(N,halfV),0.0);
-            color += gl_LightSource[0].diffuse * NdotL;               
+        //L = normalize(gl_LightSource[0].position.xyz); 
+        //halfV= normalize(gl_LightSource[0].halfVector.xyz);    
+        //NdotL = max(dot(N,L),0.0);
+        //if (NdotL > 0.0)
+        //    {
+        //    NdotHV = max(dot(N,halfV),0.0);
+        //    color += gl_LightSource[0].diffuse * NdotL;               
             //color+=foam*gl_LightSource[0].diffuse;
-            float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;
-            specular=pow(NdotHV,450.0)*s;
-            }   
+        //    float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;
+         //   specular=pow(NdotHV,450.0)*s;
+         //   }   
         //point lights 
         vec3 E;
         vec3 R;        
         float att;
         float dist;
+        float light_spec;
         int iNumLights = int(num_lights);
         for (int i=0; i<iNumLights; ++i)
             {  
@@ -111,26 +112,29 @@ void main()
                 {      
                 L = normalize(pointLight[i].xyz-vpos.xyz);
                 NdotL = max(dot(N,L),0.0);
-                if (NdotL > 0.0)
-                    { 
+                //if (NdotL > 0.0)
+                //    { 
                     E = normalize(-vpos.xyz);
                     R = reflect(-L.xyz, N.xyz);
-                    specular+=pow( max(dot(R, E), 0.0),450.0)*att;
-                    color += light_color[i] * NdotL*att;
-                    }
+                    light_spec=dot(light_color[i].rgb, vec3(1.0, 1.0, 1.0))*0.4;
+                    specular+=pow( max(dot(R, E), 0.0),50.0)*att*light_spec;
+                    color += clamp((light_color[i] * NdotL*att)*facing, 0.1, 0.5);
+                //    }
                 }
             }
-        //full_foam*=color;          
+        full_foam*=color*4.0;
         specular*=(1.0-fog_factor);
         //specular-=foam;
-        vec4 refl=texture2DProj(reflection, gl_TexCoord[3]+distortion1*distortion2*4)-0.2;
-        vec4 final=mix(refl, color, 0.2+foam*0.5);        
+        vec4 refl=texture2DProj(reflection, gl_TexCoord[3]+distortion1*distortion2*4);
+        vec4 final=(color*refl);        
+        //vec4 final=color;        
         //final.rgb+=normalmap.a*clamp((me.r-0.5)*4.0, 0.0, 1.0);
         float final_spec=clamp(specular, 0.0, 1.0)*(1.0-foam);  
         final+=final_spec;
-        final+=full_foam;
-        final.a=((facing*0.5)+0.3)+(full_foam.a);
+        final+=full_foam*foam;        
+        float displace=(facing)+(foam*0.5);         
+        final.a=clamp(displace, 0.8, 1.0);
         gl_FragData[0] =mix(final, fog_color, fog_factor);
-        gl_FragData[1] =vec4(fog_factor, 1.0,final_spec*0.5,0.55+(1.0-final.a)*0.5);//(fog, shadow, glare, displace)
+        gl_FragData[1] =vec4(fog_factor, 1.0,final_spec*0.5,1.0-displace);//(fog, shadow, glare, displace)
         }
     }

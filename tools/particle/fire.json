@@ -68,7 +68,7 @@
     ],
     "outerAngle": 120.0,
     "outerMagnitude": 1.0,
-    "pool": 50,
+    "pool": 10,
     "radius": 2.0,
     "radiusSpread": 1.0,
     "shape_gradient": "particle/fire_shape.png",

@@ -134,7 +134,7 @@ class GuiHelper():
         else:
             value=self.string2value(self.SkySeaEntry[id-100].get(), self.SkySeaOptions[id-100])            
         if id==0:#size                        
-            value=min(10.0, max(0.1, value))
+            value=min(50.0, max(0.1, value))
             self.ConfigOptions[id]=value
         elif id==1:#alpha   
             value=min(1.0, max(0.0, value))
@@ -143,86 +143,68 @@ class GuiHelper():
             value=min(360.0, max(0.0, value))
             self.ConfigOptions[id]=value
         elif id==5:#grid tile
-            value=min(512.0, max(1.0, value))
+            value=min(512.0, max(0.0, value))
             self.ConfigOptions[id]=value
         elif id==6:#grid Z
-            value=min(101.0, max(0.0, value))    
+            value=min(500.0, max(0.0, value))    
             self.ConfigOptions[id]=value
         elif id==7:#light
-            value=min(1.0, max(0.01, value))    
+            value=min(23.0, max(0.0, value))    
             self.ConfigOptions[id]=value 
-        elif id==100:#Sky Color
-            #shoul be 4 element tuple/list            
-            if len(value)!=4:
-                value=self.SkySeaOptions[2]
-            try:    
-                final=[]    
-                for item in value:
-                    final.append(min(1.0, max(0.0, item)))
-                value=final    
+        elif id==100:#Terrain Tile
+            try:                    
+                value=min(512.0, max(1.0,value))
             except:
                 value=self.SkySeaOptions[0]
-        elif id==101:#Fog Color
-            #shoul be 4 element tuple/list            
-            if len(value)!=4:
-                value=self.SkySeaOptions[2]
-            try:    
-                final=[]    
-                for item in value:
-                    final.append(min(1.0, max(0.0, item)))
-                value=final    
-            except:
-                value=self.SkySeaOptions[1]
-        elif id==102:#Cloud Color
-            #shoul be 4 element tuple/list            
-            if len(value)!=4:
-                value=self.SkySeaOptions[2]
-            try:    
-                final=[]    
-                for item in value:
-                    final.append(min(1.0, max(0.0, item)))
-                value=final    
-            except:
-                value=self.SkySeaOptions[2]
-        elif id==103:#Cloud Tile
+        elif id==101:#Terrain Scale
             try:                    
-                value=min(64.0, max(0.1,value))
+                value=min(500.0, max(1.0,value))
             except:
-                value=self.SkySeaOptions[3]
-        elif id==104:#Cloud Speed
+                value=self.SkySeaOptions[1]            
+        elif id==102:#Sky Tile
+            try:                    
+                value=min(512.0, max(1.0,value))
+            except:
+                value=self.SkySeaOptions[2]
+        elif id==103:#Cloud Speed
             try:                    
                 value=min(1.0, max(0.0,value))
             except:
-                value=self.SkySeaOptions[4]
-        elif id==105:#Horizont
+                value=self.SkySeaOptions[3]
+        elif id==104:#Wave Tile
             try:                    
-                value=min(500.0, max(-100.0,value))
+                value=min(64.0, max(0.1,value))
+            except:
+                value=self.SkySeaOptions[4]
+        elif id==105:#Wave Height
+            try:                    
+                value=min(1.0, max(0.0,value))
             except:
                 value=self.SkySeaOptions[5]
-        elif id==106:#Water Tile
-            try:                    
-                value=min(200.0, max(0.1,value))
-            except:
-                value=self.SkySeaOptions[6]
-        elif id==107:#Water Speed
-            try:                    
-                value=min(1.0, max(0.001,value))
-            except:
-                value=self.SkySeaOptions[7]
-        elif id==108:#Water Wave
-             #shoul be 3 element tuple/list            
-            if len(value)!=3:
+        elif id==106:#Wave XY Move
+             #shoul be 2 element tuple/list            
+            if len(value)!=2:
                 value=self.SkySeaOptions[8]
             try:    
                 final=[]    
                 for item in value:
-                    final.append(min(100.0, max(0.0, item)))
+                    final.append(min(1.0, max(0.0, item)))
                 value=final    
+            except:
+                value=self.SkySeaOptions[6] 
+        elif id==107:#Water Tile
+            try:                    
+                value=min(100.0, max(0.001,value))
+            except:
+                value=self.SkySeaOptions[7]
+        elif id==108:#Water Speed
+            try:                    
+                value=min(1.0, max(0.00,value))
             except:
                 value=self.SkySeaOptions[8]        
         elif id==109:#Water Z
             try:                    
-                value=min(200.0, max(-1.0,value))
+                value=min(500.0, max(-1.0,value))
             except:
                 value=self.SkySeaOptions[9]         
         if id<100:    
@@ -232,27 +214,27 @@ class GuiHelper():
             self.SkySeaOptions[id-100]=value
 
     def setSkySeaValues(self, data):
-        sky=[data[0]['sky'][0], data[0]['sky'][1], data[0]['sky'][2], data[0]['sky'][3]]
-        fog=[data[0]['fog'][0], data[0]['fog'][1], data[0]['fog'][2], data[0]['fog'][3]]
-        cloudColor=[data[0]['cloudColor'][0], data[0]['cloudColor'][1], data[0]['cloudColor'][2], data[0]['cloudColor'][3]]
-        cloudTile=data[0]['cloudTile']
-        cloudSpeed=data[0]['cloudSpeed']
-        horizont=data[0]['horizont']
-        tile=data[0]['tile']
-        speed=data[0]['speed']
-        wave=[data[0]['wave'][0], data[0]['wave'][1], data[0]['wave'][2]]
-        water_z=data[0]['water_z']
+        TerrainTile=data[0]['TerrainTile']
+        TerrainScale=data[0]['TerrainScale']
+        SkyTile=data[0]['SkyTile']
+        CloudSpeed=data[0]['CloudSpeed']
+        WaveTile=data[0]['WaveTile']
+        WaveHeight=data[0]['WaveHeight']
+        WaveXYMove=[data[0]['WaveXYMove'][0],data[0]['WaveXYMove'][1]]
+        WaterTile=data[0]['WaterTile']
+        WaterSpeed=data[0]['WaterSpeed']
+        WaterLevel=data[0]['WaterLevel']
         
-        self.SkySeaEntry[0].set(str(sky))
-        self.SkySeaEntry[1].set(str(fog))
-        self.SkySeaEntry[2].set(str(cloudColor))
-        self.SkySeaEntry[3].set(str(cloudTile))
-        self.SkySeaEntry[4].set(str(cloudSpeed))
-        self.SkySeaEntry[5].set(str(horizont))
-        self.SkySeaEntry[6].set(str(tile))
-        self.SkySeaEntry[7].set(str(speed))
-        self.SkySeaEntry[8].set(str(wave))
-        self.SkySeaEntry[9].set(str(water_z))
+        self.SkySeaEntry[0].set(str(TerrainTile))
+        self.SkySeaEntry[1].set(str(TerrainScale))
+        self.SkySeaEntry[2].set(str(SkyTile))
+        self.SkySeaEntry[3].set(str(CloudSpeed))
+        self.SkySeaEntry[4].set(str(WaveTile))
+        self.SkySeaEntry[5].set(str(WaveHeight))
+        self.SkySeaEntry[6].set(str(WaveXYMove))
+        self.SkySeaEntry[7].set(str(WaterTile))
+        self.SkySeaEntry[8].set(str(WaterSpeed))
+        self.SkySeaEntry[9].set(str(WaterLevel))
         
         for i in range(10):
             self.validateEntry(id=i+100)
@@ -260,9 +242,10 @@ class GuiHelper():
     def addSkySeaDialog(self, command=None):
         #this one done 'properly'        
         #ordered dict should be used here... but not in python 2.5
-        #so the hack...well it looks like it won't be as 'propre' as advertised 
-        labels=['Sky Color:','Fog Color:','Cloud Color:','Cloud Tile:','Cloud Speed:','Horizont:','Water Tile:','Water Speed:', 'Water Wave:','Water Level:\n(-1 to disable)']
-        self.SkySeaOptions=[[0.4,0.6,1.0, 1.0],[0.4, 0.4, 0.4, 0.002],[0.9,0.9,1.0, 0.8], 4.0, 0.008, 140.0,10.0,0.01,[0.005, 0.003, 6.0], 30.0]
+        #so the hack...well it looks like it won't be as 'propre' as advertised         
+        #labels=['Sky Color:','Fog Color:','Cloud Color:','Cloud Tile:','Cloud Speed:','Horizont:','Water Tile:','Water Speed:', 'Water Wave:','Water Level:\n(-1 to disable)']
+        labels=['Terrain Tile:', 'Terrain Scale:', 'Sky Tile:','Cloud Speed:', 'Wave Tile:','Wave Height:','Wave XY Move:' ,'Water Tile:','Water Speed:', 'Water Level:\n(-1 to disable)']
+        self.SkySeaOptions=[32.0, 100.0,            10.0,       0.01,            6.0,         1.0,           [0.005,0.001], 20.0,         0.01,            30.0]
         text=""
         for item in labels:
             text+=item+'\n'
@@ -334,8 +317,8 @@ class GuiHelper():
         
         
     def addConfigDialog(self, command): 
-        labels=['Brush Scale:','Brush Strength(Z):','Heading:','Pitch:','Roll:','Grid Size:','Grid Z:','Brightness:']
-        self.ConfigOptions=[1.0, 1.0, 0.0, 0.0, 0.0, 16, 0.05, 0.8 ]
+        labels=['Brush Scale:','Brush Strength(Z):','Heading:','Pitch:','Roll:','Grid Size:','Grid Z:','Time(0-23h):']
+        self.ConfigOptions=[1.0, 1.0, 0.0, 0.0, 0.0, 16, 0.05, 12.0 ]
                            # 0    1    2    3    4    5    6    7
                            #Scale A    H    P    R  Grid  GridZ Sun 
         text=""
@@ -942,4 +925,102 @@ class GuiHelper():
         frame.setZ(frame, -y_offset)
         return frame
     
+    def hideColorPicker(self, event=None):
+        self.colorPickerFrame.hide()
+        
+    def showColorPicker(self, event=None):
+        self.colorPickerFrame.show()
+        
+    def applyColor(self, command, event=None):
+        self.colorPickerFrame.hide()
+        command()        
     
+    def overrideColor(self, event=None):
+        color=str(self.colorEntry.get())
+        try:
+            pixel=astEval(color)  
+            self.sample['frameColor']=(pixel[0]/255.0, pixel[1]/255.0, pixel[2]/255.0, 1.0)            
+        except:
+            print "Unknown format!"
+            
+    def pickColor(self, event=None):        
+        mpos=Vec2(event.getMouse()[0], event.getMouse()[1])                
+        mpos+=(1, -1)
+        mpos[0]*=base.win.getXSize()/2
+        mpos[1]*=-1*base.win.getYSize()/2
+        mpos[0]=max(1, mpos[0])
+        mpos[1]=max(1, mpos[1])
+        img=PNMImage('data/color_picker.png')
+        try:            
+            pixel=img.getPixel(int(mpos[0]), int(mpos[1]))
+            pixel=[pixel[0],pixel[1], pixel[2]]
+            self.colorEntry.set('{0}, {1}, {2}'.format(*pixel))
+            self.sample['frameColor']=(pixel[0]/255.0, pixel[1]/255.0, pixel[2]/255.0, 1.0)
+        except:
+            print "Pixel out of range, try again!"
+            
+    def addColorPicker(self, apply_command):
+        self.colorPickerFrame=DirectFrame(frameSize=_rec2d(256,256+64),
+                              frameColor=(1,1,1,0.99),
+                              text='RGB=',
+                              text_scale=16,          
+                              text_pos=(-256,48),
+                              text_align=TextNode.ALeft,
+                              frameTexture='icon/color_picker.png',
+                              text_fg=(1,1,1,1),
+                              parent=pixel2d)   
+        _resetPivot(self.colorPickerFrame)
+        #self.colorPickerFrame.setPos(_pos2d(16,16))
+        tex = loader.loadTexture('data/color_picker.png')
+        tex.setFormat(Texture.F_srgb_alpha)
+        picker=DirectFrame(frameSize=_rec2d(256,256),
+                            frameColor=(1,1,1,1),
+                            state=DGG.NORMAL,
+                            frameTexture=tex,
+                            parent=self.colorPickerFrame)
+        _resetPivot(picker)
+        picker.bind(DGG.B1PRESS, self.pickColor)
+        self.sample=DirectFrame(frameSize=_rec2d(32,32),frameColor=(1,1,1,1),parent=self.colorPickerFrame)
+        _resetPivot(self.sample)  
+        self.sample.setPos(_pos2d(222, 258))
+        self.colorEntry=DirectEntry(frameSize=_rec2d(128,22),
+                        frameColor=(1,1,1, 0.0),
+                        text = "255, 255, 255",
+                        text_scale=16,
+                        text_pos=(-128,8),
+                        text_align=TextNode.ALeft,
+                        text_fg=(1,1,1,1),
+                        initialText= "255, 255, 255",
+                        numLines = 1,                        
+                        focus=1,
+                        parent=self.colorPickerFrame,
+                        command=self.overrideColor,                                
+                        focusOutCommand=self.overrideColor,
+                        )
+        _resetPivot(self.colorEntry)
+        self.colorEntry.setPos(_pos2d(48,258))
+        self.colorOk=DirectFrame(frameSize=_rec2d(120,24),
+                                 frameColor=(1,1,1,0.0),
+                                 text='OK',
+                                 text_scale=16,          
+                                 text_pos=(-60,10),
+                                 text_align=TextNode.ACenter,
+                                 text_fg=(1,1,1,1),
+                                 state=DGG.NORMAL,
+                                 parent=self.colorPickerFrame)
+        _resetPivot(self.colorOk)  
+        self.colorOk.setPos(_pos2d(2, 292))
+        self.colorOk.bind(DGG.B1PRESS, self.applyColor, [apply_command])
+        self.colorCancel=DirectFrame(frameSize=_rec2d(120,24),
+                                 frameColor=(1,1,1,0.0),
+                                 text='Cancel',
+                                 text_scale=16,          
+                                 text_pos=(-60,10),
+                                 text_align=TextNode.ACenter,
+                                 text_fg=(1,1,1,1),
+                                 state=DGG.NORMAL,
+                                 parent=self.colorPickerFrame)
+        _resetPivot(self.colorCancel)  
+        self.colorCancel.setPos(_pos2d(124, 292))
+        self.colorCancel.bind(DGG.B1PRESS, self.hideColorPicker)
+        self.colorPickerFrame.hide()

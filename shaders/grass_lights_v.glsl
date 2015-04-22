@@ -6,7 +6,7 @@
 attribute vec3 p3d_Binormal;
 attribute vec3 p3d_Tangent;
 
-uniform float time;
+uniform float osg_FrameTime;
 uniform mat4 p3d_ModelViewProjectionMatrix;
 uniform sampler2D height;
 uniform sampler2D grass;
@@ -30,7 +30,7 @@ void main()
     uv=vec2(v.x*0.001953125, v.y*0.001953125)+uv_offset;    
     v.z+=texture2DLod(height,uv, 0.0).r*100.0;     
     float anim_co=step(0.75, gl_MultiTexCoord0.y);
-    float animation =sin(0.7*time+float(gl_InstanceID))*sin(1.7*time+float(gl_InstanceID))*anim_co;
+    float animation =sin(0.7*osg_FrameTime+float(gl_InstanceID))*sin(1.7*osg_FrameTime+float(gl_InstanceID))*anim_co;
     v.xy += animation;     
     vpos = gl_ModelViewMatrix * v;         
     float distToEdge=clamp(pow(distance(v.xy, fogcenter.xy)*0.00390625, 4.0), 0.0, 1.0);

@@ -5,7 +5,7 @@ uniform mat4 trans_model_to_world;
 uniform mat4 tpose_view_to_model;
 uniform mat4 p3d_ModelViewMatrix;
 uniform vec4 fog;
-uniform float time;
+uniform float osg_FrameTime;
 
 attribute vec3 p3d_Binormal;
 attribute vec3 p3d_Tangent;
@@ -27,8 +27,8 @@ void main()
     {
     vec4 wpos=trans_model_to_world* gl_Vertex;     
     isBark=step(0.251, gl_MultiTexCoord0.y);     
-    float animation =sin(time+wpos.x);     
-    animation *=sin(0.5*(time+wpos.y));
+    float animation =sin(osg_FrameTime+wpos.x);     
+    animation *=sin(0.5*(osg_FrameTime+wpos.y));
     animation *=isBark;
     animation *=distance(gl_Vertex.xy, vec2(0.0,0.0))*0.04;
     vec4 vert= vec4(gl_Vertex.xyz+animation, gl_Vertex.w);

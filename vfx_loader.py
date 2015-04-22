@@ -9,10 +9,11 @@ def createEffect(values):
     loadValues(values, p)
     color_gradient=loader.loadTexture(values["color_gradient"])
     size_gradient=loader.loadTexture(values["size_gradient"])
-    shape_gradient=loader.loadTexture(values["shape_gradient"])    
+    shape_gradient=loader.loadTexture(values["shape_gradient"])
     blend_gradient=loader.loadTexture("data/blend.png", minfilter=Texture.FTNearest, magfilter=Texture.FTNearest)
     color_gradient.setWrapU(Texture.WMClamp)
     color_gradient.setWrapV(Texture.WMClamp)
+    color_gradient.setFormat(Texture.F_srgb_alpha)
     size_gradient.setWrapU(Texture.WMClamp)
     size_gradient.setWrapV(Texture.WMClamp)
     shape_gradient.setWrapU(Texture.WMClamp)
@@ -21,7 +22,7 @@ def createEffect(values):
     blend_gradient.setWrapV(Texture.WMClamp)
     for geom in p.findAllMatches('**/+GeomNode'):       
         geom.setDepthWrite(False)
-        geom.setBin("transparent", 31)
+        #geom.setBin("transparent", 31)
         #need to hide it from the water and shadow camera now... I don't know hot to get the geom later :(
         geom.hide(BitMask32.bit(1))
         geom.hide(BitMask32.bit(2))

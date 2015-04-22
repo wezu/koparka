@@ -5,7 +5,8 @@ win-size 1024 768
 show-frame-rate-meter  1
 sync-video 0
 framebuffer-srgb true
-#default-texture-color-space sRGB
+default-texture-color-space sRGB
+textures-srgb true
 texture-minfilter  mipmap
 texture-magfilter  linear
 #show-buffers 1

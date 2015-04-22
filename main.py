@@ -108,6 +108,7 @@ class Editor (DirectObject):
         self.axis.setShader(Shader.load(Shader.SLGLSL, "shaders/editor_v.glsl", "shaders/editor_f.glsl"))
         
         #store variables needed for diferent classes 
+        self.skyimg=PNMImage('data/sky_grad.png')
         self.mode=MODE_HEIGHT
         self.height_mode=HEIGHT_MODE_UP
         self.tempColor=1
@@ -225,7 +226,7 @@ class Editor (DirectObject):
         self.gui.addButton(self.statusbar, 'icon/grass.png', self.setMode, [MODE_GRASS], self.tooltip, 'Paint Grass Mode [F3]')
         self.gui.addButton(self.statusbar, 'icon/place_icon.png', self.setMode, [MODE_OBJECT], self.tooltip, 'Paint Objects Mode [F4]')
         self.gui.addButton(self.statusbar, 'icon/walkmap_icon.png', self.setMode, [MODE_WALK], self.tooltip, 'Paint Walkmap Mode [F5]')
-        self.gui.addButton(self.statusbar, 'icon/sky_sea_icon.png', self.configSkySea,[True], tooltip=self.tooltip, tooltip_text='Configure sky and sea (and all that they encompass) [F6]')
+        self.gui.addButton(self.statusbar, 'icon/sky_sea_icon.png', self.configSkySea,[True], tooltip=self.tooltip, tooltip_text='Configure stone and sea and sky (and all that they encompass) [F6]')
         self.gui.addButton(self.statusbar, 'icon/save.png', self.showSaveMenu, tooltip=self.tooltip, tooltip_text='Save/Load [F7]')
         #gray out buttons
         self.gui.grayOutButtons(self.statusbar, (4,10), None)
@@ -274,18 +275,22 @@ class Editor (DirectObject):
         #object-mode select toolbar
         self.select_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 384), icon_size=32, x_offset=-192, y_offset=128, hover_command=self.onToolbarHover, color=(0,0,0, 0.5)) 
         #hack to add text
-        self.gui.elements[self.select_toolbar_id]['frame']['text']="X:\nY:\nZ:\nH:\nP:\nR:\n      Scale:\n    RGB:"
+        self.gui.elements[self.select_toolbar_id]['frame']['text']="X:\nY:\nZ:\nH:\nP:\nR:\n      Scale:"
         self.gui.elements[self.select_toolbar_id]['frame']['text_scale']=32
         self.gui.elements[self.select_toolbar_id]['frame']['text_fg']=(1,1,1,1)
         self.gui.elements[self.select_toolbar_id]['frame']['text_font']=self.gui.fontBig
         self.gui.elements[self.select_toolbar_id]['frame']['text_pos']=(16,-24)
-        for i in range(6):
+        for i in range(5):
             self.gui.addEntry(self.select_toolbar_id, size_x=180, offset_x=30)
         self.gui.addEntry(self.select_toolbar_id, size_x=125, offset_x=85)
         self.gui.addEntry(self.select_toolbar_id, size_x=125, offset_x=85)
         self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/apply.png',[32, 264], self.applyTransform,[0] ,tooltip=self.tooltip, tooltip_text='Apply changes in position, rotation and scale')        
         self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/pickup.png',[32, 304], self.pickUp,[0] ,tooltip=self.tooltip, tooltip_text='Pick up the selected object and move it manualy')        
         self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/delete.png',[32, 344], self.deleteObject,[0] ,tooltip=self.tooltip, tooltip_text='Delete the selected object')        
+        #color button
+        self.gui.addColorPicker(apply_command=self.setLightColor)
+        self.color_toolbar=self.gui.addToolbar(self.gui.TopLeft, (64, 64),icon_size=64, hover_command=self.onToolbarHover, color=(1,1,1, 0.0))
+        self.gui.addButton(self.color_toolbar, 'icon/icon_rgb.png', self.gui.showColorPicker,[],tooltip=self.tooltip, tooltip_text='Set Light Color') 
         
         
         #extra buttons for height paint mode (up/down/level)
@@ -333,7 +338,9 @@ class Editor (DirectObject):
         self.mesh.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
         self.mesh.setShaderInput("atr1", self.painter.textures[BUFFER_ATR]) 
         self.mesh.setShaderInput("atr2", self.painter.textures[BUFFER_ATR2])        
-        self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_WALK])                
+        self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_WALK])  
+        self.mesh.setShaderInput("z_scale", 100.0)  
+        self.mesh.setShaderInput("tex_scale", 16.0) 
         self.mesh.setTransparency(TransparencyAttrib.MNone)
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
@@ -372,15 +379,18 @@ class Editor (DirectObject):
         self.grass.setTexture(self.grass.findTextureStage('tex3'), grass_tex2, 1)             
         
         #skydome
-        self.skydome = loader.loadModel("data/skydome2") 
+        self.skydome = loader.loadModel("data/skydome2")  
+        self.skydome.reparentTo(render)
+        self.skydome.setPos(256, 256, -200)        
         self.skydome.setScale(10)                 
-        self.skydome.reparentTo(render)            
         self.skydome.setShaderInput("sky", Vec4(0.4,0.6,1.0, 1.0))   
         #self.skydome.setShaderInput("fog", Vec4(1.0,1.0,1.0, 1.0)) 
         self.skydome.setShaderInput("cloudColor", Vec4(0.9,0.9,1.0, 0.8))
-        self.skydome.setShaderInput("cloudTile",4.0) 
+        self.skydome.setShaderInput("cloudTile",8.0) 
         self.skydome.setShaderInput("cloudSpeed",0.008)
-        self.skydome.setShaderInput("horizont",140.0)
+        self.skydome.setShaderInput("horizont",20.0)        
+        self.skydome.setShaderInput("sunColor",Vec4(1.0,1.0,1.0, 1.0))        
+        self.skydome.setShaderInput("skyColor",Vec4(1.0,1.0,1.0, 1.0))
         self.skydome.setBin('background', 1)
         self.skydome.setTwoSided(True)
         self.skydome.node().setBounds(OmniBoundingVolume())
@@ -441,28 +451,21 @@ class Editor (DirectObject):
         self.mesh.setShaderInput("water_level",-1.0)
         
         #light
-        #sun
-        self.dlight = DirectionalLight('dlight') 
-        self.dlight.setColor(VBase4(0.8, 0.8, 0.8, 1))     
-        self.mainLight = render.attachNewNode(self.dlight)
-        self.mainLight.setP(-60)       
-        self.mainLight.setH(90)
-        render.setLight(self.mainLight)
+        #sun        
+        self.sun=self.lManager.addLight(pos=(256.0, 256.0, 200.0), color=(0.9, 0.9, 0.9), radius=10000.0)
+        render.setShaderInput('daytime', 12.0)
         
         #ambient light 
         self.alight = DirectionalLight('dlight') 
-        self.alight.setColor(Vec4(.05, .05, .1, 1))     
+        self.alight.setColor(Vec4(.1, .1, .11, 1.0))     
         self.ambientLight = render.attachNewNode(self.alight)
         #self.ambientLight.setP(-90)       
         #self.ambientLight.setH(90)
         render.setLight(self.ambientLight)
         self.ambientLight.setPos(base.camera.getPos())
         self.ambientLight.setHpr(base.camera.getHpr())
-        self.ambientLight.wrtReparentTo(base.camera)
-        
-        render.setShaderInput("dlight0", self.mainLight)
-        render.setShaderInput("dlight1", self.ambientLight)
-        render.setShaderInput("ambient", Vec4(.01, .01, .01, 1)) 
+        self.ambientLight.wrtReparentTo(base.camera)        
+        render.setShaderInput("ambient", Vec4(.001, .001, .001, 1)) 
         
         #render shadow map
         depth_map = Texture()
@@ -487,22 +490,23 @@ class Editor (DirectObject):
                                               fbp = props)
         depthBuffer.setClearColor(Vec4(1.0,1.0,1.0,1.0)) 
         depthBuffer.setSort(-101)
-        shadowCamera = base.makeCamera(depthBuffer) 
+        self.shadowCamera = base.makeCamera(depthBuffer) 
         lens = OrthographicLens()
         lens.setFilmSize(500, 500)
-        shadowCamera.node().setLens(lens)
-        shadowCamera.node().getLens().setNearFar(1,400) 
-        shadowCamera.node().setCameraMask(MASK_SHADOW)
-        shadowCamera.reparentTo(render)
-        #shadowCamera.node().showFrustum()
-        shadowCamera.setPos(400, 256, 256)          
-        shadowCamera.setHpr(self.mainLight.getHpr())
-        #self.shadowNode=render.attachNewNode('shadowNode')
-        #self.shadowNode.setPos(self.controler.cameraNode.getPos())
-        #shadowCamera.wrtReparentTo(self.shadowNode)            
+        self.shadowCamera.node().setLens(lens)
+        self.shadowCamera.node().getLens().setNearFar(1,400) 
+        self.shadowCamera.node().setCameraMask(MASK_SHADOW)
+        self.shadowCamera.reparentTo(render)
+        #self.shadowCamera.node().showFrustum()
+        self.shadowCamera.setPos(256, 256, 200)          
+        self.shadowCamera.setHpr(90, -90, 0)
+        
+        self.sunNode=render.attachNewNode('sunNode')
+        self.sunNode.setPos(256, 256, 0)
+        self.shadowCamera.wrtReparentTo(self.sunNode)            
         render.setShaderInput('shadow', depth_map)
         render.setShaderInput("bias", 1.0)
-        render.setShaderInput('shadowCamera',shadowCamera)
+        render.setShaderInput('shadowCamera',self.shadowCamera)
         
         #fog
         #rgb color + coefficiency in alpha
@@ -550,16 +554,84 @@ class Editor (DirectObject):
         self.setBrush(0)
         self.painter.brushes[BUFFER_ATR].setColor(0,0,0,1.0)
         self.painter.brushes[BUFFER_ATR2].setColor(0,0,1,1.0)
-        
+        self.setTime(14.0)        
         #tasks
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task', sort=46)  
+        #self.clock=12.0        
+        #taskMgr.doMethodLater(.1, self.clockTick,'clock_task')
+        
+    def setLightColor(self):        
+        if self.objectPainter.currentObject:
+            if self.objectPainter.currentObject.hasPythonTag('hasLight'):  
+                id=self.objectPainter.currentObject.getPythonTag('hasLight')
+                rgb=self.gui.sample['frameColor']            
+                self.lManager.setColor(id, rgb)        
+                self.objectPainter.currentObject.setPythonTag('light_color', [rgb[0],rgb[1],rgb[2]])
+        elif self.objectPainter.selectedObject:        
+            if self.objectPainter.selectedObject.hasPythonTag('hasLight'):                  
+                id=self.objectPainter.selectedObject.getPythonTag('hasLight')
+                rgb=self.gui.sample['frameColor']            
+                self.lManager.setColor(id, rgb)    
+                self.objectPainter.selectedObject.setPythonTag('light_color', [rgb[0],rgb[1],rgb[2]])
+        
+                
+    def clockTick(self, task):
+        self.clock+=0.02
+        if self.clock>23.9:
+            self.clock=0.0
+        self.setTime(self.clock)                
+        return task.again
+
+    def blendPixels(self, p1, p2, blend):
+        c1=[p1[0]/255.0,p1[1]/255.0,p1[2]/255.0, p1[3]/255.0] 
+        c2=[p2[0]/255.0,p2[1]/255.0,p2[2]/255.0, p2[3]/255.0]         
+        return Vec4( c1[0]*blend+c2[0]*(1.0-blend), c1[1]*blend+c2[1]*(1.0-blend), c1[2]*blend+c2[2]*(1.0-blend), c1[3]*blend+c2[3]*(1.0-blend))
     
+    def setTime(self, time, event=None):
+        sunpos=min(0.5, max(-0.5,(time-12.0)/14.0)) 
+        render.setShaderInput('sunpos', sunpos)
+        x1=int(time)
+        x2=x1-1
+        if x2<0:
+            x2=0
+        blend=time%1.0        
+        
+        p1=self.skyimg.getPixel(x1, 0)
+        p2=self.skyimg.getPixel(x2, 0)
+        sunColor=self.blendPixels(p1, p2, blend)
+        
+        p1=self.skyimg.getPixel(x1, 1)
+        p2=self.skyimg.getPixel(x2, 1)
+        skyColor=self.blendPixels(p1, p2, blend)
+        
+        p1=self.skyimg.getPixel(x1, 2)
+        p2=self.skyimg.getPixel(x2, 2)
+        cloudColor=self.blendPixels(p1, p2, blend)
+        
+        p1=self.skyimg.getPixel(x1, 3)
+        p2=self.skyimg.getPixel(x2, 3)
+        fogColor=self.blendPixels(p1, p2, blend)        
+        fogColor[3]=abs(sunpos)*0.01+0.001
+        
+        if time<6.0 or time>18.0:
+            p=0.0            
+        else:
+            p=sunpos*-180.0
+        
+        self.sunNode.setP(p)
+        #self.lManager.moveLight(self.sun,self.shadowCamera.getPos(render))
+        self.lManager.setLight(id=self.sun, pos=self.shadowCamera.getPos(render), color=sunColor, radius=10000.0)
+        self.skydome.setShaderInput("sunColor",sunColor)        
+        self.skydome.setShaderInput("skyColor",skyColor)  
+        self.skydome.setShaderInput("cloudColor",cloudColor)
+        render.setShaderInput("fog", fogColor)
+        
     def findLights(self):    
         for node in self.objectPainter.quadtree:
             for child in node.getChildren():            
                 if child.hasPythonTag('hasLight'):
                     pos=child.getPos(render)
-                    color=[child.getH()/255.0, child.getP()/255.0, child.getR()/255.0,]
+                    color=child.getPythonTag('light_color')
                     radi=child.getScale()[0]*10.0
                     id=self.lManager.addLight(pos, color, radi)
                     child.setPythonTag('hasLight', id)
@@ -644,8 +716,7 @@ class Editor (DirectObject):
         h=self.gui.elements[self.select_toolbar_id]['buttons'][3].get()
         p=self.gui.elements[self.select_toolbar_id]['buttons'][4].get()
         r=self.gui.elements[self.select_toolbar_id]['buttons'][5].get()
-        scale=self.gui.elements[self.select_toolbar_id]['buttons'][6].get()
-        rgb=self.gui.elements[self.select_toolbar_id]['buttons'][7].get()
+        scale=self.gui.elements[self.select_toolbar_id]['buttons'][6].get()        
         x=self.objectPainter._stringToFloat(x)
         y=self.objectPainter._stringToFloat(y)
         z=self.objectPainter._stringToFloat(z)
@@ -653,13 +724,14 @@ class Editor (DirectObject):
         p=self.objectPainter._stringToFloat(p)
         r=self.objectPainter._stringToFloat(r)
         scale=self.objectPainter._stringToFloat(scale)        
-        rgb=self.gui.string2value(rgb, [1.0, 1.0, 1.0])
+        rgb=self.gui.sample['frameColor']
         self.objectPainter.selectedObject.setPosHpr((x,y,z), (h,p,r))
         self.objectPainter.selectedObject.setScale(scale)
         if self.objectPainter.selectedObject.hasPythonTag('hasLight'):
-            id=self.objectPainter.selectedObject.getPythonTag('hasLight')
-            color=(round(h/255.0, 5), round(p/255.0, 5), round(r/255.0, 5))
-            self.lManager.setLight(id, self.objectPainter.selectedObject.getPos(render), color, 10.0*scale)
+            id=self.objectPainter.selectedObject.getPythonTag('hasLight')            
+            self.lManager.setLight(id, self.objectPainter.selectedObject.getPos(render), rgb, 10.0*scale)
+            self.objectPainter.selectedObject.setPythonTag('light_color', [rgb[0],rgb[1],rgb[2]])
+            self.gui.colorPickerFrame.hide()
         self.gui.elements[self.select_toolbar_id]['buttons'][0]['focus']=0
         self.gui.elements[self.select_toolbar_id]['buttons'][1]['focus']=0
         self.gui.elements[self.select_toolbar_id]['buttons'][2]['focus']=0
@@ -688,8 +760,8 @@ class Editor (DirectObject):
         self.heading_info['text']=self.objectPainter.adjustHpr(0,self.hpr_axis)
         self.size_info['text']='%.2f'%self.objectPainter.currentScale
         self.color_info['text']='%.2f'%self.objectPainter.currentZ   
-        self.props.set(self.objectPainter.currentObject.getPythonTag('props'))
-    
+        self.props.set(self.objectPainter.currentObject.getPythonTag('props'))        
+                
     def configSkySea(self, options=False, guiEvent=None):    
         if options==True:
             self.ignoreHover=True
@@ -705,42 +777,42 @@ class Editor (DirectObject):
             self.ignoreHover=False
             self.gui.SkySeaFrame.hide()
             self.setMode(self.mode)
-            sky=Vec4(self.gui.SkySeaOptions[0][0],self.gui.SkySeaOptions[0][1],self.gui.SkySeaOptions[0][2],self.gui.SkySeaOptions[0][3])
-            fog=Vec4(self.gui.SkySeaOptions[1][0],self.gui.SkySeaOptions[1][1],self.gui.SkySeaOptions[1][2],self.gui.SkySeaOptions[1][3])
-            cloudColor=Vec4(self.gui.SkySeaOptions[2][0],self.gui.SkySeaOptions[2][1],self.gui.SkySeaOptions[2][2],self.gui.SkySeaOptions[2][3])
-            cloudTile=self.gui.SkySeaOptions[3]
-            cloudSpeed=self.gui.SkySeaOptions[4]
-            horizont=self.gui.SkySeaOptions[5]
-            tile=self.gui.SkySeaOptions[6]
-            speed=self.gui.SkySeaOptions[7]
-            wave=Vec3(self.gui.SkySeaOptions[8][0],self.gui.SkySeaOptions[8][1],self.gui.SkySeaOptions[8][2])
-            water_z=self.gui.SkySeaOptions[9]            
-            self.skydome.setShaderInput("sky", sky)   
-            render.setShaderInput("fog", fog) 
-            self.skydome.setShaderInput("cloudColor", cloudColor)
-            self.skydome.setShaderInput("cloudTile",cloudTile) 
-            self.skydome.setShaderInput("cloudSpeed",cloudSpeed)
-            self.skydome.setShaderInput("horizont",horizont)
-            self.mesh.setShaderInput("water_level",water_z)
-            if water_z>0.0:
+            
+            TerrainTile=self.gui.SkySeaOptions[0]
+            TerrainScale=self.gui.SkySeaOptions[1]
+            SkyTile=self.gui.SkySeaOptions[2]
+            CloudSpeed=self.gui.SkySeaOptions[3]
+            WaveTile=self.gui.SkySeaOptions[4]
+            WaveHeight=self.gui.SkySeaOptions[5]
+            WaveXYMove=[self.gui.SkySeaOptions[6][0],self.gui.SkySeaOptions[6][1]]
+            WaterTile=self.gui.SkySeaOptions[7]
+            WaterSpeed=self.gui.SkySeaOptions[8]
+            WaterLevel=self.gui.SkySeaOptions[9]
+            
+            self.skydome.setShaderInput("cloudTile",SkyTile) 
+            self.skydome.setShaderInput("cloudSpeed",CloudSpeed)
+            self.mesh.setShaderInput("water_level",WaterLevel)
+            self.mesh.setShaderInput("z_scale", TerrainScale)  
+            self.mesh.setShaderInput("tex_scale", TerrainTile) 
+            if WaterLevel>0.0:
                 self.wBuffer.setActive(True)
                 self.waterNP.show()
-                self.waterNP.setShaderInput("tile",tile)
-                self.waterNP.setShaderInput("speed",speed)                
-                self.waterNP.setShaderInput("water_level",water_z)
-                self.waterNP.setShaderInput("wave",wave)
-                self.waterNP.setPos(0, 0, water_z)
-                self.wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, water_z))
+                self.waterNP.setShaderInput("tile",WaterTile)
+                self.waterNP.setShaderInput("speed",WaterSpeed)                
+                self.waterNP.setShaderInput("water_level",WaterLevel)
+                self.waterNP.setShaderInput("wave",Vec4(WaveXYMove[0],WaveXYMove[1],WaveTile,WaveHeight))
+                self.waterNP.setPos(0, 0, WaterLevel)
+                self.wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, WaterLevel))
                 wPlaneNP = render.attachNewNode(PlaneNode("water", self.wPlane))
-                self.mesh.setShaderInput("water_level",water_z)
+                self.mesh.setShaderInput("water_level",WaterLevel)
                 tmpNP = NodePath("StateInitializer")
                 tmpNP.setClipPlane(wPlaneNP)
-                tmpNP.setAttrib(CullFaceAttrib.makeReverse())
-                tmpNP.setAttrib(ColorScaleAttrib.make(Vec4((water_z-2.0)/200.0, 0.0, 0.0, 0.0)))
+                tmpNP.setAttrib(CullFaceAttrib.makeReverse())                
                 self.waterCamera.node().setInitialState(tmpNP.getState())
             else:
                 self.waterNP.hide()
-                self.wBuffer.setActive(False)	
+                self.wBuffer.setActive(False)
+            	self.mesh.setShaderInput("water_level",-10.0)
                 
     def configBrush(self, options=False, guiEvent=None):    
         if options==True:
@@ -768,17 +840,22 @@ class Editor (DirectObject):
         else: 
             self.ignoreHover=False
             self.gui.ConfigFrame.hide()
-            self.setMode(self.mode) 
-            self.grid.setTexScale(TextureStage.getDefault(), self.gui.ConfigOptions[5], self.gui.ConfigOptions[5], 1)
+            self.setMode(self.mode)             
             self.grid.setZ(self.gui.ConfigOptions[6])   
             self.grid_scale=self.gui.ConfigOptions[5]
             self.grid_z=self.gui.ConfigOptions[6]
+            if self.grid_scale>0:
+                self.grid.show()
+                self.grid.setTexScale(TextureStage.getDefault(), self.gui.ConfigOptions[5], self.grid_scale, 1)
+            else:
+                self.grid.hide()
             self.painter.pointer.setZ(self.gui.ConfigOptions[6])
             self.painter.plane = Plane(Vec3(0, 0, 1), Point3(0, 0, self.gui.ConfigOptions[6])) 
             self.controler.cameraNode.setZ(self.gui.ConfigOptions[6])
-            color=float(self.gui.ConfigOptions[7])
-            print color
-            self.dlight.setColor(Vec4(color, color, color, 1)) 
+            daytime=float(self.gui.ConfigOptions[7])            
+            self.setTime(daytime)
+            #render.setShaderInput('daytime', daytime)
+            #self.dlight.setColor(Vec4(color, color, color, 1)) 
             if self.mode==MODE_OBJECT:
                 #hpr
                 self.setAxis='H: '
@@ -1061,42 +1138,42 @@ class Editor (DirectObject):
                     i+=1    
                 #load sky and water data
                 self.gui.setSkySeaValues(data)
-                sky=Vec4(data[0]['sky'][0], data[0]['sky'][1], data[0]['sky'][2], data[0]['sky'][3])
-                fog=Vec4(data[0]['fog'][0], data[0]['fog'][1], data[0]['fog'][2], data[0]['fog'][3])
-                cloudColor=Vec4(data[0]['cloudColor'][0], data[0]['cloudColor'][1], data[0]['cloudColor'][2], data[0]['cloudColor'][3])
-                cloudTile=data[0]['cloudTile']
-                cloudSpeed=data[0]['cloudSpeed']
-                horizont=data[0]['horizont']
-                tile=data[0]['tile']
-                speed=data[0]['speed']
-                wave=Vec3(data[0]['wave'][0], data[0]['wave'][1], data[0]['wave'][2])
-                water_z=data[0]['water_z']            
-                self.skydome.setShaderInput("sky", sky)   
-                render.setShaderInput("fog", fog) 
-                self.skydome.setShaderInput("cloudColor", cloudColor)
-                self.skydome.setShaderInput("cloudTile",cloudTile) 
-                self.skydome.setShaderInput("cloudSpeed",cloudSpeed)
-                self.skydome.setShaderInput("horizont",horizont)
-                self.mesh.setShaderInput("water_level",water_z)
-                if water_z>0.0:
+                
+                TerrainTile=self.gui.SkySeaOptions[0]
+                TerrainScale=self.gui.SkySeaOptions[1]
+                SkyTile=self.gui.SkySeaOptions[2]
+                CloudSpeed=self.gui.SkySeaOptions[3]
+                WaveTile=self.gui.SkySeaOptions[4]
+                WaveHeight=self.gui.SkySeaOptions[5]
+                WaveXYMove=[self.gui.SkySeaOptions[6][0],self.gui.SkySeaOptions[6][1]]
+                WaterTile=self.gui.SkySeaOptions[7]
+                WaterSpeed=self.gui.SkySeaOptions[8]
+                WaterLevel=self.gui.SkySeaOptions[9]
+                
+                self.skydome.setShaderInput("cloudTile",SkyTile) 
+                self.skydome.setShaderInput("cloudSpeed",CloudSpeed)
+                self.mesh.setShaderInput("water_level",WaterLevel)
+                self.mesh.setShaderInput("z_scale", TerrainScale)  
+                self.mesh.setShaderInput("tex_scale", TerrainTile) 
+                if WaterLevel>0.0:
                     self.wBuffer.setActive(True)
                     self.waterNP.show()
-                    self.waterNP.setShaderInput("tile",tile)
-                    self.waterNP.setShaderInput("speed",speed)                
-                    self.waterNP.setShaderInput("water_level",water_z)
-                    self.waterNP.setShaderInput("wave",wave)
-                    self.waterNP.setPos(0, 0, water_z)
-                    self.wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, water_z))
+                    self.waterNP.setShaderInput("tile",WaterTile)
+                    self.waterNP.setShaderInput("speed",WaterSpeed)                
+                    self.waterNP.setShaderInput("water_level",WaterLevel)
+                    self.waterNP.setShaderInput("wave",Vec4(WaveXYMove[0],WaveXYMove[1],WaveTile,WaveHeight))
+                    self.waterNP.setPos(0, 0, WaterLevel)
+                    self.wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, WaterLevel))
                     wPlaneNP = render.attachNewNode(PlaneNode("water", self.wPlane))
-                    self.mesh.setShaderInput("water_level",water_z)
+                    self.mesh.setShaderInput("water_level",WaterLevel)
                     tmpNP = NodePath("StateInitializer")
                     tmpNP.setClipPlane(wPlaneNP)
-                    tmpNP.setAttrib(CullFaceAttrib.makeReverse())
-                    tmpNP.setAttrib(ColorScaleAttrib.make(Vec4((water_z-2.0)/200.0, 0.0, 0.0, 0.0)))
+                    tmpNP.setAttrib(CullFaceAttrib.makeReverse())                
                     self.waterCamera.node().setInitialState(tmpNP.getState())
                 else:
                     self.waterNP.hide()
-                    self.wBuffer.setActive(False)  
+                    self.wBuffer.setActive(False)
+                    self.mesh.setShaderInput("water_level",-10.0)  
                 self.findLights()        
                 print "done"
             else:
@@ -1160,25 +1237,28 @@ class Editor (DirectObject):
         if self.gui.flags[4]:#objects and textures used
             print "saving objects...",
             #sky and water data
-            sky=(self.gui.SkySeaOptions[0][0],self.gui.SkySeaOptions[0][1],self.gui.SkySeaOptions[0][2],self.gui.SkySeaOptions[0][3])
-            fog=(self.gui.SkySeaOptions[1][0],self.gui.SkySeaOptions[1][1],self.gui.SkySeaOptions[1][2],self.gui.SkySeaOptions[1][3])
-            cloudColor=(self.gui.SkySeaOptions[2][0],self.gui.SkySeaOptions[2][1],self.gui.SkySeaOptions[2][2],self.gui.SkySeaOptions[2][3])
-            cloudTile=self.gui.SkySeaOptions[3]
-            cloudSpeed=self.gui.SkySeaOptions[4]
-            horizont=self.gui.SkySeaOptions[5]
-            tile=self.gui.SkySeaOptions[6]
-            speed=self.gui.SkySeaOptions[7]
-            wave=(self.gui.SkySeaOptions[8][0],self.gui.SkySeaOptions[8][1],self.gui.SkySeaOptions[8][2])
-            water_z=self.gui.SkySeaOptions[9]
-            sky_water={'sky':sky,'fog':fog,
-                        'cloudColor':cloudColor,
-                        'cloudTile':cloudTile,
-                        'cloudSpeed':cloudSpeed,
-                        'horizont':horizont,
-                        'tile':tile,
-                        'speed':speed, 
-                        'wave':wave,
-                        'water_z':water_z}
+            TerrainTile=self.gui.SkySeaOptions[0]
+            TerrainScale=self.gui.SkySeaOptions[1]
+            SkyTile=self.gui.SkySeaOptions[2]
+            CloudSpeed=self.gui.SkySeaOptions[3]
+            WaveTile=self.gui.SkySeaOptions[4]
+            WaveHeight=self.gui.SkySeaOptions[5]
+            WaveXYMove=[self.gui.SkySeaOptions[6][0],self.gui.SkySeaOptions[6][1]]
+            WaterTile=self.gui.SkySeaOptions[7]
+            WaterSpeed=self.gui.SkySeaOptions[8]
+            WaterLevel=self.gui.SkySeaOptions[9]            
+            
+            sky_water={'TerrainTile':TerrainTile,
+                        'TerrainScale':TerrainScale,
+                        'SkyTile':SkyTile,
+                        'CloudSpeed':CloudSpeed,
+                        'WaveTile':WaveTile,
+                        'WaveHeight':WaveHeight,
+                        'WaveXYMove':WaveXYMove,
+                        'WaterTile':WaterTile,
+                        'WaterSpeed':WaterSpeed,
+                        'WaterLevel':WaterLevel,
+                        }
             tex=[]
             for id in self.curent_textures:
                 tex.append(self.textures_diffuse[id])    
@@ -1283,7 +1363,13 @@ class Editor (DirectObject):
                     self.gui.elements[self.select_toolbar_id]['buttons'][5].enterText('%.2f'%(hpr[2]%360.0))
                     self.gui.elements[self.select_toolbar_id]['buttons'][6].enterText('%.2f'%scale[0])
                     self.props.enterText(props)
-                    
+                    if self.objectPainter.selectedObject.hasPythonTag('hasLight'):
+                        self.gui.colorPickerFrame.show()
+                        id=self.objectPainter.selectedObject.getPythonTag('hasLight')
+                        color=[int(self.lManager.lights[id][4]*255), int(self.lManager.lights[id][5]*255), int(self.lManager.lights[id][6]*255)]
+                        self.gui.colorEntry.set(str(color)[1:-1])
+                        self.gui.overrideColor()
+                        
     def setMode(self, mode, guiEvent=None):        
         if mode==MODE_HEIGHT:
             if guiEvent!=None:
@@ -1313,6 +1399,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.walkmap_toolbar_id)
             self.gui.hideElement(self.grass_toolbar_id)
             self.gui.hideElement(self.select_toolbar_id)
+            self.gui.hideElement(self.color_toolbar)
             self.objectPainter.stop()
             self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
             self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_f.glsl"))  
@@ -1344,6 +1431,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.walkmap_toolbar_id)
             self.gui.hideElement(self.grass_toolbar_id)
             self.gui.hideElement(self.select_toolbar_id)
+            self.gui.hideElement(self.color_toolbar)
             self.objectPainter.stop()
             self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
             self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_f.glsl"))  
@@ -1376,6 +1464,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.walkmap_toolbar_id)
             self.gui.showElement(self.grass_toolbar_id)
             self.gui.hideElement(self.select_toolbar_id)
+            self.gui.hideElement(self.color_toolbar)
             self.objectPainter.stop()
             self.mesh.setShaderInput("walkmap", loader.loadTexture('data/walkmap.png'))
             self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_f.glsl"))              
@@ -1395,6 +1484,7 @@ class Editor (DirectObject):
             self.gui.showElement(self.prop_panel_id)
             self.gui.hideElement(self.walkmap_toolbar_id)
             self.gui.hideElement(self.grass_toolbar_id)
+            self.gui.showElement(self.color_toolbar)
             self.setObjectMode(self.object_mode)            
             self.accept('mouse1', self.paint)                
             self.ignore('mouse1-up')
@@ -1429,6 +1519,7 @@ class Editor (DirectObject):
             self.gui.showElement(self.walkmap_toolbar_id)
             self.gui.hideElement(self.grass_toolbar_id)
             self.gui.hideElement(self.select_toolbar_id)
+            self.gui.hideElement(self.color_toolbar)
             self.objectPainter.stop() 
             self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_WALK])
             self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_w_f.glsl")) 
@@ -1441,7 +1532,7 @@ class Editor (DirectObject):
             heightmap=PNMImage(self.painter.buffSize[BUFFER_HEIGHT], self.painter.buffSize[BUFFER_HEIGHT],4)              
             base.graphicsEngine.extractTextureData(self.painter.textures[BUFFER_HEIGHT],base.win.getGsg())
             self.painter.textures[BUFFER_HEIGHT].store(heightmap)
-            GenerateCollisionEgg(heightmap, file, input='data/collision80k.egg')
+            GenerateCollisionEgg(heightmap, file, input='data/collision80k.egg',scale=self.gui.SkySeaOptions[1] )
             if self.collision_mesh:
                 self.collision_mesh.removeNode()
             self.collision_mesh=loader.loadModel(file, noCache=True)
@@ -1525,12 +1616,12 @@ class Editor (DirectObject):
         
     def perFrameUpdate(self, task):         
         time=globalClock.getFrameTime()            
-        render.setShaderInput('time', time) 
+        #render.setShaderInput('time', time) 
         if len(self.filters)>1:
             self.filters[4].setShaderInput('time', time)        
         #skydome
         pos=self.controler.cameraNode.getPos()
-        self.skydome.setPos(pos[0], pos[1], 0)  
+        #self.skydome.setPos(pos[0], pos[1], 0)  
         #self.shadowNode.setPos(pos)        
         #water
         if self.waterNP.getZ()>0.0:   

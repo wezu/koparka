@@ -114,7 +114,9 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures, gras
             model.reparentTo(quad_tree[object['parent_index']])        
             model.setPythonTag('props', object['props'])
             model.setHpr(render,object['rotation_h'],object['rotation_p'],object['rotation_r'])
-            model.setPos(render,object['position_x'],object['position_y'],object['position_z'])
+            model.setPos(render,object['position_x'],object['position_y'],object['position_z'])       
+            if 'color_r' in object:    
+                model.setPythonTag('light_color', [object['color_r'],object['color_g'],object['color_b']])
             model.setScale(object['scale'])
     
     if flatten:
@@ -144,6 +146,11 @@ def SaveScene(file, quad_tree, extra_data=None):
                 temp['actor']=unicode(child.getPythonTag('actor_files')[0])
                 temp['actor_anims']=child.getPythonTag('actor_files')[1]
                 temp['actor_collision']=child.getPythonTag('actor_files')[2]
+            if child.hasPythonTag('light_color'):
+                c=child.getPythonTag('light_color')
+                temp['color_r']=c[0]    
+                temp['color_g']=c[1]
+                temp['color_b']=c[2]
             temp['rotation_h']=child.getH(render)
             temp['rotation_p']=child.getP(render)
             temp['rotation_r']=child.getR(render)            
