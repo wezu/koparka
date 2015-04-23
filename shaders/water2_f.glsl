@@ -69,7 +69,7 @@ void main()
         vec4 distortion2 = normalize(texture2D(water_norm, gl_TexCoord[1].xy));
         vec4 normalmap=distortion1+distortion2; 
         float foam=clamp(h_map*100.0-(water_level-2.0), 0.0, 4.0)/4.0;
-        foam+=clamp((me-0.5)*4.0, 0.0, 1.0)*0.7;
+        foam+=clamp((me-0.5)*4.0, 0.0, 1.0)*height_scale*0.1;
         foam=clamp(foam, 0.0, 1.0);
         vec4 full_foam=vec4(foam, foam, foam, foam)*normalmap.a;
         float facing = 1.0 -max(dot(normalize(-vpos.xyz), normalize(normal.xyz)), 0.0);   
@@ -117,7 +117,7 @@ void main()
                     E = normalize(-vpos.xyz);
                     R = reflect(-L.xyz, N.xyz);
                     light_spec=dot(light_color[i].rgb, vec3(1.0, 1.0, 1.0))*0.4;
-                    specular+=pow( max(dot(R, E), 0.0),50.0)*att*light_spec;
+                    specular+=pow( max(dot(R, E), 0.0),150.0)*att*light_spec;
                     color += clamp((light_color[i] * NdotL*att)*facing, 0.1, 0.5);
                 //    }
                 }

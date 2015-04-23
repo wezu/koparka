@@ -27,7 +27,7 @@ def createEffect(values):
         geom.hide(BitMask32.bit(1))
         geom.hide(BitMask32.bit(2))
         geom.setShader(Shader.load(Shader.SLGLSL, "shaders/vfx_v.glsl","shaders/vfx_f.glsl"), 1)
-        geom.setShaderInput('distortion',0.9)
+        geom.setShaderInput('distortion',values['distortion'])
         #geom.setShaderInput("fog",  Vec4(0.4, 0.4, 0.4, 0.002))
         geom.setShaderInput("color_gradient", color_gradient)
         geom.setShaderInput("size_gradient",  size_gradient)
@@ -65,9 +65,13 @@ def loadValues(v, p):
     p0.renderer.setYScaleFlag(0)
     p0.renderer.setAnimAngleFlag(0)
     p0.renderer.setNonanimatedTheta(180.0000) #?
-    p0.renderer.setAlphaBlendMethod(BaseParticleRenderer.PRALPHANONE)
-    p0.renderer.setAlphaDisable(0)
-    p0.renderer.setColorBlendMode(ColorBlendAttrib.MAdd, ColorBlendAttrib.OIncomingAlpha, ColorBlendAttrib.OOneMinusIncomingAlpha)#TODO!
+    p0.renderer.setAlphaBlendMethod(BaseParticleRenderer.PRALPHANONE)    
+    if v['colorBlend']=="blend":    
+        p0.renderer.setAlphaDisable(0)
+        p0.renderer.setColorBlendMode(ColorBlendAttrib.MAdd, ColorBlendAttrib.OIncomingAlpha, ColorBlendAttrib.OOneMinusIncomingAlpha)#TODO!
+    elif v['colorBlend']=="add":    
+        p0.renderer.setAlphaDisable(1)
+        p0.renderer.setColorBlendMode(ColorBlendAttrib.MAdd, ColorBlendAttrib.OIncomingAlpha, ColorBlendAttrib.OOne)        
     p0.renderer.getColorInterpolationManager().addLinear(0.0,1.0,Vec4(0.0,0.0,0.0,1.0),Vec4(1.0,1.0,1.0,1.0),True)
     # Emitter parameters
     p0.emitter.setEmissionType(v["mode"])

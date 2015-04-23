@@ -22,7 +22,7 @@ void main()
     vec4 tex2=texture2D(p3d_Texture0,gl_TexCoord[1].xy);//clouds 2
     vec4 tex3=texture2D(p3d_Texture0,gl_TexCoord[2].xy); //sun    
     vec4 tex4=texture2D(p3d_Texture0,gl_TexCoord[3].xy); //stars
-    float stars=tex4.g*(1.0-cloudColor.a);
+    float stars=tex4.g*(1.0-skyColor.a);
     vec4 out_color=vec4(skyColor.rgb, 1.0)+stars;    
     float cloud_alpha=clamp(cloudColor.a, 0.0, 0.7);
     vec4 cloud=((cloudColor-out_color)*(tex1.r*tex2.r)*blend)*cloud_alpha;   

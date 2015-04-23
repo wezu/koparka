@@ -286,7 +286,7 @@ class Editor (DirectObject):
         #blend options
         # A+(1-A)  ColorBlendAttrib.MAdd, ColorBlendAttrib.OIncomingAlpha, ColorBlendAttrib.OOneMinusIncomingAlpha)
         self.colorBlendOptions=DirectOptionMenu(scale=16, 
-                                                items=["   a+(1-a)   "," NONE ","item3"],
+                                                items=["blend","add"],
                                                 initialitem=0,
                                                 popupMarker_scale=1,
                                                 parent=self.configFrame
@@ -698,6 +698,7 @@ class Editor (DirectObject):
         self.values['color_gradient']=self.saveDir+"_color.png"
         self.values['size_gradient']=self.saveDir+"_size.png"
         self.values['shape_gradient']=self.saveDir+"_shape.png"
+        self.values['distortion']=0.0
         self.currentColorGradient.write(self.saveDir+"_color.png")
         self.currentSizeGradient.write(self.saveDir+"_size.png")
         self.currentShapeGradient.write(self.saveDir+"_shape.png")
@@ -1378,7 +1379,7 @@ class Editor (DirectObject):
         #p0.renderer.setAlphaMode(BaseParticleRenderer.PRALPHAIN)
         #p0.renderer.setUserAlpha(1.00)
         # Sprite parameters
-        p0.renderer.addTextureFromFile('../partices/smoke1.png') #some default must be added or it bugs out
+        p0.renderer.addTextureFromFile('../particle/smoke1.png') #some default must be added or it bugs out
         p0.renderer.setColor(Vec4(1.00, 1.00, 1.00, 1.00))
         p0.renderer.setXScaleFlag(0)
         p0.renderer.setYScaleFlag(0)

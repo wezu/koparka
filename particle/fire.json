@@ -3,8 +3,9 @@
     "amplitudeSpread": 0.5,
     "angle": 1.0,
     "birthRate": 0.03,
-    "colorBlend": "   a+(1-a)   ",
+    "colorBlend": "add",
     "color_gradient": "particle/fire_color.png",
+    "distortion": 0.5,
     "emiter": "DiscEmitter",
     "forceJitter": [
         0.0,

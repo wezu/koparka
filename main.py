@@ -68,8 +68,11 @@ GRASS_MODE_REMOVE=0
 MASK_WATER=BitMask32.bit(1)
 MASK_SHADOW=BitMask32.bit(2)
 
+cfg={}
+
 class Editor (DirectObject):
     def __init__(self):
+        self.loadcfg()
         #init ShowBase
         base = ShowBase.ShowBase()
         base.enableParticles()
@@ -77,7 +80,10 @@ class Editor (DirectObject):
         
         #manager for post process filters (fxaa, soft shadows, dof)
         manager=FilterManager(base.win, base.cam)
-        self.filters=self.setupFilters(manager, fxaa_only=False)
+        fxaa_only=True
+        if cfg['filters']==2:
+            fxaa_only=False
+        self.filters=self.setupFilters(manager, fxaa_only=fxaa_only)
         
         #manager for point lights
         self.lManager=LightManager()
@@ -108,7 +114,7 @@ class Editor (DirectObject):
         self.axis.setShader(Shader.load(Shader.SLGLSL, "shaders/editor_v.glsl", "shaders/editor_f.glsl"))
         
         #store variables needed for diferent classes 
-        self.skyimg=PNMImage('data/sky_grad.png')
+        self.skyimg=PNMImage(cfg['sky_color'])
         self.mode=MODE_HEIGHT
         self.height_mode=HEIGHT_MODE_UP
         self.tempColor=1
@@ -128,28 +134,28 @@ class Editor (DirectObject):
         
         #camera control
         base.disableMouse()  
-        self.controler=CameraControler()
+        self.controler=CameraControler(cfg)
         self.controler.cameraNode.setZ(25.5)
         render.setShaderInput('camera', base.cam)        
         
         #painter        
         self.brushList=[]
-        dirList=os.listdir(Filename(path+"brush/").toOsSpecific())
+        dirList=os.listdir(Filename(path+cfg['brush_dir']).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('png', 'tga', 'dds'):
-                self.brushList.append("brush/"+fname)
+                self.brushList.append(cfg['brush_dir']+fname)
                 
         self.painter=BufferPainter(self.brushList, showBuff=False)
         #BUFFER_HEIGHT
-        self.painter.addCanvas(default_tex='data/def_height.png') 
+        self.painter.addCanvas(size=cfg['h_map_size'], default_tex=cfg['h_map_def']) 
         #BUFFER_ATR
-        self.painter.addCanvas(default_tex='data/atr_def.png')
+        self.painter.addCanvas(size=cfg['a_map_size'], default_tex=cfg['a_map_def']) 
         #BUFFER_GRASS
-        self.painter.addCanvas() 
+        self.painter.addCanvas(size=cfg['g_map_size']) 
         #BUFFER_WALK =3
-        self.painter.addCanvas(size=256,  brush_shader=loader.loadShader('shaders/brush3.cg'))   
+        self.painter.addCanvas(size=cfg['w_map_size'],  brush_shader=loader.loadShader('shaders/brush3.cg'))   
         #BUFFER_ATR2=4
-        self.painter.addCanvas()
+        self.painter.addCanvas(size=cfg['a_map_size'])
         
         #GUI
         self.gui=GuiHelper(path)
@@ -164,7 +170,7 @@ class Editor (DirectObject):
             id+=1
         #texture palette    
         self.palette_id=self.gui.addToolbar(self.gui.TopRight, (80, 512),icon_size=80, x_offset=-80, y_offset=0, hover_command=self.onToolbarHover)
-        dirList=os.listdir(Filename(path+"tex/diffuse").toOsSpecific())
+        dirList=os.listdir(Filename(path+cfg['dif_tex_dir']).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('dds'):
                 self.textures_diffuse.append(fname)
@@ -174,10 +180,10 @@ class Editor (DirectObject):
         sort_nicely(self.textures_normal)
         for tex in self.textures_diffuse:
             id=self.textures_diffuse.index(tex)
-            self.textures_diffuse[id]="tex/diffuse/"+tex
+            self.textures_diffuse[id]=cfg['dif_tex_dir']+tex
         for tex in self.textures_normal:
             id=self.textures_normal.index(tex)
-            self.textures_normal[id]="tex/normal/"+tex              
+            self.textures_normal[id]=cfg['nrm_tex_dir']+tex              
         
         self.gui.addButton(self.palette_id, self.textures_diffuse[0], self.setAtrMapColor, [(1.0, 0.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
         self.gui.addButton(self.palette_id, self.textures_diffuse[1], self.setAtrMapColor, [(0.0, 1.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
@@ -195,10 +201,10 @@ class Editor (DirectObject):
         
         #grass 'palette'
         self.grass_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (80, 512),icon_size=80, x_offset=-80, y_offset=0, hover_command=self.onToolbarHover)
-        dirList=os.listdir(Filename(path+"grass").toOsSpecific())
+        dirList=os.listdir(Filename(path+cfg['grs_tex_dir']).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('dds', 'png'):
-                self.grass_textures.append('grass/'+fname)        
+                self.grass_textures.append(cfg['grs_tex_dir']+fname)        
         self.gui.addButton(self.grass_toolbar_id, self.grass_textures[0], self.setGrassMapColor, [(1.0, 0.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon='icon/icon.png')
         self.gui.addButton(self.grass_toolbar_id, self.grass_textures[1], self.setGrassMapColor, [(0.0, 1.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon='icon/icon.png')
         self.gui.addButton(self.grass_toolbar_id, self.grass_textures[2], self.setGrassMapColor, [(0.0, 0.0, 1.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon='icon/icon.png')        
@@ -240,29 +246,29 @@ class Editor (DirectObject):
         self.collision_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=128, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
         
         #get models
-        dirList=os.listdir(Filename(path+"models/").toOsSpecific())
+        dirList=os.listdir(Filename(path+cfg['model_dir']).toOsSpecific())
         for fname in dirList:            
             if  Filename(fname).getExtension() in ('egg', 'bam'):
-                self.gui.addListButton(self.object_toolbar_id, fname[:-4], command=self.setObject, arg=["models/"+fname])
-            elif os.path.isdir(path+"models/"+fname):                
-                self.gui.addListButton(self.multi_toolbar_id, fname, command=self.setRandomObject, arg=["models/"+fname+"/"])
+                self.gui.addListButton(self.object_toolbar_id, fname[:-4], command=self.setObject, arg=[cfg['model_dir']+fname])
+            elif os.path.isdir(path+cfg['model_dir']+fname):                
+                self.gui.addListButton(self.multi_toolbar_id, fname, command=self.setRandomObject, arg=[cfg['model_dir']+fname+"/"])
         #get walls
-        dirList=os.listdir(Filename(path+"models_walls/").toOsSpecific())
+        dirList=os.listdir(Filename(path+cfg['walls_dir']).toOsSpecific())
         for fname in dirList:                        
-            if os.path.isdir(path+"models_walls/"+fname):                
-                self.gui.addListButton(self.wall_toolbar_id, fname, command=self.setRandomObject, arg=["models_walls/"+fname+"/"])        
+            if os.path.isdir(path+cfg['walls_dir']+fname):                
+                self.gui.addListButton(self.wall_toolbar_id, fname, command=self.setRandomObject, arg=[cfg['walls_dir']+fname+"/"])        
         #get actors
-        dirList=os.listdir(Filename(path+"models_actor/").toOsSpecific())
+        dirList=os.listdir(Filename(path+cfg['actors_dir']).toOsSpecific())
         for fname in dirList:                        
             if Filename(fname).getExtension() in ('egg', 'bam') and fname.startswith('_m_'):                    
-                self.gui.addListButton(self.actor_toolbar_id, fname[3:-4], command=self.setActor, arg=["models_actor/"+fname])        
+                self.gui.addListButton(self.actor_toolbar_id, fname[3:-4], command=self.setActor, arg=[cfg['actors_dir']+fname])        
         #get collision-models
         #these hava a part named 'editor', when loading these 'editor' parts should be hidden
         #appart from that collision-models are just like normal models
-        dirList=os.listdir(Filename(path+"models_collision/").toOsSpecific())
+        dirList=os.listdir(Filename(path+cfg['coll_dir']).toOsSpecific())
         for fname in dirList:            
             if  Filename(fname).getExtension() in ('egg', 'bam'):
-                self.gui.addListButton(self.collision_toolbar_id, fname[:-4], command=self.setObject, arg=["models_collision/"+fname])        
+                self.gui.addListButton(self.collision_toolbar_id, fname[:-4], command=self.setObject, arg=[cfg['coll_dir']+fname])        
         #object-mode toolbar
         self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 64), icon_size=64, x_offset=-192, y_offset=0, hover_command=self.onToolbarHover)
         self.gui.addButton(self.mode_toolbar_id, 'icon/icon_object.png', self.setObjectMode,[OBJECT_MODE_ONE],tooltip=self.tooltip, tooltip_text='Place single objects')
@@ -324,7 +330,7 @@ class Editor (DirectObject):
         #terrain mesh
         #the 80k mesh loads to slow from egg, using bam
         #self.mesh=loader.loadModel('data/mesh80k.egg') #there's also a 3k, 10k and 35k mesh (can be broken at this point!)
-        self.mesh=loader.loadModel('data/mesh80k.bam')
+        self.mesh=loader.loadModel(cfg['terrain_mesh'])
         #load default textures:           
         #TODO(maybe): remove default tex from model ... and fix filtering then somehow
         for tex in self.textures_diffuse[:6]:
@@ -345,7 +351,10 @@ class Editor (DirectObject):
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
         self.mesh.setBin("background", 11)        
-        
+        if cfg['shadow_terrain']==False:
+            self.mesh.hide(MASK_SHADOW)
+        if cfg['reflect_terrain']==False:
+            self.mesh.hide(MASK_WATER)    
         #grass
         self.grass=render.attachNewNode('grass')
         self.CreateGrassTile(uv_offset=Vec2(0,0), pos=(0,0,0), parent=self.grass, fogcenter=Vec3(256,256,0))
@@ -353,8 +362,10 @@ class Editor (DirectObject):
         self.CreateGrassTile(uv_offset=Vec2(0.5,0), pos=(256, 0, 0), parent=self.grass, fogcenter=Vec3(0,256,0))
         self.CreateGrassTile(uv_offset=Vec2(0.5,0.5), pos=(256, 256, 0), parent=self.grass, fogcenter=Vec3(0,0,0))
         self.grass.setBin("background", 11)       
-        self.grass.hide(MASK_WATER)
-        self.grass.hide(MASK_SHADOW)
+        if cfg['reflect_grass']==False:
+            self.grass.hide(MASK_WATER)
+        if cfg['shadow_terrain']==False:
+            self.grass.hide(MASK_SHADOW)
 
         grass_tex0=loader.loadTexture('grass/1.png')
         grass_tex0.setWrapU(Texture.WMClamp)
@@ -377,9 +388,10 @@ class Editor (DirectObject):
         self.grass.setTexture(self.grass.findTextureStage('tex1'), grass_tex0, 1)
         self.grass.setTexture(self.grass.findTextureStage('tex2'), grass_tex1, 1)
         self.grass.setTexture(self.grass.findTextureStage('tex3'), grass_tex2, 1)             
-        
+        if cfg['grass']==False:
+            self.grass.hide()    
         #skydome
-        self.skydome = loader.loadModel("data/skydome2")  
+        self.skydome = loader.loadModel(cfg['sky_mesh'])  
         self.skydome.reparentTo(render)
         self.skydome.setPos(256, 256, -200)        
         self.skydome.setScale(10)                 
@@ -398,9 +410,10 @@ class Editor (DirectObject):
         self.skydome.setShader(Shader.load(Shader.SLGLSL, "shaders/cloud_v.glsl", "shaders/cloud_f.glsl"))
         self.skydome.hide(MASK_SHADOW)
         self.skydome.setTransparency(TransparencyAttrib.MNone, 1)
-        
+        if cfg['reflect_sky']==False:
+            self.skydome.hide(MASK_WATER)
         #waterplane
-        self.waterNP = loader.loadModel("data/waterplane") 
+        self.waterNP = loader.loadModel(cfg['water_mesh']) 
         self.waterNP.setPos(256, 256, 0)
         self.waterNP.setTransparency(TransparencyAttrib.MAlpha)
         self.waterNP.flattenLight()
@@ -434,13 +447,13 @@ class Editor (DirectObject):
         self.waterNP.setShaderInput("reflection",wTexture)
         
         self.waterNP.setShader(Shader.load(Shader.SLGLSL, "shaders/water2_v.glsl", "shaders/water2_f.glsl"))
-        self.waterNP.setShaderInput("water_norm", loader.loadTexture('data/water.png'))   
-        self.waterNP.setShaderInput("water_height", loader.loadTexture('data/ocen3.png')) 
+        self.waterNP.setShaderInput("water_norm", loader.loadTexture(cfg['water_tex']))   
+        self.waterNP.setShaderInput("water_height", loader.loadTexture(cfg['wave_tex'])) 
         self.waterNP.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
-        self.waterNP.setShaderInput("tile",8.0)
+        self.waterNP.setShaderInput("tile",20.0)
         self.waterNP.setShaderInput("water_level",30.0)
         self.waterNP.setShaderInput("speed",0.01)
-        self.waterNP.setShaderInput("wave",Vec3(0.005, 0.002, 6.0))        
+        self.waterNP.setShaderInput("wave",Vec4(0.005, 0.002, 6.0, 1.0))        
         self.waterNP.hide(MASK_WATER)
         self.waterNP.hide(MASK_SHADOW)
         #hide water by default
@@ -520,31 +533,31 @@ class Editor (DirectObject):
                        'scale_up':False,
                        'scale_down':False}                       
         
-        self.accept('mouse1', self.keyMap.__setitem__, ['paint', True])                
-        self.accept('mouse1-up', self.keyMap.__setitem__, ['paint', False])        
-        self.accept('e', self.keyMap.__setitem__, ['rotate_r', True])                
-        self.accept('e-up', self.keyMap.__setitem__, ['rotate_r', False])
-        self.accept('q', self.keyMap.__setitem__, ['rotate_l', True])                
-        self.accept('q-up', self.keyMap.__setitem__, ['rotate_l', False])
-        self.accept('d', self.keyMap.__setitem__, ['scale_up', True])                
-        self.accept('d-up', self.keyMap.__setitem__, ['scale_up', False])
-        self.accept('a', self.keyMap.__setitem__, ['scale_down', True])                
-        self.accept('a-up', self.keyMap.__setitem__, ['scale_down', False])
-        self.accept('w', self.keyMap.__setitem__, ['alpha_up', True])                
-        self.accept('w-up', self.keyMap.__setitem__, ['alpha_up', False])
-        self.accept('s', self.keyMap.__setitem__, ['alpha_down', True])                
-        self.accept('s-up', self.keyMap.__setitem__, ['alpha_down', False])        
-        self.accept('tab', self.nextModel)
-        self.accept('f1', self.setMode,[MODE_HEIGHT,'hotkey']) 
-        self.accept('f2', self.setMode,[MODE_TEXTURE,'hotkey'])
-        self.accept('f3', self.setMode,[MODE_GRASS,'hotkey'])        
-        self.accept('f4', self.setMode,[MODE_OBJECT,'hotkey'])        
-        self.accept('f5', self.setMode,[MODE_WALK,'hotkey']) 
-        self.accept('f6',self.configSkySea, [True])
-        self.accept('f7',self.showSaveMenu)
-        self.accept('1', self.setAxis,['H: '])
-        self.accept('2', self.setAxis,['P: '])
-        self.accept('3', self.setAxis,['R: '])
+        self.accept(cfg['key_paint'], self.keyMap.__setitem__, ['paint', True])                
+        self.accept(cfg['key_paint']+'-up', self.keyMap.__setitem__, ['paint', False])        
+        self.accept(cfg['key_right'], self.keyMap.__setitem__, ['rotate_r', True])                
+        self.accept(cfg['key_right']+'-up', self.keyMap.__setitem__, ['rotate_r', False])
+        self.accept(cfg['key_left'], self.keyMap.__setitem__, ['rotate_l', True])                
+        self.accept(cfg['key_left']+'-up', self.keyMap.__setitem__, ['rotate_l', False])
+        self.accept(cfg['key_scale_up'], self.keyMap.__setitem__, ['scale_up', True])                
+        self.accept(cfg['key_scale_up']+'-up', self.keyMap.__setitem__, ['scale_up', False])
+        self.accept(cfg['key_scale_down'], self.keyMap.__setitem__, ['scale_down', True])                
+        self.accept(cfg['key_scale_down']+'-up', self.keyMap.__setitem__, ['scale_down', False])
+        self.accept(cfg['key_alpha_up'], self.keyMap.__setitem__, ['alpha_up', True])                
+        self.accept(cfg['key_alpha_up']+'-up', self.keyMap.__setitem__, ['alpha_up', False])
+        self.accept(cfg['key_alpha_down'], self.keyMap.__setitem__, ['alpha_down', True])                
+        self.accept(cfg['key_alpha_down']+'-up', self.keyMap.__setitem__, ['alpha_down', False])        
+        self.accept(cfg['key_next'], self.nextModel)
+        self.accept(cfg['key_mode_height'], self.setMode,[MODE_HEIGHT,'hotkey']) 
+        self.accept(cfg['key_mode_tex'], self.setMode,[MODE_TEXTURE,'hotkey'])
+        self.accept(cfg['key_mode_grass'], self.setMode,[MODE_GRASS,'hotkey'])        
+        self.accept(cfg['key_mode_obj'], self.setMode,[MODE_OBJECT,'hotkey'])        
+        self.accept(cfg['key_mode_walk'], self.setMode,[MODE_WALK,'hotkey']) 
+        self.accept(cfg['key_config'],self.configSkySea, [True])
+        self.accept(cfg['key_save'],self.showSaveMenu)
+        self.accept(cfg['key_h'], self.setAxis,['H: '])
+        self.accept(cfg['key_p'], self.setAxis,['P: '])
+        self.accept(cfg['key_r'], self.setAxis,['R: '])
         self.accept('escape', self.objectPainter.stop)        
         self.accept('enter', self.focusOnProperties)  
         self.accept( 'window-event', self.windowEventHandler) 
@@ -559,6 +572,73 @@ class Editor (DirectObject):
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task', sort=46)  
         #self.clock=12.0        
         #taskMgr.doMethodLater(.1, self.clockTick,'clock_task')
+    
+    def loadcfg(self):
+        cfg['filters']=ConfigVariableInt('filters', 2).getValue()       
+        #render grass? 0=no 1=yes
+        cfg['grass']=ConfigVariableBool('koparka-use-grass',True).getValue()
+        #size of the maps savesd by the editor
+        cfg['h_map_size']=ConfigVariableInt('koparka-height-map-size', 512).getValue()
+        cfg['a_map_size']=ConfigVariableInt('koparka-attribute-map-size', 512).getValue()
+        cfg['g_map_size']=ConfigVariableInt('koparka-grass-map-size', 512).getValue()
+        cfg['w_map_size']=ConfigVariableInt('koparka-walk-map-size', 256).getValue()
+        #where to load the data from
+        cfg['brush_dir']=ConfigVariableString('koparka-brush-dir', "brush/").getValue()
+        cfg['dif_tex_dir']=ConfigVariableString('koparka-terrain-tex-diffuse-dir', "tex/diffuse/").getValue()
+        cfg['nrm_tex_dir']=ConfigVariableString('koparka-terrain-tex-normal-dir', "tex/normal/").getValue()
+        cfg['grs_tex_dir']=ConfigVariableString('koparka-grass-tex-dir', "grass/").getValue()
+        cfg['model_dir']=ConfigVariableString('koparka-model-dir', "models/").getValue()
+        cfg['walls_dir']=ConfigVariableString('koparka-walls-dir', "models_walls/").getValue()
+        cfg['actors_dir']=ConfigVariableString('koparka-actors-dir', "models_actor/").getValue()
+        cfg['coll_dir']=ConfigVariableString('koparka-collision-dir', "models_collision/").getValue()
+        #default data
+        cfg['h_map_def']=ConfigVariableString('koparka-default-height-map', "data/def_height.png").getValue()
+        cfg['a_map_def']=ConfigVariableString('koparka-default-attribute-map', "data/atr_def.png").getValue()
+        cfg['terrain_mesh']=ConfigVariableString('koparka-default-terrain-mesh', "data/mesh80k.bam").getValue()
+        cfg['sky_mesh']=ConfigVariableString('koparka-default-skydome-mesh', "data/skydome2").getValue()
+        cfg['sky_tex']=ConfigVariableString('koparka-default-sky-tex', "data/clouds.png").getValue()
+        cfg['sky_color']=ConfigVariableString('koparka-default-sky-color-tex', "data/sky_grad.png").getValue()
+        cfg['water_mesh']=ConfigVariableString('koparka-default-water-mesh', "data/waterplane").getValue()
+        cfg['water_tex']=ConfigVariableString('koparka-default-water-tex', "data/water.png").getValue()
+        cfg['wave_tex']=ConfigVariableString('koparka-default-water-wave-tex', "data/ocen3.png").getValue()
+        #shadows (what is seen by the shadow casting camera)
+        cfg['shadow_terrain']=ConfigVariableBool('koparka-terrain-shadows', True).getValue()
+        cfg['shadow_grass']=ConfigVariableBool('koparka-grass-shadows', False).getValue()
+        cfg['shadow_objects']=ConfigVariableBool('koparka-object-shadows', True).getValue()
+        #water reflections (what is seen by the water reflection camera)
+        cfg['reflect_terrain']=ConfigVariableBool('koparka-terrain-reflection', True).getValue()
+        cfg['reflect_objects']=ConfigVariableBool('koparka-objects-reflection', True).getValue()
+        cfg['reflect_sky']=ConfigVariableBool('koparka-sky-reflection', True).getValue()
+        cfg['reflect_grass']=ConfigVariableBool('koparka-grass-reflection', False).getValue()
+        #keymap
+        cfg['key_paint']=ConfigVariableString('koparka-key-paint','mouse1').getValue()
+        cfg['key_right']=ConfigVariableString('koparka-key-rotate-r','e').getValue()
+        cfg['key_left']=ConfigVariableString('koparka-key-rotate-l','q').getValue()
+        cfg['key_scale_up']=ConfigVariableString('koparka-key-scale-up','d').getValue()
+        cfg['key_scale_down']=ConfigVariableString('koparka-key-scale-down','a').getValue()
+        cfg['key_alpha_up']=ConfigVariableString('koparka-key-alpha-up','w').getValue()
+        cfg['key_alpha_down']=ConfigVariableString('koparka-key-alpha-down','s').getValue()
+        cfg['key_next']=ConfigVariableString('koparka-key-next','tab').getValue()
+        cfg['key_mode_height']=ConfigVariableString('koparka-key-height-mode','f1').getValue()
+        cfg['key_mode_tex']=ConfigVariableString('koparka-key-texture-mode','f2').getValue()
+        cfg['key_mode_grass']=ConfigVariableString('koparka-key-grass-mode','f3').getValue()
+        cfg['key_mode_obj']=ConfigVariableString('koparka-key-object-mode','f4').getValue()
+        cfg['key_mode_walk']=ConfigVariableString('koparka-key-walk-mode','f5').getValue()
+        cfg['key_config']=ConfigVariableString('koparka-key-config','f6').getValue()
+        cfg['key_save']=ConfigVariableString('koparka-key-save','f7').getValue()
+        cfg['key_h']=ConfigVariableString('koparka-key-axis-h','1').getValue()
+        cfg['key_p']=ConfigVariableString('koparka-key-axis-p','2').getValue()
+        cfg['key_r']=ConfigVariableString('koparka-key-axis-r','3').getValue()
+        cfg['key_cam_rotate']=ConfigVariableString('koparka-key-camera-rotate','mouse2').getValue()
+        cfg['key_cam_pan']=ConfigVariableString('koparka-key-camera-pan','mouse3').getValue()
+        cfg['key_cam_zoomin']=ConfigVariableString('koparka-key-camera-zoomin','wheel_up').getValue()
+        cfg['key_cam_zoomout']=ConfigVariableString('koparka-key-camera-zoomout','wheel_down').getValue()
+        cfg['key_cam_slow']=ConfigVariableString('koparka-key-camera-slow','alt').getValue()
+        cfg['key_cam_fast']=ConfigVariableString('koparka-key-camera-fast','control').getValue()        
+        cfg['key_cam_rotate2']=ConfigVariableString('koparka-key-camera-rotate2','control').getValue()
+        cfg['key_cam_pan2']=ConfigVariableString('koparka-key-camera-pan2','alt').getValue()
+        cfg['key_cam_zoomin2']=ConfigVariableString('koparka-key-camera-zoomin2','=').getValue()
+        cfg['key_cam_zoomout2']=ConfigVariableString('koparka-key-camera-zoomout2','-').getValue() 
         
     def setLightColor(self):        
         if self.objectPainter.currentObject:

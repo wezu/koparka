@@ -3,7 +3,7 @@ from direct.showbase.DirectObject import DirectObject
 from direct.interval.IntervalGlobal import *
 
 class CameraControler (DirectObject):
-    def __init__(self, pos=(256,256,0), offset=(0, -120, 120), speed=50.0, angle=-45):
+    def __init__(self, cfg, pos=(256,256,0), offset=(0, -120, 120), speed=50.0, angle=-45):
     
         self.cameraNode  = render.attachNewNode("cameraNode")
         self.cameraNode.setPos(pos)
@@ -22,38 +22,39 @@ class CameraControler (DirectObject):
                        'rotate': False,
                        'pan': False}
                        
-        self.accept('w', self.keyMap.__setitem__, ['up', True])                
-        self.accept('w-up', self.keyMap.__setitem__, ['up', False])
-        self.accept('s', self.keyMap.__setitem__, ['down', True])                
-        self.accept('s-up', self.keyMap.__setitem__, ['down', False])
-        self.accept('a', self.keyMap.__setitem__, ['right', True])                
-        self.accept('a-up', self.keyMap.__setitem__, ['right', False])
-        self.accept('d', self.keyMap.__setitem__, ['left', True])                
-        self.accept('d-up', self.keyMap.__setitem__, ['left', False])
-        self.accept('mouse2', self.keyMap.__setitem__, ['rotate', True])                
-        self.accept('mouse2-up', self.keyMap.__setitem__, ['rotate', False])
-        self.accept('mouse3', self.keyMap.__setitem__, ['pan', True])                
-        self.accept('mouse3-up', self.keyMap.__setitem__, ['pan', False])
-        self.accept('alt', self.keyMap.__setitem__, ['pan', True])                
-        self.accept('alt-up', self.keyMap.__setitem__, ['pan', False])
-        self.accept('control', self.keyMap.__setitem__, ['rotate', True])                
-        self.accept('control-up', self.keyMap.__setitem__, ['rotate', False])
+        #self.accept('w', self.keyMap.__setitem__, ['up', True])                
+        #self.accept('w-up', self.keyMap.__setitem__, ['up', False])
+        #self.accept('s', self.keyMap.__setitem__, ['down', True])                
+        #self.accept('s-up', self.keyMap.__setitem__, ['down', False])
+        #self.accept('a', self.keyMap.__setitem__, ['right', True])                
+        #self.accept('a-up', self.keyMap.__setitem__, ['right', False])
+        #self.accept('d', self.keyMap.__setitem__, ['left', True])                
+        #self.accept('d-up', self.keyMap.__setitem__, ['left', False])
+        self.accept(cfg['key_cam_rotate'], self.keyMap.__setitem__, ['rotate', True])                
+        self.accept(cfg['key_cam_rotate']+'-up', self.keyMap.__setitem__, ['rotate', False])
+        self.accept(cfg['key_cam_pan'], self.keyMap.__setitem__, ['pan', True])                
+        self.accept(cfg['key_cam_pan']+'-up', self.keyMap.__setitem__, ['pan', False])
+        self.accept(cfg['key_cam_pan2'], self.keyMap.__setitem__, ['pan', True])                
+        self.accept(cfg['key_cam_pan2']+'-up', self.keyMap.__setitem__, ['pan', False])
+        self.accept(cfg['key_cam_rotate2'], self.keyMap.__setitem__, ['rotate', True])                
+        self.accept(cfg['key_cam_rotate2']+'-up', self.keyMap.__setitem__, ['rotate', False])
         
         self.mouseSpeed=speed #default 50.0
-        self.accept('wheel_up', self.zoom_control,[0.2])
-        self.accept('wheel_down',self.zoom_control,[-0.2])
-        self.accept('=', self.zoom_control,[0.2])
-        self.accept('-',self.zoom_control,[-0.2])
+        self.accept(cfg['key_cam_zoomin'], self.zoom_control,[0.2])
+        self.accept(cfg['key_cam_zoomout'],self.zoom_control,[-0.2])
+        self.accept(cfg['key_cam_zoomin2'], self.zoom_control,[0.2])
+        self.accept(cfg['key_cam_zoomout2'],self.zoom_control,[-0.2])
         
-        self.accept('control-wheel_up', self.zoom_control,[0.8])
-        self.accept('control-wheel_down',self.zoom_control,[-0.8])
-        self.accept('control-=', self.zoom_control,[0.8])
-        self.accept('control--',self.zoom_control,[-0.8])
+        self.accept(cfg['key_cam_fast']+'-'+cfg['key_cam_zoomin'], self.zoom_control,[0.8])
+        self.accept(cfg['key_cam_fast']+'-'+cfg['key_cam_zoomout'],self.zoom_control,[-0.8])
+        self.accept(cfg['key_cam_fast']+'-'+cfg['key_cam_zoomin2'], self.zoom_control,[0.8])
+        self.accept(cfg['key_cam_fast']+'-'+cfg['key_cam_zoomout2'],self.zoom_control,[-0.8])
         
-        self.accept('alt-wheel_up', self.zoom_control,[0.1])
-        self.accept('alt-wheel_down',self.zoom_control,[-0.1])
-        self.accept('alt-=', self.zoom_control,[0.1])
-        self.accept('alt--',self.zoom_control,[-0.1])
+        self.accept(cfg['key_cam_slow']+'-'+cfg['key_cam_zoomin'], self.zoom_control,[0.1])
+        self.accept(cfg['key_cam_slow']+'-'+cfg['key_cam_zoomout'],self.zoom_control,[-0.1])
+        self.accept(cfg['key_cam_slow']+'-'+cfg['key_cam_zoomin2'], self.zoom_control,[0.1])
+        self.accept(cfg['key_cam_slow']+'-'+cfg['key_cam_zoomout2'],self.zoom_control,[-0.1])
+        
         
         self.skip=False
         #self.waterNP=None

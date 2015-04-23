@@ -245,7 +245,7 @@ class GuiHelper():
         #so the hack...well it looks like it won't be as 'propre' as advertised         
         #labels=['Sky Color:','Fog Color:','Cloud Color:','Cloud Tile:','Cloud Speed:','Horizont:','Water Tile:','Water Speed:', 'Water Wave:','Water Level:\n(-1 to disable)']
         labels=['Terrain Tile:', 'Terrain Scale:', 'Sky Tile:','Cloud Speed:', 'Wave Tile:','Wave Height:','Wave XY Move:' ,'Water Tile:','Water Speed:', 'Water Level:\n(-1 to disable)']
-        self.SkySeaOptions=[32.0, 100.0,            10.0,       0.01,            6.0,         1.0,           [0.005,0.001], 20.0,         0.01,            30.0]
+        self.SkySeaOptions=[16.0, 100.0,            8.0,       0.008,            6.0,         1.0,           [0.005, 0.002], 20.0,         0.01,            30.0]
         text=""
         for item in labels:
             text+=item+'\n'

@@ -26,22 +26,22 @@ koparka-attribute-map-size 512
 koparka-grass-map-size 512
 koparka-walk-map-size 256
 #where to load the data from
-koparka-brush-dir "brush/"
-koparka-terrain-tex-diffuse-dir "tex/diffuse"
-koparka-terrain-tex-normal-dir "tex/normal"
-koparka-grass-tex-dir "grass/"
-koparka-model-dir "models/"
-koparka-walls-dir "models_walls/"
-koparka-actors-dir "models_actor/"
-koparka-collision-dir "models_collision/"
+koparka-brush-dir brush/
+koparka-terrain-tex-diffuse-dir tex/diffuse/
+koparka-terrain-tex-normal-dir tex/normal/
+koparka-grass-tex-dir grass/
+koparka-model-dir models/
+koparka-walls-dir models_walls/
+koparka-actors-dir models_actor/
+koparka-collision-dir models_collision/
 #default data
-koparka-default-height-map "data/def_height.png"
-koparka-default-attribute-map "data/atr_def.png"
-koparka-default-terrain-mesh "data/mesh80k.bam"
-koparka-default-skydome-mesh "data/skydome2"
-koparka-default-water-mesh "data/waterplane"
-koparka-default-water-tex "data/water.png"
-koparka-default-water-wave-tex "data/ocen3.png"
+koparka-default-height-map data/def_height.png
+koparka-default-attribute-map data/atr_def.png
+koparka-default-terrain-mesh data/mesh80k.bam
+koparka-default-skydome-mesh data/skydome2
+koparka-default-water-mesh data/waterplane
+koparka-default-water-tex data/water.png
+koparka-default-water-wave-tex data/ocen3.png
 #shadows (what is seen by the shadow casting camera)
 koparka-terrain-shadows True
 koparka-grass-shadows False
@@ -52,32 +52,32 @@ koparka-objects-reflection True
 koparka-sky-reflection True
 koparka-grass-reflection False
 #keymap
-koparka-key-paint
-koparka-key-rotate-r
-koparka-key-rotate-l
-koparka-key-scale-up
-koparka-key-scale-down
-koparka-key-alpha-up
-koparka-key-alpha-down
-koparka-key-next
-koparka-key-height-mode
-koparka-key-texture-mode
-koparka-key-grass-mode
-koparka-key-object-mode
-koparka-key-walk-mode
-koparka-key-config
-koparka-key-save
-koparka-key-axis-h
-koparka-key-axis-p
-koparka-key-axis-r
-koparka-key-camera-rotate
-koparka-key-camera-pan
-koparka-key-camera-zoomin
-koparka-key-camera-slow
-koparka-key-camera-fast
+koparka-key-paint mouse1
+koparka-key-rotate-r e
+koparka-key-rotate-l q
+koparka-key-scale-up d
+koparka-key-scale-down a
+koparka-key-alpha-up w
+koparka-key-alpha-down s
+koparka-key-next tab
+koparka-key-height-mode f1
+koparka-key-texture-mode f2
+koparka-key-grass-mode f3
+koparka-key-object-mode f4
+koparka-key-walk-mode f5
+koparka-key-config f6
+koparka-key-save f7
+koparka-key-axis-h 1
+koparka-key-axis-p 2
+koparka-key-axis-r 3
+koparka-key-camera-rotate mouse2
+koparka-key-camera-pan mouse3
+koparka-key-camera-zoomin wheel_up
+koparka-key-camera-zoomout wheel_down
+koparka-key-camera-slow alt
+koparka-key-camera-fast control
 #alt keys
-koparka-key-camera-zoomout
-koparka-key-camera-rotate2
-koparka-key-camera-pan2
-koparka-key-camera-zoomin2
-koparka-key-camera-zoomout2
+koparka-key-camera-rotate2 control
+koparka-key-camera-pan2 alt
+koparka-key-camera-zoomin2 =
+koparka-key-camera-zoomout2 -
