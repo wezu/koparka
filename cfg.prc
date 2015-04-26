@@ -2,7 +2,7 @@
 load-display pandagl
 textures-power-2 None
 win-size 1024 768
-show-frame-rate-meter  1
+show-frame-rate-meter  0
 sync-video 0
 framebuffer-srgb true
 default-texture-color-space sRGB

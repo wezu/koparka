@@ -1,0 +1,159 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN""http://www.w3.org/TR/html4/strict.dtd">
+<HEAD>
+    <META http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <META name="description" content="Koparka - Panda3D level editor by Wezu">
+    <META name="Keywords" content="koparka, panda3d, p3d, level editor, wezu, gamedev, 3d, realtime">
+    <META name="author" content="Grzegorz 'Wezu' Kalinski">
+    <LINK rel="stylesheet" href="style.css" type="text/css" >
+    <LINK rel="shortcut icon" href="img/favico.png" >
+    <LINK rel="icon" type="image/png" href="img/favico.png" >
+    <LINK href="css/lightbox.css" rel="stylesheet" />
+    
+    <TITLE>Koparka Manual - Panda3D level editor</TITLE>
+</HEAD>
+
+<BODY>
+    <DIV id="navbar">
+        <IMG src="img/wezu.png" alt="Made by Wezu"> 
+        <H3>Table of contents:</H3>
+        <OL class="nav">
+            <LI>
+                <LABEL class="collapse" for="_1">Getting Started</LABEL>
+                <INPUT id="_1" type="checkbox" checked>
+                    <UL>
+                        <LI class="nav"><A href="index.html">Introduction</A></LI>
+                        <LI class="nav"><A href="history.html">History</A></LI>
+                        <LI class="nav"><A href="requirements.html">Requirements</A></LI>
+                        <LI class="nav"><A href="installation.html">Installation</A></LI>                    
+                        <LI class="nav"><A href="overview.html">&gt;Interface overview</A></LI>
+                    </UL>
+
+            </LI>  
+            <LI><LABEL class="collapse" for="_2">Heightmap paint mode</LABEL>
+                <INPUT id="_2" type="checkbox">                
+                    <UL>
+                        <LI class="nav"><A href="h_brush.html">Controling brushes</A></LI>
+                        <LI class="nav"><A href="h_raise.html">Raise Terrain</A></LI>
+                        <LI class="nav"><A href="h_lower.html">Lower Terrain</A></LI>
+                        <LI class="nav"><A href="h_level.html">Level Terrain</A></LI>
+                    </UL>
+            </LI> 
+            <LI><LABEL class="collapse" for="_3">Texture paint mode</LABEL>
+                <INPUT id="_3" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="t_brush.html">Controling brushes</A></LI>
+                        <LI class="nav"><A href="t_change.html">Changing textures</A></LI>
+                        <LI class="nav"><A href="t_blend.html">Painting blends</A></LI>
+                        <LI class="nav"><A href="t_custom.html">Custom textures</A></LI>
+                    </UL>
+            </LI> 
+            <LI><LABEL class="collapse" for="_4">Grass paint mode</LABEL>
+                <INPUT id="_4" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="g_brush.html">Controling brushes</A></LI>
+                        <LI class="nav"><A href="g_change.html">Changing textures</A></LI>
+                        <LI class="nav"><A href="g_blend.html">Painting blends</A></LI>
+                        <LI class="nav"><A href="g_custom.html">Custom textures</A></LI>
+                    </UL>
+            </LI>    
+            <LI><LABEL class="collapse" for="_5">Object place mode</LABEL>
+                <INPUT id="_5" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="obj_coll_mesh.html">Collision mesh</A></LI>
+                        <LI class="nav"><A href="obj_single.html">Single objects</A></LI>
+                        <LI class="nav"><A href="obj_multi.html">Multiple objects</A></LI>
+                        <LI class="nav"><A href="obj_walls.html">Walls</A></LI>                    
+                        <LI class="nav"><A href="obj_actors.html">Actors</A></LI>
+                        <LI class="nav"><A href="obj_fx.html">Lights, collisions, particle</A></LI>
+                        <LI class="nav"><A href="obj_custom.html">Custom assets</A></LI>
+                    </UL>
+            </LI> 
+            <LI><LABEL class="collapse" for="_6">Paint Walkmap mode</LABEL>
+                <INPUT id="_6" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="w_map.html">Walkmap</A></LI>                        
+                    </UL>
+            </LI>
+            <LI><LABEL class="collapse" for="_7">Map configuration</LABEL>
+                <INPUT id="_7" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="config_h2o.html">Water</A></LI>
+                        <LI class="nav"><A href="config_ter.html">Terrain</A></LI>
+                    </UL>
+            </LI>    
+            <LI><LABEL class="collapse" for="_8">Editor configuration</LABEL>
+                <INPUT id="_8" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="config_grid.html">Grid</A></LI>
+                        <LI class="nav"><A href="config_time.html">Time of day</A></LI>
+                        <LI class="nav"><A href="config_brush.html">Brush</A></LI>
+                        <LI class="nav"><A href="config_file.html">Config file</A></LI>
+                    </UL>
+            </LI>
+            <LI><LABEL class="collapse" for="_9">Saving and Loading</LABEL>
+                <INPUT id="_9" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="save_h.html">Height map</A></LI>
+                        <LI class="nav"><A href="save_d.html">Detail maps</A></LI>
+                        <LI class="nav"><A href="save_g.html">Grass map</A></LI>
+                        <LI class="nav"><A href="save_nav.html">Navigation map</A></LI>
+                        <LI class="nav"><A href="save_obj.html">Objects</A></LI>
+                        <LI class="nav"><A href="save_coll.html">Collision mesh</A></LI>                    
+                    </UL>
+            </LI>
+        </OL>
+    </DIV>   
+    <DIV id="top">        
+        <A href="installation.html" class="left">&lt;&lt;- PREVIOUS</A>
+         <A href="h_brush.html" class="right">NEXT -&gt;&gt;</A>        
+        <H1>Interface overview</H1>
+    </DIV> 
+    <DIV id="main">    
+     <P>
+    <H2>GUI</H2>
+    <DIV class="img">
+        <IMG src="img/screen0_small.png"> 
+        <H4>Screen showing basic UI elements</H4>
+    </DIV>
+    The user interface consists of a few basic elements. The working area taking up most of the window is a 3D view of the map. The 3D cursor is a black vertical line with two red and blue triangles at one end that shows a point on the map that will be edited or a spot on it where objects will be placed. There are several panels with buttons and some with input fields. From time to time the editor may also show a dialog window with both input fields and buttons. Hovering the cursor over any gui element will always display a tooltip telling you what function the button holds and what keys are associated with that function. 
+    </P>
+    <P>
+    <H2>Camera control</H2>
+    By default the camera is controlled with the mouse. If you hold the right mouse button (or the  Alt key) then you can pan the camera by simply moving you mouse cursor. If you hold the middle mouse button (or the Ctrl key) then your cursor movement will be translated into camera rotation. 
+    </P>
+    <P>
+    You can zoom in and out using the mouse wheel or the + and – keys. You can also control the speed of the zoom by holding Alt (slower) or Ctrl (faster) keys. 
+    </P>
+    <P>
+    <H2>Brush control</H2>
+    You can change the size and strength of the current brush by typing in values in a configuration dialog window (the icon with the gears in the bottom row), but a much more convenient way to do that is to use the keyboard shortcuts.
+    </P>
+    <P>
+    You can change the size of the brush using A (smaller) and D (bigger) keys.
+    </P>
+    <P>
+    You can change the strength of a brush using W (more) and S (less) keys.
+    </P>
+    <P>
+    You can rotate the brush using Q(left) and E (right) keys.
+    </P>
+    <P>
+    In modes that use the brush for painting, the shape of the brush can be selected by clicking on one of the icons in the top row. The currently selected brush is highlighted green. 
+    </P>
+    <P>
+    You can ‘paint’ by holding down the left mouse button.
+    </P>
+    <P>
+    <H2>Edit Modes</H2>
+    The editor has a few modes, this allows to minimize the amount of widgets displayed in the window and to always have all the currently needed options at hand. These modes are: 
+    <UL>
+    <LI><IMG src="img/hm_icon.png" class="icon">Heightmap paint mode</LI>
+    <LI><IMG src="img/tex_icon.png" class="icon">Texture paint mode</LI>
+    <LI><IMG src="img/grass_icon.png" class="icon">Grass paint mode</LI>
+    <LI><IMG src="img/walk_icon.png" class="icon">Walkmap paint mode</LI>
+    <LI><IMG src="img/place_icon.png" class="icon">Object place mode</LI>
+    </UL>
+    You can change the mode using the buttons in the bottom row, or using the appropriate hotkey (F1-F5). More details on each mode can be found in the next chapters. 
+    </P>
+    </DIV>
+</BODY>

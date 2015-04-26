@@ -1,0 +1,109 @@
+﻿BODY{    
+    margin: auto;   
+    background-color: rgb(0,0,0);
+    }
+#main{ 
+       margin-left: 270px;
+       border-top-left-radius: 50px;
+       border-top: solid;
+       border-left: solid;
+       padding: 15px;
+       background-color: rgb(255,255,255);
+       min-height: 1000px;
+      }     
+#top{
+    background-color: rgb(0,0,0);
+    text-decoration: none;
+    color: rgb(255,255,255);
+    padding: 5px;
+    margin: 0;
+    } 
+#top A {
+        display:block;
+        text-decoration: none;
+        color: rgb(255,255,255);
+        }          
+#top A:hover {
+        display:block;
+        text-decoration: underline;
+        color: rgb(200,200,200);
+        }     
+#navbar{
+        color: rgb(255,255,255);
+        float: left;
+        width: 250px; 
+        padding: 0;
+        margin: 0;
+        background-color: rgb(0,0,0);
+        text-decoration: none;
+        }  
+#navbar A {
+        display:block;
+        text-decoration: none;
+        color: rgb(255,255,255);
+        }          
+#navbar A:hover {
+        display:block;
+        text-decoration: underline;
+        color: rgb(0,0,0);
+        }          
+LI.nav:hover {       
+           list-style-type: none;
+           background-color: rgb(255,255,255);
+           color: rgb(0,0,0);
+          }           
+LI.nav {
+      list-style-type: none;      
+      }           
+H1 {
+   text-align:center;
+   } 
+H2 {
+   text-align:center;
+   } 
+H3 {
+   text-align:center;
+   padding: 0;
+   margin: 0;
+   }    
+H4 {
+   font-weight: lighter;
+   text-align:center;
+   padding: 0;
+   margin: 0;
+   }    
+LABEL{
+    display:block;
+    }
+LABEL:hover{
+    display:block;
+    background-color: rgb(255,255,255);
+    color: rgb(0,0,0);
+    }
+IMG.icon{
+        vertical-align:middle;
+        margin: 1px;
+        }    
+div.img {
+    text-align: center;
+    }   
+.right {
+        float: right; 
+        margin-right: 10px;
+        }
+.left {
+        float: left;
+        margin-left: 10px;
+        }        
+.collapse + input{
+  display:none;
+}
+.collapse + input + *{
+  display:none;
+}
+.collapse+ input:checked + *{
+  display:block;
+}      
+.bold {
+    font-weight: bold;
+}  

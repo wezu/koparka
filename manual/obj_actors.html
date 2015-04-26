@@ -1,0 +1,115 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN""http://www.w3.org/TR/html4/strict.dtd">
+<HEAD>
+    <META http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <META name="description" content="Koparka - Panda3D level editor by Wezu">
+    <META name="Keywords" content="koparka, panda3d, p3d, level editor, wezu, gamedev, 3d, realtime">
+    <META name="author" content="Grzegorz 'Wezu' Kalinski">
+    <LINK rel="stylesheet" href="style.css" type="text/css" >
+    <LINK rel="shortcut icon" href="img/favico.png" >
+    <LINK rel="icon" type="image/png" href="img/favico.png" >
+    <LINK href="css/lightbox.css" rel="stylesheet" />
+    
+    <TITLE>Koparka Manual - Panda3D level editor</TITLE>
+</HEAD>
+
+<BODY>
+    <DIV id="navbar">
+        <IMG src="img/wezu.png" alt="Made by Wezu"> 
+        <H3>Table of contents:</H3>
+        <OL class="nav">
+            <LI>
+                <LABEL class="collapse" for="_1">Getting Started</LABEL>
+                <INPUT id="_1" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="index.html">Introduction</A></LI>
+                        <LI class="nav"><A href="history.html">History</A></LI>
+                        <LI class="nav"><A href="requirements.html">Requirements</A></LI>
+                        <LI class="nav"><A href="installation.html">Installation</A></LI>                    
+                        <LI class="nav"><A href="overview.html">Interface overview</A></LI>
+                    </UL>
+
+            </LI>  
+            <LI><LABEL class="collapse" for="_2">Heightmap paint mode</LABEL>
+                <INPUT id="_2" type="checkbox">                
+                    <UL>
+                        <LI class="nav"><A href="h_brush.html">Controling brushes</A></LI>
+                        <LI class="nav"><A href="h_raise.html">Raise Terrain</A></LI>
+                        <LI class="nav"><A href="h_lower.html">Lower Terrain</A></LI>
+                        <LI class="nav"><A href="h_level.html">Level Terrain</A></LI>
+                    </UL>
+            </LI> 
+            <LI><LABEL class="collapse" for="_3">Texture paint mode</LABEL>
+                <INPUT id="_3" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="t_brush.html">Controling brushes</A></LI>
+                        <LI class="nav"><A href="t_change.html">Changing textures</A></LI>
+                        <LI class="nav"><A href="t_blend.html">Painting blends</A></LI>
+                        <LI class="nav"><A href="t_custom.html">Custom textures</A></LI>
+                    </UL>
+            </LI> 
+            <LI><LABEL class="collapse" for="_4">Grass paint mode</LABEL>
+                <INPUT id="_4" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="g_brush.html">Controling brushes</A></LI>
+                        <LI class="nav"><A href="g_change.html">Changing textures</A></LI>
+                        <LI class="nav"><A href="g_blend.html">Painting blends</A></LI>
+                        <LI class="nav"><A href="g_custom.html">Custom textures</A></LI>
+                    </UL>
+            </LI>    
+            <LI><LABEL class="collapse" for="_5">Object place mode</LABEL>
+                <INPUT id="_5" type="checkbox" checked>
+                    <UL>
+                        <LI class="nav"><A href="obj_coll_mesh.html">Collision mesh</A></LI>
+                        <LI class="nav"><A href="obj_single.html">Single objects</A></LI>
+                        <LI class="nav"><A href="obj_multi.html">Multiple objects</A></LI>
+                        <LI class="nav"><A href="obj_walls.html">Walls</A></LI>                    
+                        <LI class="nav"><A href="obj_actors.html">&gt;Actors</A></LI>
+                        <LI class="nav"><A href="obj_fx.html">Lights, collisions, particle</A></LI>
+                        <LI class="nav"><A href="obj_custom.html">Custom assets</A></LI>
+                    </UL>
+            </LI> 
+            <LI><LABEL class="collapse" for="_6">Paint Walkmap mode</LABEL>
+                <INPUT id="_6" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="w_map.html">Walkmap</A></LI>                        
+                    </UL>
+            </LI>
+            <LI><LABEL class="collapse" for="_7">Map configuration</LABEL>
+                <INPUT id="_7" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="config_h2o.html">Water</A></LI>
+                        <LI class="nav"><A href="config_ter.html">Terrain</A></LI>
+                    </UL>
+            </LI>    
+            <LI><LABEL class="collapse" for="_8">Editor configuration</LABEL>
+                <INPUT id="_8" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="config_grid.html">Grid</A></LI>
+                        <LI class="nav"><A href="config_time.html">Time of day</A></LI>
+                        <LI class="nav"><A href="config_brush.html">Brush</A></LI>
+                        <LI class="nav"><A href="config_file.html">Config file</A></LI>
+                    </UL>
+            </LI>
+            <LI><LABEL class="collapse" for="_9">Saving and Loading</LABEL>
+                <INPUT id="_9" type="checkbox">
+                    <UL>
+                        <LI class="nav"><A href="save_h.html">Height map</A></LI>
+                        <LI class="nav"><A href="save_d.html">Detail maps</A></LI>
+                        <LI class="nav"><A href="save_g.html">Grass map</A></LI>
+                        <LI class="nav"><A href="save_nav.html">Navigation map</A></LI>
+                        <LI class="nav"><A href="save_obj.html">Objects</A></LI>
+                        <LI class="nav"><A href="save_coll.html">Collision mesh</A></LI>                    
+                    </UL>
+            </LI>
+        </OL>
+    </DIV>    
+    <DIV id="top">        
+        <A href="obj_walls.html" class="left">&lt;&lt;- PREVIOUS</A>
+         <A href="obj_fx.html" class="right">NEXT -&gt;&gt;</A>        
+        <H1>Animated objects (actors)</H1>
+    </DIV> 
+    <DIV id="main">    
+     <P>
+     </P>
+    </DIV>
+</BODY>
