@@ -1,33 +1,17 @@
 [
     {
-        "cloudColor": [
-            0.9,
-            0.9,
-            1.0,
-            1.0
-        ],
-        "cloudSpeed": 0.008,
-        "cloudTile": 2.0,
-        "fog": [
-            0.7,
-            0.7,
-            0.7,
-            0.002
-        ],
-        "horizont": 50,
-        "sky": [
-            0.4,
-            0.6,
-            1.0,
-            1.0
-        ],
-        "speed": 0.01,
-        "tile": 10.0,
-        "water_z": 18,
-        "wave": [
+        "CloudSpeed": 0.008,
+        "SkyTile": 8.0,
+        "TerrainScale": 100.0,
+        "TerrainTile": 30.0,
+        "WaterLevel": 19.0,
+        "WaterSpeed": 0.01,
+        "WaterTile": 20.0,
+        "WaveHeight": 1.0,
+        "WaveTile": 6.0,
+        "WaveXYMove": [
             0.005,
-            0.0,
-            4.0
+            0.002
         ]
     },
     {
@@ -55,7 +39,7 @@
         "position_y": 118.0,
         "position_z": 27.562742233276367,
         "props": "",
-        "rotation_h": -127.50000762939453,
+        "rotation_h": -127.5,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.1100000143051147
@@ -81,7 +65,7 @@
         "position_y": 167.5,
         "position_z": 27.3715763092041,
         "props": "",
-        "rotation_h": -87.50001525878906,
+        "rotation_h": -87.5000228881836,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.1100000143051147
@@ -94,7 +78,7 @@
         "position_y": 324.0,
         "position_z": 24.705883026123047,
         "props": "",
-        "rotation_h": -65.00000762939453,
+        "rotation_h": -65.00001525878906,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -107,7 +91,7 @@
         "position_y": 340.0,
         "position_z": 25.490196228027344,
         "props": "",
-        "rotation_h": -65.00000762939453,
+        "rotation_h": -65.00001525878906,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -120,7 +104,7 @@
         "position_y": 298.5,
         "position_z": 24.705883026123047,
         "props": "",
-        "rotation_h": -65.00000762939453,
+        "rotation_h": -65.00001525878906,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -133,7 +117,7 @@
         "position_y": 321.5,
         "position_z": 26.590686798095703,
         "props": "",
-        "rotation_h": -2.5000035762786865,
+        "rotation_h": -2.5000040531158447,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.6699999570846558
@@ -198,7 +182,7 @@
         "position_y": 388.5160217285156,
         "position_z": 24.705883026123047,
         "props": "",
-        "rotation_h": -106.16973876953125,
+        "rotation_h": -106.16973114013672,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -224,7 +208,7 @@
         "position_y": 352.0,
         "position_z": 24.705883026123047,
         "props": "",
-        "rotation_h": -65.00000762939453,
+        "rotation_h": -65.00001525878906,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -237,7 +221,7 @@
         "position_y": 345.0,
         "position_z": 24.705883026123047,
         "props": "",
-        "rotation_h": -65.00000762939453,
+        "rotation_h": -65.00001525878906,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 0.8700000047683716
@@ -263,7 +247,7 @@
         "position_y": 301.0,
         "position_z": 23.70700454711914,
         "props": "",
-        "rotation_h": -2.5000035762786865,
+        "rotation_h": -2.5000040531158447,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.6699999570846558
@@ -276,7 +260,7 @@
         "position_y": 303.5,
         "position_z": 24.005884170532227,
         "props": "",
-        "rotation_h": -65.00000762939453,
+        "rotation_h": -65.00001525878906,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -289,7 +273,7 @@
         "position_y": 316.0,
         "position_z": 24.190000534057617,
         "props": "",
-        "rotation_h": -127.50000762939453,
+        "rotation_h": -127.5,
         "rotation_p": 0.0009999999310821295,
         "rotation_r": 0.0010000000474974513,
         "scale": 1.4800000190734863
@@ -302,7 +286,7 @@
         "position_y": 355.5,
         "position_z": 24.329999923706055,
         "props": "{'startpos':1,'coll_mask':0, 'hide':1}",
-        "rotation_h": -127.50000762939453,
+        "rotation_h": -127.5,
         "rotation_p": 0.0009999999310821295,
         "rotation_r": 0.0010000000474974513,
         "scale": 1.9800000190734863
@@ -315,7 +299,7 @@
         "position_y": 376.0,
         "position_z": 21.70588493347168,
         "props": "",
-        "rotation_h": -65.00000762939453,
+        "rotation_h": -65.00001525878906,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.159999966621399
@@ -328,7 +312,7 @@
         "position_y": 364.0,
         "position_z": 22.04019546508789,
         "props": "",
-        "rotation_h": 22.500001907348633,
+        "rotation_h": 22.50000762939453,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.1100000143051147
@@ -354,7 +338,7 @@
         "position_y": 391.5,
         "position_z": 24.705883026123047,
         "props": "",
-        "rotation_h": -65.00000762939453,
+        "rotation_h": -65.00001525878906,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -380,7 +364,7 @@
         "position_y": 403.8160400390625,
         "position_z": 24.705883026123047,
         "props": "",
-        "rotation_h": 19.243371963500977,
+        "rotation_h": 19.243377685546875,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -393,7 +377,7 @@
         "position_y": 412.31317138671875,
         "position_z": 24.705883026123047,
         "props": "",
-        "rotation_h": 19.52554702758789,
+        "rotation_h": 19.525548934936523,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -406,7 +390,7 @@
         "position_y": 420.79559326171875,
         "position_z": 24.705883026123047,
         "props": "",
-        "rotation_h": 56.457061767578125,
+        "rotation_h": 56.45706558227539,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -434,7 +418,7 @@
         "props": "",
         "rotation_h": 128.13156127929688,
         "rotation_p": 6.820155704190256e-06,
-        "rotation_r": 1.3814622189245451e-13,
+        "rotation_r": 2.0355550198972866e-13,
         "scale": 1.0
     },
     {
@@ -447,7 +431,7 @@
         "props": "",
         "rotation_h": 139.0874786376953,
         "rotation_p": -8.395628356083762e-06,
-        "rotation_r": 1.4831088831004924e-13,
+        "rotation_r": 2.0355550198972866e-13,
         "scale": 1.0
     },
     {
@@ -458,7 +442,7 @@
         "position_y": 406.0,
         "position_z": 24.70588493347168,
         "props": "",
-        "rotation_h": -65.00000762939453,
+        "rotation_h": -65.00001525878906,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -471,7 +455,7 @@
         "position_y": 454.0,
         "position_z": 24.705883026123047,
         "props": "",
-        "rotation_h": -65.00000762939453,
+        "rotation_h": -65.00001525878906,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -484,7 +468,7 @@
         "position_y": 461.0,
         "position_z": 24.705883026123047,
         "props": "",
-        "rotation_h": -65.00000762939453,
+        "rotation_h": -65.00001525878906,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -497,7 +481,7 @@
         "position_y": 429.5,
         "position_z": 21.6558837890625,
         "props": "",
-        "rotation_h": -65.00000762939453,
+        "rotation_h": -65.00001525878906,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 0.8700000047683716
@@ -510,7 +494,7 @@
         "position_y": 466.5,
         "position_z": 24.432950973510742,
         "props": "",
-        "rotation_h": 125.00000762939453,
+        "rotation_h": 125.0,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.1100000143051147
@@ -523,7 +507,7 @@
         "position_y": 467.0,
         "position_z": 25.28508949279785,
         "props": "",
-        "rotation_h": 22.500001907348633,
+        "rotation_h": 22.50000762939453,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.1100000143051147
@@ -562,7 +546,7 @@
         "position_y": 387.5,
         "position_z": 22.015151977539062,
         "props": "",
-        "rotation_h": 22.500001907348633,
+        "rotation_h": 22.50000762939453,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.2300000190734863
@@ -575,7 +559,7 @@
         "position_y": 443.5,
         "position_z": 21.255882263183594,
         "props": "",
-        "rotation_h": 17.499996185302734,
+        "rotation_h": 17.49999237060547,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 0.8700000047683716

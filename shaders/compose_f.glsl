@@ -14,7 +14,8 @@ void main()
     vec2 time_uv=gl_TexCoord[1].xy;
     
     vec4 blured_aux=texture2D(blurTex,uv);
-    float shadow=blured_aux.g*0.2+0.8;
+    vec4 blured_color=texture2D(blurTex2, uv);
+    float shadow=blured_aux.g*0.4+0.6;
     
     vec4 aux=texture2D(auxTex, uv);
     float fogfactor=aux.r;    
@@ -24,8 +25,9 @@ void main()
     vec2 noise=texture2D(noiseTex,time_uv).rg*2.0 - 1.0;    
     vec4 color=texture2D(colorTex,uv+noise*0.01*distor);    
     //color+=texture2D(colorTex,uv)*(1.0-distor);
+    //color+=blured_color*0.2;
     color*=shadow;
-    color=mix(color, texture2D(blurTex2, uv), fogfactor);
+    color=mix(color, blured_color, fogfactor);
     //vec4 color=vec4(0.0, 0.0, 0.0, 0.0);
     color+=texture2D(glareTex,uv);  
     color+=texture2D(flareTex,uv);     

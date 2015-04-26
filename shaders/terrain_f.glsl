@@ -73,8 +73,8 @@ void main()
         //form a basis with norm being one of the axes:
         vec3 perp1 = normalize(cross(norm,temp));
         vec3 perp2 = normalize(cross(norm,perp1));
-        //use the basis to move the normal in its own space by the offset        
-        vec3 normalOffset = -z_scale*(((n.r-me.r)-(s.r-me.r))*perp1 - ((e.r-me.r)-(w.r-me.r))*perp2);
+        //use the basis to move the normal in its own space by the offset               
+        vec3 normalOffset = -0.5*z_scale*(((n.r-me.r)-(s.r-me.r))*perp1 - ((e.r-me.r)-(w.r-me.r))*perp2);
         norm += normalOffset;  
         norm = normalize(gl_NormalMatrix * norm);
         

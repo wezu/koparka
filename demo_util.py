@@ -23,15 +23,15 @@ def processProps(level, functions):
                         
 def setupFilters(manager, path, fxaa_only=False):    
     colorTex = Texture()#the scene
-    auxTex = Texture() # r=blur, g=shadow, b=?, a=?  
+    auxTex = Texture() # r=blur, g=shadow, b=?, a=?        
     composeTex=Texture()#the scene(colorTex) blured where auxTex.r>0 and with shadows (blurTex2.r) added
     filters=[]
     final_quad = manager.renderSceneInto(colortex=colorTex, auxtex=auxTex) 
-    if final_quad is None or not fxaa_only:    
+    if final_quad is None or not fxaa_only:
         blurTex = Texture() #1/2 size of the shadows to be blured            
         blurTex2 = Texture()
         glareTex = Texture()
-        flareTex = Texture()    
+        flareTex = Texture()
         #blurr shadows #1
         interquad0 = manager.renderQuadInto(colortex=blurTex, div=2)
         interquad0.setShader(Shader.load(Shader.SLGLSL, path+"shaders/blur_v.glsl", path+"shaders/blur_f.glsl"))
@@ -43,7 +43,7 @@ def setupFilters(manager, path, fxaa_only=False):
         interquad1.setShaderInput("input_map", colorTex)
         filters.append(interquad1)
         #glare
-        interquad2 = manager.renderQuadInto(colortex=glareTex, div=2)
+        interquad2 = manager.renderQuadInto(colortex=glareTex, div=4)
         interquad2.setShader(Shader.load(Shader.SLGLSL, path+"shaders/glare_v.glsl", path+"shaders/glare_f.glsl"))
         interquad2.setShaderInput("auxTex", auxTex)  
         interquad2.setShaderInput("colorTex", colorTex)
@@ -52,9 +52,7 @@ def setupFilters(manager, path, fxaa_only=False):
         #lense flare
         interquad3 = manager.renderQuadInto(colortex=flareTex, div=2)
         interquad3.setShader(Shader.load(path+"shaders/lens_flare.sha"))
-        #interquad3.setShader(Shader.load(Shader.SLGLSL, path+"shaders/flare_v.glsl", path+"shaders/flare_f.glsl"))
         interquad3.setShaderInput("tex0", glareTex)
-        #interquad3.setShaderInput("glareTex", glareTex)
         filters.append(interquad3)
         #compose the scene
         interquad4 = manager.renderQuadInto(colortex=composeTex)
@@ -65,8 +63,9 @@ def setupFilters(manager, path, fxaa_only=False):
         interquad4.setShaderInput("blurTex", blurTex)
         interquad4.setShaderInput("blurTex2", blurTex2)
         interquad4.setShaderInput("auxTex", auxTex)   
-        interquad4.setShaderInput("noiseTex", loader.loadTexture(path+"data/noise.png"))    
+        interquad4.setShaderInput("noiseTex", loader.loadTexture(path+"data/noise2.png"))    
         interquad4.setShaderInput('time', 0.0)  
+        interquad4.setShaderInput('screen_size', Vec2(float(base.win.getXSize()),float(base.win.getYSize())))
         filters.append(interquad4)
     else:
         final_quad = manager.renderSceneInto(colortex=composeTex)
@@ -247,40 +246,44 @@ def setupTerrain(path, detail_map1, detail_map2, height_map):
     h_map.setWrapV(Texture.WMClamp)
     mesh.setShaderInput("height", h_map)
     mesh.setShaderInput("atr1", loader.loadTexture(detail_map1))
-    mesh.setShaderInput("atr2", loader.loadTexture(detail_map2))           
+    mesh.setShaderInput("atr2", loader.loadTexture(detail_map2)) 
+    mesh.setShaderInput("z_scale", 100.0)  
+    mesh.setShaderInput("tex_scale", 16.0)    
     mesh.setTransparency(TransparencyAttrib.MNone)
     mesh.node().setBounds(OmniBoundingVolume())
     mesh.node().setFinal(1)
     mesh.setBin("background", 11)
-    mesh.setShaderInput("water_level",26.0)
+    #mesh.setShaderInput("water_level",26.0)
     return mesh
     
 def loadSkyDome(path):
-    skydome = loader.loadModel(path+"data/skydome") 
+    skydome = loader.loadModel(path+"data/skydome2")  
+    skydome.reparentTo(render)
+    skydome.setPos(256, 256, -200)        
     skydome.setScale(10)                 
-    skydome.reparentTo(render)            
-    skydome.setShaderInput("sky", Vec4(0.4,0.6,1.0, 1.0))       
-    skydome.setShaderInput("cloudColor", Vec4(0.9,0.9,1.0, 0.8))
-    skydome.setShaderInput("cloudTile",4.0) 
-    skydome.setShaderInput("cloudSpeed",0.008)
-    skydome.setShaderInput("horizont",140.0)
-    skydome.setBin('background', 1)    
+    #skydome.setShaderInput("sky", Vec4(0.4,0.6,1.0, 1.0))   
+    #skydome.setShaderInput("fog", Vec4(1.0,1.0,1.0, 1.0)) 
+    #skydome.setShaderInput("cloudColor", Vec4(0.9,0.9,1.0, 0.8))
+    #skydome.setShaderInput("cloudTile",8.0) 
+    #skydome.setShaderInput("cloudSpeed",0.008)
+    #skydome.setShaderInput("horizont",20.0)        
+    #skydome.setShaderInput("sunColor",Vec4(1.0,1.0,1.0, 1.0))        
+    #skydome.setShaderInput("skyColor",Vec4(1.0,1.0,1.0, 1.0))
+    skydome.setBin('background', 1)
+    skydome.setTwoSided(True)
     skydome.node().setBounds(OmniBoundingVolume())
     skydome.node().setFinal(1)
     skydome.setShader(Shader.load(Shader.SLGLSL, path+"shaders/cloud_v.glsl", path+"shaders/cloud_f.glsl"))
     skydome.hide(MASK_SHADOW)
-    skydome.setTransparency(TransparencyAttrib.MNone)
+    skydome.setTransparency(TransparencyAttrib.MNone, 1)
     return skydome
-    
+
 def setupWater(path, height_map):
-    waterNP = loader.loadModel(path+"data/waterplane2") 
-    #waterNP.setPos(256, 256, 0)
-    waterNP.setTransparency(TransparencyAttrib.MAlpha, 1)
-    #waterNP.setDepthWrite(False)
-    #waterNP.setBin("background", 12)
-    #waterNP.setDepthTest(False)
-    #waterNP.flattenLight()
-    waterNP.setPos(0, 0, 26)
+    waterNP = loader.loadModel(path+"data/waterplane") 
+    waterNP.setPos(256, 256, 0)
+    waterNP.setTransparency(TransparencyAttrib.MAlpha)
+    waterNP.flattenLight()
+    waterNP.setPos(0, 0, 30)
     waterNP.reparentTo(render)  
     #Add a buffer and camera that will render the reflection texture
     wBuffer = base.win.makeTextureBuffer("water", 512, 512)
@@ -297,49 +300,45 @@ def setupWater(path, height_map):
     wTexture.setWrapV(Texture.WMClamp)
     wTexture.setMinfilter(Texture.FTLinearMipmapLinear)       
     #Create plane for clipping and for reflection matrix
-    wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, 26))        
+    wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, 19))        
     wPlaneNP = render.attachNewNode(PlaneNode("water", wPlane))
     tmpNP = NodePath("StateInitializer")
     tmpNP.setClipPlane(wPlaneNP)
     tmpNP.setAttrib(CullFaceAttrib.makeReverse())
-    waterCamera.node().setInitialState(tmpNP.getState())    
+    waterCamera.node().setInitialState(tmpNP.getState())
     waterNP.setShaderInput('camera',waterCamera)
     waterNP.setShaderInput("reflection",wTexture)
-    
-    waterNP.setShader(Shader.load(Shader.SLGLSL, path+"shaders/water2_v.glsl", path+"shaders/water2_f.glsl"))
+        
+    waterNP.setShader(Shader.load(Shader.SLGLSL, "shaders/water2_v.glsl", "shaders/water2_f.glsl"))
     waterNP.setShaderInput("water_norm", loader.loadTexture(path+'data/water.png'))  
-    waterNP.setShaderInput("water_height", loader.loadTexture(path+'data/ocen3.png'))
-    waterNP.setShaderInput("height", loader.loadTexture(height_map))
-    waterNP.setShaderInput("tile",10.0)
-    waterNP.setShaderInput("water_level",26.0)
-    waterNP.setShaderInput("speed",0.02)
-    waterNP.setShaderInput("wave",Vec3(32.0, 34.0, 0.2))        
+    waterNP.setShaderInput("water_height", loader.loadTexture(path+'data/ocen3.png')) 
+    waterNP.setShaderInput("height", loader.loadTexture(height_map)) 
+    #waterNP.setShaderInput("tile",20.0)
+    #waterNP.setShaderInput("water_level",30.0)
+    #waterNP.setShaderInput("speed",0.01)
+    #waterNP.setShaderInput("wave",Vec4(0.005, 0.002, 6.0, 1.0)) 
+    waterNP.setDepthWrite(False)    
     waterNP.hide(MASK_WATER)
     waterNP.hide(MASK_SHADOW)
+    waterNP.setBin("transparent", 31)
     return {'waterNP':waterNP, 'waterCamera':waterCamera, 'wBuffer':wBuffer, 'wPlane':wPlane}
     
-def setupLights(sun_color, ambient_color, ambient2_color, sun_hpr):
-    #sun
-    dlight = DirectionalLight('dlight') 
-    dlight.setColor(sun_color)     
-    mainLight = render.attachNewNode(dlight)
-    mainLight.setHpr(sun_hpr)
-    render.setLight(mainLight)
-    
+def setupLights(lmanager):    
+    #sun        
+    sun=lmanager.addLight(pos=(256.0, 256.0, 200.0), color=(0.9, 0.9, 0.9), radius=10000.0)    
+        
     #ambient light 
     alight = DirectionalLight('dlight') 
-    alight.setColor(ambient_color)     
+    alight.setColor(Vec4(.1, .1, .11, 1.0))     
     ambientLight = render.attachNewNode(alight)
     render.setLight(ambientLight)
     ambientLight.setPos(base.camera.getPos())
     ambientLight.setHpr(base.camera.getHpr())
-    ambientLight.wrtReparentTo(base.camera)
+    ambientLight.wrtReparentTo(base.camera)        
+    render.setShaderInput("ambient", Vec4(.001, .001, .001, 1))
+    return sun    
     
-    render.setShaderInput("dlight0", mainLight)
-    render.setShaderInput("dlight1", ambientLight)
-    render.setShaderInput("ambient", ambient2_color)         
-    
-def setupShadows(sun_hpr, buffer_size=1024):    
+def setupShadows(buffer_size=1024):    
     #render shadow map
     depth_map = Texture()
     depth_map.setFormat(Texture.FDepthComponent)
@@ -364,20 +363,18 @@ def setupShadows(sun_hpr, buffer_size=1024):
     shadowCamera.node().setLens(lens)
     shadowCamera.node().getLens().setNearFar(1,300) 
     shadowCamera.node().setCameraMask(MASK_SHADOW)
-    #shadowCamera.node().showFrustum()
-    shadowCamera.reparentTo(render)
-    #startpos=startpos+(400, 256, 256)
-    shadowCamera.setPos(256, 256, 0)              
-    #shadowCamera.setHpr(mainLight.getHpr())    
-    shadowNode=render.attachNewNode('shadowNode')
-    shadowNode.setPos(256, 256, 0)    
-    shadowCamera.wrtReparentTo(shadowNode)
-    shadowCamera.setY(shadowCamera, -100)
-    shadowNode.setHpr(sun_hpr)    
+    
+    shadowCamera.reparentTo(render)    
+    shadowCamera.setPos(256, 256, 200)          
+    shadowCamera.setHpr(90, -90, 0)
+        
+    sunNode=render.attachNewNode('sunNode')
+    sunNode.setPos(256, 256, 0)
+    shadowCamera.wrtReparentTo(sunNode)            
     render.setShaderInput('shadow', depth_map)
-    render.setShaderInput("bias", 1.5)
-    render.setShaderInput('shadowCamera',shadowCamera)
-    return {'shadowNode':shadowNode, 'shadowCamera':shadowCamera} 
+    render.setShaderInput("bias", 1.0)
+    render.setShaderInput('shadowCamera',shadowCamera)    
+    return {'sunNode':sunNode, 'shadowCamera':shadowCamera} 
     
 def loadLevel(path, from_dir):    
     #files needed to be read
@@ -418,44 +415,42 @@ def loadLevel(path, from_dir):
     data=LoadScene(path, objects, quadtree, actors, mesh, grass, flatten=False)
     
     #load sky and water data
-    sky=Vec4(data[0]['sky'][0], data[0]['sky'][1], data[0]['sky'][2], data[0]['sky'][3])
-    fog=Vec4(data[0]['fog'][0], data[0]['fog'][1], data[0]['fog'][2], data[0]['fog'][3])
-    cloudColor=Vec4(data[0]['cloudColor'][0], data[0]['cloudColor'][1], data[0]['cloudColor'][2], data[0]['cloudColor'][3])
-    cloudTile=data[0]['cloudTile']
-    cloudSpeed=data[0]['cloudSpeed']
-    horizont=data[0]['horizont']
-    tile=data[0]['tile']
-    speed=data[0]['speed']
-    wave=Vec3(data[0]['wave'][0], data[0]['wave'][1], data[0]['wave'][2])
-    water_z=data[0]['water_z']  
-    
-    skydome.setShaderInput("sky", sky)   
-    render.setShaderInput("fog", fog) 
-    skydome.setShaderInput("cloudColor", cloudColor)
-    skydome.setShaderInput("cloudTile",cloudTile) 
-    skydome.setShaderInput("cloudSpeed",cloudSpeed)
-    skydome.setShaderInput("horizont",horizont)
-    mesh.setShaderInput("water_level",water_z)
-    if water_z>0.0:
+    TerrainTile=data[0]['TerrainTile']
+    TerrainScale=data[0]['TerrainScale']
+    SkyTile=data[0]['SkyTile']
+    CloudSpeed=data[0]['CloudSpeed']
+    WaveTile=data[0]['WaveTile']
+    WaveHeight=data[0]['WaveHeight']
+    WaveXYMove=[data[0]['WaveXYMove'][0],data[0]['WaveXYMove'][1]]
+    WaterTile=data[0]['WaterTile']
+    WaterSpeed=data[0]['WaterSpeed']
+    WaterLevel=data[0]['WaterLevel']
+    skydome.setShaderInput("cloudTile",SkyTile) 
+    skydome.setShaderInput("cloudSpeed",CloudSpeed)
+    mesh.setShaderInput("water_level",WaterLevel)
+    mesh.setShaderInput("z_scale", TerrainScale)  
+    mesh.setShaderInput("tex_scale", TerrainTile)
+    if WaterLevel>0.0:
         wBuffer.setActive(True)
         waterNP.show()
-        waterNP.setShaderInput("tile",tile)
-        waterNP.setShaderInput("speed",speed)                
-        waterNP.setShaderInput("water_level",water_z)
-        waterNP.setShaderInput("wave",wave)
-        waterNP.setPos(0, 0, water_z)
-        wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, water_z))
-        water['wPlane']=wPlane
+        waterNP.setShaderInput("tile",WaterTile)
+        waterNP.setShaderInput("speed",WaterSpeed)                
+        waterNP.setShaderInput("water_level",WaterLevel)
+        waterNP.setShaderInput("wave",Vec4(WaveXYMove[0],WaveXYMove[1],WaveTile,WaveHeight))
+        waterNP.setPos(0, 0, WaterLevel)
+        wPlane = Plane(Vec3(0, 0, 1), Point3(0, 0, WaterLevel))
         wPlaneNP = render.attachNewNode(PlaneNode("water", wPlane))
-        mesh.setShaderInput("water_level",water_z)
+        water['wPlane']=wPlane
+        mesh.setShaderInput("water_level",WaterLevel)
         tmpNP = NodePath("StateInitializer")
         tmpNP.setClipPlane(wPlaneNP)
-        tmpNP.setAttrib(CullFaceAttrib.makeReverse())        
+        tmpNP.setAttrib(CullFaceAttrib.makeReverse())                
         waterCamera.node().setInitialState(tmpNP.getState())
     else:
         waterNP.hide()
         wBuffer.setActive(False)
-    
+        mesh.setShaderInput("water_level",-10.0)    
+        
     level={'actors':actors,
            'quadtree':quadtree,
            'mesh':mesh,
@@ -466,17 +461,20 @@ def loadLevel(path, from_dir):
     return level
     
 def createGrassTile(path, grass_map, height_map, uv_offset, pos, parent, fogcenter=Vec3(0,0,0), count=256):
-    grass=loader.loadModel(path+"data/grass_model")
+    grass=loader.loadModel("data/grass_model_lo")
+    #grass.setTwoSided(True)
+    grass.setTransparency(TransparencyAttrib.MBinary, 1)
     grass.reparentTo(parent)
     grass.setInstanceCount(count) 
     grass.node().setBounds(BoundingBox((0,0,0), (256,256,128)))
     grass.node().setFinal(1)
-    grass.setShader(Shader.load(Shader.SLGLSL, path+"shaders/grass_v.glsl", path+"shaders/grass_f.glsl"))
+    grass.setShader(Shader.load(Shader.SLGLSL, "shaders/grass_lights_v.glsl", "shaders/grass_lights_f.glsl"))
+    #grass.setShader(Shader.load(Shader.SLGLSL, "shaders/grass_v.glsl", "shaders/grass_f.glsl"))
     grass.setShaderInput('height', loader.loadTexture(height_map)) 
     grass.setShaderInput('grass', loader.loadTexture(grass_map))
     grass.setShaderInput('uv_offset', uv_offset)   
     grass.setShaderInput('fogcenter', fogcenter)
-    grass.setPos(pos)    
+    grass.setPos(pos)
     return grass
         
 class CameraControler (DirectObject):
