@@ -10,7 +10,7 @@ void main()
     {        
     vec4 blured_aux=texture2D(blurTex,uv);
     vec4 aux=texture2D(auxTex, uv);  
-    float specfactor=0.1+aux.b+blured_aux.b;
+    float specfactor=aux.b+blured_aux.b;
     
     vec4 color=texture2D(colorTex, uv);   
     

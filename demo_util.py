@@ -247,7 +247,7 @@ def setupTerrain(path, detail_map1, detail_map2, height_map):
     mesh.setShaderInput("height", h_map)
     mesh.setShaderInput("atr1", loader.loadTexture(detail_map1))
     mesh.setShaderInput("atr2", loader.loadTexture(detail_map2)) 
-    mesh.setShaderInput("z_scale", 100.0)  
+    render.setShaderInput("z_scale", 100.0)  
     mesh.setShaderInput("tex_scale", 16.0)    
     mesh.setTransparency(TransparencyAttrib.MNone)
     mesh.node().setBounds(OmniBoundingVolume())
@@ -329,7 +329,7 @@ def setupLights(lmanager):
         
     #ambient light 
     alight = DirectionalLight('dlight') 
-    alight.setColor(Vec4(.1, .1, .11, 1.0))     
+    alight.setColor(Vec4(.1, .1, .15, 1.0))     
     ambientLight = render.attachNewNode(alight)
     render.setLight(ambientLight)
     ambientLight.setPos(base.camera.getPos())
@@ -428,7 +428,7 @@ def loadLevel(path, from_dir):
     skydome.setShaderInput("cloudTile",SkyTile) 
     skydome.setShaderInput("cloudSpeed",CloudSpeed)
     mesh.setShaderInput("water_level",WaterLevel)
-    mesh.setShaderInput("z_scale", TerrainScale)  
+    render.setShaderInput("z_scale", TerrainScale)  
     mesh.setShaderInput("tex_scale", TerrainTile)
     if WaterLevel>0.0:
         wBuffer.setActive(True)

@@ -74,7 +74,7 @@ void main()
         vec3 perp1 = normalize(cross(norm,temp));
         vec3 perp2 = normalize(cross(norm,perp1));
         //use the basis to move the normal in its own space by the offset               
-        vec3 normalOffset = -0.5*z_scale*(((n.r-me.r)-(s.r-me.r))*perp1 - ((e.r-me.r)-(w.r-me.r))*perp2);
+        vec3 normalOffset = -0.2*z_scale*(((n.r-me.r)-(s.r-me.r))*perp1 - ((e.r-me.r)-(w.r-me.r))*perp2);
         norm += normalOffset;  
         norm = normalize(gl_NormalMatrix * norm);
         
@@ -167,8 +167,8 @@ void main()
                     E = normalize(-vpos.xyz);
                     R = reflect(-lightDir.xyz, norm.xyz);
                     //light_spec=(light_color[i].r+light_color[i].g+light_color[i].b)/3.0;
-                    light_spec=dot(light_color[i].rgb, vec3(1.0, 1.0, 1.0))*0.33;
-                    spec+=pow( max(dot(R, E), 0.0),120.0)*gloss*pointLight[i].w*light_spec;
+                    light_spec=dot(light_color[i].rgb, vec3(0.05, 0.05, 0.05)); 
+                    spec+=pow( max(dot(R, E), 0.0),1000.0*gloss)*pointLight[i].w*light_spec;
                     color += light_color[i] * NdotL*pointLight[i].w;
                 //    }
                 }
@@ -186,6 +186,7 @@ void main()
             float water_fog_factor=1.0-pow(terrainz/(water_z), 4.0);
             final=mix(final,water_fog ,water_fog_factor*0.98);         
             spec=0.0;
+            fogFactor=0.0;
             }
         else 
             {
@@ -194,7 +195,7 @@ void main()
             if (shadowColor < shadowUV.z-0.001)
                 shade=0.0;            
             }
-        spec=spec*(1.0-fogFactor)*0.5; 
+        spec=spec*(1.0-fogFactor)*0.2; 
         gl_FragData[0] = mix(final,fog_color ,fogFactor);//+walk;    
         gl_FragData[1]=vec4(fogFactor, shade, spec,0.0);
         }

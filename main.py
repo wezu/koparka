@@ -335,17 +335,17 @@ class Editor (DirectObject):
         #TODO(maybe): remove default tex from model ... and fix filtering then somehow
         for tex in self.textures_diffuse[:6]:
             id=self.textures_diffuse.index(tex)
-            self.mesh.setTexture(self.mesh.findTextureStage('tex{0}'.format(id+1)), loader.loadTexture(tex), 1)
+            self.mesh.setTexture(self.mesh.findTextureStage('tex{0}'.format(id+1)), loader.loadTexture(tex, anisotropicDegree=2 ), 1)
         for tex in self.textures_normal[:6]:
             id=self.textures_normal.index(tex)
-            self.mesh.setTexture(self.mesh.findTextureStage('tex{0}n'.format(id+1)), loader.loadTexture(tex), 1)  
+            self.mesh.setTexture(self.mesh.findTextureStage('tex{0}n'.format(id+1)), loader.loadTexture(tex, anisotropicDegree=2), 1)  
         self.mesh.reparentTo(render)
         self.mesh.setShader(Shader.load(Shader.SLGLSL, "shaders/terrain_v.glsl", "shaders/terrain_f.glsl"))        
         self.mesh.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT]) 
         self.mesh.setShaderInput("atr1", self.painter.textures[BUFFER_ATR]) 
         self.mesh.setShaderInput("atr2", self.painter.textures[BUFFER_ATR2])        
         self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_WALK])  
-        self.mesh.setShaderInput("z_scale", 100.0)  
+        render.setShaderInput("z_scale", 100.0)  
         self.mesh.setShaderInput("tex_scale", 16.0) 
         self.mesh.setTransparency(TransparencyAttrib.MNone)
         self.mesh.node().setBounds(OmniBoundingVolume())
@@ -470,7 +470,7 @@ class Editor (DirectObject):
         
         #ambient light 
         self.alight = DirectionalLight('dlight') 
-        self.alight.setColor(Vec4(.1, .1, .11, 1.0))     
+        self.alight.setColor(Vec4(.1, .1, .15, 1.0))     
         self.ambientLight = render.attachNewNode(self.alight)
         #self.ambientLight.setP(-90)       
         #self.ambientLight.setH(90)
@@ -679,7 +679,9 @@ class Editor (DirectObject):
         p1=self.skyimg.getPixel(x1, 0)
         p2=self.skyimg.getPixel(x2, 0)
         sunColor=self.blendPixels(p1, p2, blend)
-        
+        sunColor[0]=sunColor[0]*1.5
+        sunColor[1]=sunColor[1]*1.5
+        sunColor[2]=sunColor[2]*1.5
         p1=self.skyimg.getPixel(x1, 1)
         p2=self.skyimg.getPixel(x2, 1)
         skyColor=self.blendPixels(p1, p2, blend)
@@ -872,7 +874,8 @@ class Editor (DirectObject):
             self.skydome.setShaderInput("cloudTile",SkyTile) 
             self.skydome.setShaderInput("cloudSpeed",CloudSpeed)
             self.mesh.setShaderInput("water_level",WaterLevel)
-            self.mesh.setShaderInput("z_scale", TerrainScale)  
+            #self.mesh.setShaderInput("z_scale", TerrainScale)  
+            render.setShaderInput("z_scale", TerrainScale)  
             self.mesh.setShaderInput("tex_scale", TerrainTile) 
             if WaterLevel>0.0:
                 self.wBuffer.setActive(True)
@@ -1233,7 +1236,7 @@ class Editor (DirectObject):
                 self.skydome.setShaderInput("cloudTile",SkyTile) 
                 self.skydome.setShaderInput("cloudSpeed",CloudSpeed)
                 self.mesh.setShaderInput("water_level",WaterLevel)
-                self.mesh.setShaderInput("z_scale", TerrainScale)  
+                render.setShaderInput("z_scale", TerrainScale)  
                 self.mesh.setShaderInput("tex_scale", TerrainTile) 
                 if WaterLevel>0.0:
                     self.wBuffer.setActive(True)
@@ -1363,8 +1366,8 @@ class Editor (DirectObject):
     
     def setTex(self, layer, id, guiEvent=None): 
         self.curent_textures[layer]=id
-        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), loader.loadTexture(self.textures_diffuse[id]), 1)
-        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)+'n'), loader.loadTexture(self.textures_normal[id]), 1)        
+        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), loader.loadTexture(self.textures_diffuse[id], anisotropicDegree=2), 1)
+        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)+'n'), loader.loadTexture(self.textures_normal[id], anisotropicDegree=2), 1)        
         self.gui.elements[self.palette_id]['buttons'][layer]['frameTexture']=self.textures_diffuse[id]
         
     def changeTex(self, layer, guiEvent=None): 
@@ -1377,8 +1380,8 @@ class Editor (DirectObject):
         if id>len(self.textures_diffuse)-1:
             id=0        
         self.curent_textures[layer]=id
-        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), loader.loadTexture(self.textures_diffuse[id]), 1)
-        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)+'n'), loader.loadTexture(self.textures_normal[id]), 1)        
+        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), loader.loadTexture(self.textures_diffuse[id], anisotropicDegree=2), 1)
+        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)+'n'), loader.loadTexture(self.textures_normal[id], anisotropicDegree=2), 1)        
         self.gui.elements[self.palette_id]['buttons'][layer]['frameTexture']=self.textures_diffuse[id]
         
     def changeGrassTex(self, layer, guiEvent=None):

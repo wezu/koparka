@@ -19,6 +19,7 @@ varying float height_scale;
 varying vec4 pointLight [10];
 uniform vec4 light_color[10];
 uniform float num_lights;
+uniform float z_scale;
 
 void main()
     {  
@@ -26,7 +27,7 @@ void main()
     if(fog_factor>0.996)//fog only version
         {
         gl_FragData[0] =fog_color;
-        gl_FragData[1]=vec4(1.0,1.0,0.0,0.0);
+        gl_FragData[1]=vec4(0.0,1.0,0.0,0.0);
         }
     else
         {    
@@ -63,12 +64,12 @@ void main()
         vec3 binormal= gl_NormalMatrix * cross(normal, tangent); 
         
         float h_map=texture2D(height, gl_TexCoord[2].xy).r;
-        if (h_map*100.0>water_level+6.0) //the water level is (map*6.0)+1.0, map should always be under 1.0 
+        if (h_map*z_scale>water_level+2.0) 
             discard;
         vec4 distortion1 = normalize(texture2D(water_norm, gl_TexCoord[0].xy));
         vec4 distortion2 = normalize(texture2D(water_norm, gl_TexCoord[1].xy));
         vec4 normalmap=distortion1+distortion2; 
-        float foam=clamp(h_map*100.0-(water_level-2.0), 0.0, 4.0)/4.0;
+        float foam=clamp(h_map*z_scale-(water_level-4.0), 0.0, 4.0)/4.0;
         foam+=clamp((me-0.5)*4.0, 0.0, 1.0)*height_scale*0.1;
         foam=clamp(foam, 0.0, 1.0);
         vec4 full_foam=vec4(foam, foam, foam, foam)*normalmap.a;
@@ -116,7 +117,7 @@ void main()
                 //    { 
                     E = normalize(-vpos.xyz);
                     R = reflect(-L.xyz, N.xyz);
-                    light_spec=dot(light_color[i].rgb, vec3(1.0, 1.0, 1.0))*0.4;
+                    light_spec=dot(light_color[i].rgb, vec3(1.0, 1.0, 1.0));
                     specular+=pow( max(dot(R, E), 0.0),150.0)*att*light_spec;
                     color += clamp((light_color[i] * NdotL*att)*facing, 0.1, 0.5);
                 //    }
@@ -126,15 +127,15 @@ void main()
         specular*=(1.0-fog_factor);
         //specular-=foam;
         vec4 refl=texture2DProj(reflection, gl_TexCoord[3]+distortion1*distortion2*4);
-        vec4 final=(color*refl);        
+        vec4 final=(color*refl)+(refl*(1.0-facing)*0.3);
         //vec4 final=color;        
         //final.rgb+=normalmap.a*clamp((me.r-0.5)*4.0, 0.0, 1.0);
         float final_spec=clamp(specular, 0.0, 1.0)*(1.0-foam);  
         final+=final_spec;
         final+=full_foam*foam;        
-        float displace=(facing)+(foam*0.5);         
-        final.a=clamp(displace, 0.8, 1.0);
+        float displace=(facing)+(foam*0.2);         
+        final.a=clamp(displace, 0.5, 0.9);
         gl_FragData[0] =mix(final, fog_color, fog_factor);
-        gl_FragData[1] =vec4(fog_factor, 1.0,final_spec*0.5,1.0-displace);//(fog, shadow, glare, displace)
+        gl_FragData[1] =vec4(0.0, 1.0,final_spec*0.5,1.0-displace);//(fog, shadow, glare, displace)
         }
     }

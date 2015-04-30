@@ -1,7 +1,7 @@
 [
     {
         "CloudSpeed": 0.008,
-        "SkyTile": 8.0,
+        "SkyTile": 6.0,
         "TerrainScale": 100.0,
         "TerrainTile": 30.0,
         "WaterLevel": 19.0,

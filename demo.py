@@ -31,6 +31,7 @@ from panda3d.core import *
 from direct.showbase import ShowBase
 from direct.showbase.DirectObject import DirectObject
 from direct.filter.FilterManager import FilterManager
+from direct.interval.IntervalGlobal import *
 from direct.actor.Actor import Actor
 import json
 import sys
@@ -115,11 +116,19 @@ class Demo (DirectObject):
         #pathfinding
         self.navi=Navigator(path+directory+'/navmesh.csv', self.pcNode, self.actor)
         self.target=render.attachNewNode('target')
-        self.setTime(16.5)
+        self.setTime(15.5)
         #tasks
         taskMgr.add(self.update, 'update_task', sort=45)
-        
+        self.clock=15.5        
+        taskMgr.doMethodLater(0.5, self.clockTick,'clock_task', sort=10)
         self.accept( 'window-event', self.windowEventHandler) 
+        
+    def clockTick(self, task):
+        self.clock+=0.01
+        if self.clock>23.9:
+            self.clock=0.0
+        self.setTime(self.clock)                
+        return task.again
         
     def blendPixels(self, p1, p2, blend):
         c1=[p1[0]/255.0,p1[1]/255.0,p1[2]/255.0, p1[3]/255.0] 
@@ -138,7 +147,9 @@ class Demo (DirectObject):
         p1=self.skyimg.getPixel(x1, 0)
         p2=self.skyimg.getPixel(x2, 0)
         sunColor=self.blendPixels(p1, p2, blend)
-        
+        sunColor[0]=sunColor[0]*1.5
+        sunColor[1]=sunColor[1]*1.5
+        sunColor[2]=sunColor[2]*1.5
         p1=self.skyimg.getPixel(x1, 1)
         p2=self.skyimg.getPixel(x2, 1)
         skyColor=self.blendPixels(p1, p2, blend)
@@ -156,8 +167,8 @@ class Demo (DirectObject):
             p=0.0            
         else:
             p=sunpos*-180.0
-        
-        self.shadows['sunNode'].setP(p) 
+        LerpHprInterval(self.shadows['sunNode'], 0.25, (0,p,0)).start()
+        #self.shadows['sunNode'].setP(p) 
         self.lManager.setLight(id=self.sun, pos=self.shadows['shadowCamera'].getPos(render), color=sunColor, radius=10000.0)
         self.level['skydome'].setShaderInput("sunColor",sunColor)        
         self.level['skydome'].setShaderInput("skyColor",skyColor)  

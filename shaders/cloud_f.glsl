@@ -30,7 +30,7 @@ void main()
     sun=mix(0.0, sun, h);    
     //cloud-=tex3.a*0.1;
     out_color+=cloud;        
-    out_color=mix(out_color, sunColor, sun);
+    out_color=mix(out_color, sunColor*0.67, sun);
     out_color=mix(fog*1.05, out_color, blend); 
     sun=mix(0.0, sun, blend);    
     out_color.a=1.0;
