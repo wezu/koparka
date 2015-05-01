@@ -31,9 +31,13 @@ void main()
         }
     else
         {    
+        vec4 distortion1 = normalize(texture2D(water_norm, gl_TexCoord[0].xy));
+        vec4 distortion2 = normalize(texture2D(water_norm, gl_TexCoord[1].xy));
+        vec4 normalmap=distortion1+distortion2;
+        
         vec3 normal=vec3(0.0,0.0,1.0);    
         const vec3 vLeft=vec3(1.0,0.0,0.0);
-        const float pixel=1.0/256.0;
+        const float pixel=0.00390625;//=1.0/256.0;
         //float height_scale=15.0;
         vec2 texUV=gl_TexCoord[4].xy;
         //normal vector...
@@ -42,7 +46,7 @@ void main()
         vec4 s_tex=texture2D(water_height, vec2(texUV.x,texUV.y-pixel));   
         vec4 e_tex=texture2D(water_height, vec2(texUV.x+pixel,texUV.y));    
         vec4 w_tex=texture2D(water_height, vec2(texUV.x-pixel,texUV.y));
-        float me=mix(me_tex.r, me_tex.g, blend);
+        float me=mix(me_tex.r, me_tex.g, blend)+normalmap.a*0.5;
         float n=mix(n_tex.r, n_tex.g, blend);
         float s=mix(s_tex.r, s_tex.g, blend);
         float e=mix(e_tex.r, e_tex.g, blend);
@@ -65,12 +69,9 @@ void main()
         
         float h_map=texture2D(height, gl_TexCoord[2].xy).r;
         if (h_map*z_scale>water_level+2.0) 
-            discard;
-        vec4 distortion1 = normalize(texture2D(water_norm, gl_TexCoord[0].xy));
-        vec4 distortion2 = normalize(texture2D(water_norm, gl_TexCoord[1].xy));
-        vec4 normalmap=distortion1+distortion2; 
+            discard;         
         float foam=clamp(h_map*z_scale-(water_level-4.0), 0.0, 4.0)/4.0;
-        foam+=clamp((me-0.5)*4.0, 0.0, 1.0)*height_scale*0.1;
+        foam+=clamp((me-0.5)*4.0, 0.0, 1.0)*height_scale*0.05;
         foam=clamp(foam, 0.0, 1.0);
         vec4 full_foam=vec4(foam, foam, foam, foam)*normalmap.a;
         float facing = 1.0 -max(dot(normalize(-vpos.xyz), normalize(normal.xyz)), 0.0);   
@@ -119,22 +120,23 @@ void main()
                     R = reflect(-L.xyz, N.xyz);
                     light_spec=dot(light_color[i].rgb, vec3(1.0, 1.0, 1.0));
                     specular+=pow( max(dot(R, E), 0.0),150.0)*att*light_spec;
-                    color += clamp((light_color[i] * NdotL*att)*facing, 0.1, 0.5);
+                    color += clamp((light_color[i] * NdotL*att), 0.1, 0.5);
+                    
                 //    }
                 }
-            }
-        full_foam*=color*4.0;
+            }        
+        full_foam*=color*2.0;
         specular*=(1.0-fog_factor);
         //specular-=foam;
-        vec4 refl=texture2DProj(reflection, gl_TexCoord[3]+distortion1*distortion2*4);
-        vec4 final=(color*refl)+(refl*(1.0-facing)*0.3);
+        vec4 refl=texture2DProj(reflection, gl_TexCoord[3]+distortion1*distortion2*4.0);
+        vec4 final=(color*refl*facing)+(refl*(1.0-facing)*0.5);
         //vec4 final=color;        
         //final.rgb+=normalmap.a*clamp((me.r-0.5)*4.0, 0.0, 1.0);
         float final_spec=clamp(specular, 0.0, 1.0)*(1.0-foam);  
         final+=final_spec;
         final+=full_foam*foam;        
-        float displace=(facing)+(foam*0.2);         
-        final.a=clamp(displace, 0.5, 0.9);
+        float displace=(facing)+(foam*0.5);         
+        final.a=clamp(displace*2.0,  0.95, 1.0);
         gl_FragData[0] =mix(final, fog_color, fog_factor);
         gl_FragData[1] =vec4(0.0, 1.0,final_spec*0.5,1.0-displace);//(fog, shadow, glare, displace)
         }

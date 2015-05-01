@@ -141,10 +141,10 @@ def LoadScene(path, file, quad_tree, actors, terrain, grass, flatten=False):
         if 'textures' in object:
             i=0
             for tex in object['textures']:                
-                terrain.setTexture(terrain.findTextureStage('tex{0}'.format(i+1)), loader.loadTexture(path+tex), 1)
+                terrain.setTexture(terrain.findTextureStage('tex{0}'.format(i+1)), loader.loadTexture(path+tex, anisotropicDegree=2), 1)
                 #normal texture should have the same name but should be in '/normal/' directory
                 normal_tex=tex.replace('/diffuse/','/normal/')
-                terrain.setTexture(terrain.findTextureStage('tex{0}n'.format(i+1)), loader.loadTexture(path+normal_tex), 1)                
+                terrain.setTexture(terrain.findTextureStage('tex{0}n'.format(i+1)), loader.loadTexture(path+normal_tex,anisotropicDegree=2), 1)                
                 i+=1
             continue  
         elif 'grass' in object:
@@ -317,7 +317,7 @@ def setupWater(path, height_map):
     #waterNP.setShaderInput("water_level",30.0)
     #waterNP.setShaderInput("speed",0.01)
     #waterNP.setShaderInput("wave",Vec4(0.005, 0.002, 6.0, 1.0)) 
-    waterNP.setDepthWrite(False)    
+    #waterNP.setDepthWrite(False)    
     waterNP.hide(MASK_WATER)
     waterNP.hide(MASK_SHADOW)
     waterNP.setBin("transparent", 31)
@@ -361,7 +361,7 @@ def setupShadows(buffer_size=1024):
     lens = OrthographicLens()
     lens.setFilmSize(300, 300)
     shadowCamera.node().setLens(lens)
-    shadowCamera.node().getLens().setNearFar(1,300) 
+    shadowCamera.node().getLens().setNearFar(1,400) 
     shadowCamera.node().setCameraMask(MASK_SHADOW)
     
     shadowCamera.reparentTo(render)    

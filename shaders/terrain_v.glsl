@@ -12,7 +12,7 @@ varying float fogFactor;
 varying vec2 texUV;
 varying vec2 texUVrepeat;
 varying vec4 vpos;
-varying float terrainz;
+//varying float terrainz;
 
 uniform float bias;
 uniform mat4 trans_model_to_clip_of_shadowCamera;
@@ -37,7 +37,7 @@ void main()
     fogFactor=clamp(distToCamera+distToEdge, 0.0, 1.0);    
     texUV=gl_MultiTexCoord0.xy;
     texUVrepeat=gl_MultiTexCoord0.xy*tex_scale;    
-    terrainz=vert.z;     
+    //terrainz=vert.z;     
     //point lights
     float dist; 
     float att; 

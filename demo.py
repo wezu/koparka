@@ -1,18 +1,19 @@
 from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
 #loadPrcFileData('','win-size 1280 720')
-#loadPrcFileData('','win-size 1024 768')
-loadPrcFileData('','win-size 854 480')
+loadPrcFileData('','win-size 1024 768')
+#loadPrcFileData('','win-size 854 480')
 loadPrcFileData('','show-frame-rate-meter  1')
 loadPrcFileData('','framebuffer-srgb true')
 loadPrcFileData('','texture-minfilter  mipmap')
 loadPrcFileData('','texture-magfilter  linear')
 loadPrcFileData('','default-texture-color-space sRGB')
 #loadPrcFileData('','show-buffers 1')
-#loadPrcFileData('','threading-model Cull/Draw')
+loadPrcFileData('','threading-model Cull/Draw')
 #loadPrcFileData('','undecorated 1')
 #loadPrcFileData('','compressed-textures  1')
-#loadPrcFileData('','sync-video 1')
+loadPrcFileData('','sync-video 0')
+#loadPrcFileData('','frame-rate-meter-milliseconds 1')
 from direct.showbase.AppRunnerGlobal import appRunner
 from panda3d.core import Filename
 if appRunner: 
@@ -116,11 +117,11 @@ class Demo (DirectObject):
         #pathfinding
         self.navi=Navigator(path+directory+'/navmesh.csv', self.pcNode, self.actor)
         self.target=render.attachNewNode('target')
-        self.setTime(15.5)
+        self.setTime(14.5)
         #tasks
         taskMgr.add(self.update, 'update_task', sort=45)
-        self.clock=15.5        
-        taskMgr.doMethodLater(0.5, self.clockTick,'clock_task', sort=10)
+        self.clock=14.5        
+        taskMgr.doMethodLater(1.0, self.clockTick,'clock_task', sort=10)
         self.accept( 'window-event', self.windowEventHandler) 
         
     def clockTick(self, task):
@@ -167,7 +168,7 @@ class Demo (DirectObject):
             p=0.0            
         else:
             p=sunpos*-180.0
-        LerpHprInterval(self.shadows['sunNode'], 0.25, (0,p,0)).start()
+        LerpHprInterval(self.shadows['sunNode'], 1.0, (0,p,0)).start()
         #self.shadows['sunNode'].setP(p) 
         self.lManager.setLight(id=self.sun, pos=self.shadows['shadowCamera'].getPos(render), color=sunColor, radius=10000.0)
         self.level['skydome'].setShaderInput("sunColor",sunColor)        

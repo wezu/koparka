@@ -27,7 +27,7 @@ void main()
     {    
     vec4 blend_mask=texture2D(grass,uv);
     if(dot(blend_mask.rgb, vec3(1.0, 1.0, 1.0)) < 0.1)
-        discard;               
+        discard; 
     else
         {
         vec2 texUV=gl_TexCoord[0].xy; 
@@ -35,7 +35,8 @@ void main()
         color_tex+=texture2D(p3d_Texture0,texUV)*blend_mask.r;
         color_tex+=texture2D(p3d_Texture1,texUV)*blend_mask.g;
         color_tex+=texture2D(p3d_Texture2,texUV)*blend_mask.b;                    
-        if (color_tex.a<0.5)
+        color_tex.a-=fog_factor;
+        if (color_tex.a<0.6)
             discard;    
         vec3 norm = normalize(normal);  
        
@@ -58,7 +59,7 @@ void main()
         float att;
         float dist;
         vec4 pointLight;
-        int iNumLights = int(num_lights);
+        int iNumLights = int(num_lights);        
         for (int i=0; i<iNumLights; ++i)
             {  
             pointLight=p3d_ViewMatrix*vec4(light_pos[i].xyz, 1.0);
@@ -66,7 +67,7 @@ void main()
             //dist*=dist;            
             att = clamp(1.0 - dist/(light_pos[i].w), 0.0, 1.0);            
             if (att>0.0)
-                {      
+               {      
                 lightDir = normalize(pointLight.xyz-vpos.xyz);
                 NdotL = max(dot(norm,lightDir),0.2);
                 //if (NdotL > 0.0)
