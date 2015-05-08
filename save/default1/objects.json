@@ -5,13 +5,13 @@
         "TerrainScale": 100.0,
         "TerrainTile": 30.0,
         "WaterLevel": 19.0,
-        "WaterSpeed": 0.01,
+        "WaterSpeed": 0.02,
         "WaterTile": 20.0,
         "WaveHeight": 1.0,
-        "WaveTile": 6.0,
+        "WaveTile": 4.0,
         "WaveXYMove": [
-            0.005,
-            0.002
+            0.004,
+            0.001
         ]
     },
     {

@@ -31,7 +31,7 @@ void main()
     float h= mix(h_tex.b, h_tex.a, blend)*wave.w;  
     vec4 vert=gl_Vertex;
     vert.z=(h*4.0); 
-    height_scale=vert.z*10.0;
+    height_scale=vert.z*15.0;
 	gl_Position = p3d_ModelViewProjectionMatrix * vert; 
              
     gl_TexCoord[0] = gl_MultiTexCoord0*tile+osg_FrameTime*speed;

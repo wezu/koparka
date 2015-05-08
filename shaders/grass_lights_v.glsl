@@ -13,6 +13,7 @@ uniform sampler2D grass;
 uniform vec2 uv_offset;
 uniform vec3 fogcenter;
 uniform vec4 fog;
+uniform float z_scale;
 
 varying vec2 uv;
 varying float fog_factor;
@@ -25,10 +26,11 @@ void main()
     {   
     gl_TexCoord[0] = gl_MultiTexCoord0; 
     normal = gl_NormalMatrix * gl_Normal; 
-    vec4 offset=vec4(mod(float(gl_InstanceID), 16.0)*16.0, round(float(gl_InstanceID)*0.0625)*16.0,0.0, 0.0);    
-    vec4 v = vec4(gl_Vertex)+offset;    
+    //no round function??
+    //vec4 offset=vec4(mod(float(gl_InstanceID), 16.0)*16.0, round(float(gl_InstanceID)*0.0625)*16.0,0.0, 0.0);        
+    vec4 v = vec4(gl_Vertex)+vec4(mod(float(gl_InstanceID), 16.0), floor((float(gl_InstanceID)*0.0625)+0.5),0.0, 0.0)*16.0;    
     uv=vec2(v.x*0.001953125, v.y*0.001953125)+uv_offset;    
-    v.z+=texture2DLod(height,uv, 0.0).r*100.0;     
+    v.z+=texture2DLod(height,uv, 0.0).r*z_scale;     
     float anim_co=step(0.75, gl_MultiTexCoord0.y);
     float animation =sin(0.7*osg_FrameTime+float(gl_InstanceID))*sin(1.7*osg_FrameTime+float(gl_InstanceID))*anim_co;
     v.xy += animation;     

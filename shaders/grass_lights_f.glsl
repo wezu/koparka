@@ -29,7 +29,7 @@ void main()
     if(dot(blend_mask.rgb, vec3(1.0, 1.0, 1.0)) < 0.1)
         discard; 
     else
-        {
+        {        
         vec2 texUV=gl_TexCoord[0].xy; 
         vec4 color_tex = vec4(0.0,0.0,0.0,0.0);        
         color_tex+=texture2D(p3d_Texture0,texUV)*blend_mask.r;
