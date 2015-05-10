@@ -104,9 +104,9 @@ void main()
     vec4 final=refl*facing;        
     final+=specular;
     final+=foam*color;        
-    float displace=(facing)+(foam);                 
-    final =mix(final, fog_color, fog_factor);
+    float displace=(facing)+(foam);                     
     final.a=clamp(facing+specular, 0.85, 1.0);
+    final =mix(final, fog_color, fog_factor);
     gl_FragData[0]=final;
-    gl_FragData[1] =vec4(fog_factor, 1.0,specular,1.0-displace);//(fog, shadow, glare, displace)
+    gl_FragData[1] =vec4(fog_factor, 1.0,specular,0.5+(1.0-displace)*0.5);//(fog, shadow, glare, displace)
     }
