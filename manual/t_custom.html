@@ -43,7 +43,7 @@
                     <UL>
                         <LI class="nav"><A href="t_brush.html">Controling brushes</A></LI>
                         <LI class="nav"><A href="t_change.html">Changing textures</A></LI>
-                        <LI class="nav"><A href="t_blend.html">Painting blends</A></LI>
+                        
                         <LI class="nav"><A href="t_custom.html">&gt;Custom textures</A></LI>
                     </UL>
             </LI> 
@@ -52,7 +52,7 @@
                     <UL>
                         <LI class="nav"><A href="g_brush.html">Controling brushes</A></LI>
                         <LI class="nav"><A href="g_change.html">Changing textures</A></LI>
-                        <LI class="nav"><A href="g_blend.html">Painting blends</A></LI>
+                        
                         <LI class="nav"><A href="g_custom.html">Custom textures</A></LI>
                     </UL>
             </LI>    
@@ -104,12 +104,22 @@
         </OL>
     </DIV>
     <DIV id="top">        
-        <A href="t_blend.html" class="left">&lt;&lt;- PREVIOUS</A>
+        <A href="t_change.html" class="left">&lt;&lt;- PREVIOUS</A>
          <A href="g_brush.html" class="right">NEXT -&gt;&gt;</A>        
         <H1>Adding custom textures</H1>
     </DIV> 
     <DIV id="main">    
-     <P>
-     </P>
+    <P>
+    Custom textures can be added to the editor by placing them in the right directory. Do note that a pair of textures is expected – a diffuse (color) texture and a normal (+gloss in alpha) map- both need to be present.
+    </P>
+    <P>
+    You will need to place the diffuse texture in the <SPAN class="bold">tex/diffuse/</SPAN> folder and the normal map in the <SPAN class="bold">tex/normal/</SPAN> folder. <SPAN class="bold">Both files should have the same name!</SPAN>
+    </P>
+    <P>
+    The editor wil accept png, tga and dds textures – for best performance it is advised to use dds (dxt) compressed textures. 
+    </P>
+    <P>
+    As noted above the alpha channel of the normal texture is used to map specular highlighs strength (glossines), so it is best to use a format (and editor) that saves the information in the alpha channel (like dds dxt3 or dxt5).  
+    </P>
     </DIV>
 </BODY>

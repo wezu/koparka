@@ -43,7 +43,7 @@
                     <UL>
                         <LI class="nav"><A href="t_brush.html">Controling brushes</A></LI>
                         <LI class="nav"><A href="t_change.html">&gt;Changing textures</A></LI>
-                        <LI class="nav"><A href="t_blend.html">Painting blends</A></LI>
+                        
                         <LI class="nav"><A href="t_custom.html">Custom textures</A></LI>
                     </UL>
             </LI> 
@@ -52,7 +52,7 @@
                     <UL>
                         <LI class="nav"><A href="g_brush.html">Controling brushes</A></LI>
                         <LI class="nav"><A href="g_change.html">Changing textures</A></LI>
-                        <LI class="nav"><A href="g_blend.html">Painting blends</A></LI>
+                        
                         <LI class="nav"><A href="g_custom.html">Custom textures</A></LI>
                     </UL>
             </LI>    
@@ -105,11 +105,30 @@
     </DIV>
     <DIV id="top">        
         <A href="t_brush.html" class="left">&lt;&lt;- PREVIOUS</A>
-         <A href="t_blend.html" class="right">NEXT -&gt;&gt;</A>        
+         <A href="t_custom.html" class="right">NEXT -&gt;&gt;</A>        
         <H1>Selecting terrain textures</H1>
     </DIV> 
     <DIV id="main">    
-     <P>
+    <P>
+    The default shaders that ship with the Koparka editor allow to use 6 unique (diffuse/color) textures for the terrain and when the program is started the first 6 textures are loaded. If you do not like the textures you can change them at any time – but you will always be limited to 6 textures. 
+    </P>    
+    <H2>Behind the scenes, or why only six?</H2>
+    <P>
+    The Koparka editor was written to work on older hardware, not just current gaming monsters (and was in fact developed on an old,  entry level PC). One of the limits is the number of textures a shader can sample – OpenGL 3.x guaranties only 16 textures, ATI/AMD cards usually can use many more, but for many (even relatively recent) Nvidia and Intel cards 16 is the limit.  
+    </P>
+    <P>
+    Apart from the 6 diffuse textures for the terrain there are also 6 normal maps, the heightmap, 2 attribute maps that show where the detail textures go and finally a shadow map. 6+6+1+2+1=16  
+    </P>
+    <H2>Changing textures</H2>    
+    <P>
+    The texture select buttons are located on the right side of the window. Clicking on any of the texture images sets that texture as the current one and allows to paint it onto the terrain. 
+    </P>
+    <P>
+    Clicking on the rotating arrows icon <IMG src="img/change.png"> will load a different texture in place of the old texture. 
      </P>
+    <DIV class="img">
+            <IMG src="img/select.png"> 
+        </DIV>
+    <H4>Texture select buttons</H4> 
     </DIV>
 </BODY>

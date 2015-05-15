@@ -43,7 +43,7 @@
                     <UL>
                         <LI class="nav"><A href="t_brush.html">&gt;Controling brushes</A></LI>
                         <LI class="nav"><A href="t_change.html">Changing textures</A></LI>
-                        <LI class="nav"><A href="t_blend.html">Painting blends</A></LI>
+                        
                         <LI class="nav"><A href="t_custom.html">Custom textures</A></LI>
                     </UL>
             </LI> 
@@ -52,7 +52,7 @@
                     <UL>
                         <LI class="nav"><A href="g_brush.html">Controling brushes</A></LI>
                         <LI class="nav"><A href="g_change.html">Changing textures</A></LI>
-                        <LI class="nav"><A href="g_blend.html">Painting blends</A></LI>
+                        
                         <LI class="nav"><A href="g_custom.html">Custom textures</A></LI>
                     </UL>
             </LI>    
@@ -109,7 +109,40 @@
         <H1>Terrain texture brush</H1>
     </DIV> 
     <DIV id="main">    
-     <P>
-     </P>
+        <DIV class="img">
+            <IMG src="img/screen1_small.png"> 
+        </DIV>
+    <H4>Texture paint mode</H4>
+    <P>
+    Just like terrain features (height), textures are drawn using brushes. The shape, size and strength of the brush can be controlled in the same way as in Heighmap paint mode. 
+    </P>
+    <P>
+    To paint a portion of the terrain just hold down the left mouse button. Painting is done in a airbrush fashion – you hold down the left mouse button and move the pointer around, the strength of the brush controls how much of the current texture is spayed onto the terrain. 
+    </P>
+    <P>
+    The position of the brush is controlled with the mouse and displayed as a vertical line with two triangle arrows (blue and red) at one end (called the 3D cursor). The brush is automatically moved to where the mouse cursor points, but not to a point on the terrain mesh but on the grid plane.
+    </P>
+    <P>
+    The shape of the brush can be selected by clicking on any of the brush shape buttons located at the top of the window. The currently selected brush is highlighted green. In texture paint mode it is best to use simple brushes – a circle with a fuzzy edge works best in almost any situation. 
+    </P>
+    <P>
+    The size of the brush can be changed with A (smaller) and D (larger) keys. Holding down the A key will make the brush smaller, holding the D key will make it larger. At all times the current size of the brush is displayed as a numerical value in the bottom left corner of the window.
+    </P>
+    <P>
+    The size of the brush can also be changed, by clicking on the config button, entering a value in the Brush Scale field and clicking the OK button.
+    </P>
+    <P>    
+    The rotation of the brush can be changed using the Q and E buttons. Holding the Q button will rotate the brush anti-clockwise, and holding the E button will rotate it clockwise. At all times the rotation of the brush is displayed as a numerical value on the third icon in the bottom left corner of the window.
+    </P>
+    <P>    
+    Just as the size, the rotation can be changed in the configuration dialog. The field labeled Heading is responsible for the brush rotation.
+    </P>
+    <P>    
+    The strength of the brush can be controlled with W and S keys. Holding down the W key will increase the brush strength holding down the S key will decrease it. The strength of the brush is actually it’s transparency, where 0.0 is total transparent and 1.0 is opaque. This feature allows to paint blends between the 6 base textures – for example if some of the textures represent rock, sand and grass, then you can paint a portion of the terrain that shares these 3 textures even all 6 textures if that’s what you want. 
+    </P>
+   <DIV class="img">
+            <IMG src="img/screen22_small.png"> 
+        </DIV>
+    <H4>Blended textures</H4>
     </DIV>
 </BODY>
