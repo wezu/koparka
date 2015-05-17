@@ -1,7 +1,7 @@
 <CoordinateSystem> { Z-Up }
 
 <Texture> Tex1 {
-  1.png
+  ../grass/1.png
   <Scalar> format { rgba }
   <Scalar> wrapu { clamp }
   <Scalar> wrapv { clamp }
@@ -12,7 +12,7 @@
   <Scalar> stage-name { tex1 }
 }
 <Texture> Tex2 {
-  2.png
+  ../grass/2.png
   <Scalar> format { rgba }
   <Scalar> wrapu { clamp }
   <Scalar> wrapv { clamp }
@@ -23,7 +23,7 @@
   <Scalar> stage-name { tex2 }
 }
 <Texture> Tex3 {
-  3.png
+  ../grass/3.png
   <Scalar> format { rgba }
   <Scalar> wrapu { clamp }
   <Scalar> wrapv { clamp }

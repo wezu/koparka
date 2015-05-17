@@ -21,7 +21,7 @@ void main()
     vec4 shape_map=texture2D(shape_gradient,gl_TexCoord[0].xy); 
     vec4 shape_map2=texture2D(shape_gradient,gl_TexCoord[1].xy);
     float blend=texture2D(blend_gradient,vec2(color.r, 0.5)).r;    
-    float shape=mix(shape_map.r, shape_map2.r, blend.r);    
+    float shape=mix(shape_map.r, shape_map2.r, blend);    
     //float shape=shape_map.r*(blend)+ shape_map.g*(1.0-blend);
     vec4 final_color= vec4(color_map.rgb, color_map.a*shape);    
     //vec4 final_color= vec4(color_map.rgb, shape_map.r+shape_map2.r); 

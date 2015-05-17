@@ -25,9 +25,7 @@ varying vec4 vpos;
 void main()
     {   
     gl_TexCoord[0] = gl_MultiTexCoord0; 
-    normal = gl_NormalMatrix * gl_Normal; 
-    //no round function??
-    //vec4 offset=vec4(mod(float(gl_InstanceID), 16.0)*16.0, round(float(gl_InstanceID)*0.0625)*16.0,0.0, 0.0);        
+    normal = gl_NormalMatrix * gl_Normal;        
     vec4 v = vec4(gl_Vertex)+vec4(mod(float(gl_InstanceID), 16.0), floor((float(gl_InstanceID)*0.0625)+0.5),0.0, 0.0)*16.0;    
     uv=vec2(v.x*0.001953125, v.y*0.001953125)+uv_offset;    
     v.z+=texture2DLod(height,uv, 0.0).r*z_scale;     

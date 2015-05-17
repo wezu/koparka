@@ -1,10 +1,10 @@
 //GLSL
 #version 110
 varying vec4 color;
-varying float fog_factor;
+//varying float fog_factor;
 uniform mat4 trans_model_to_world;
 uniform vec4 fog;
-varying vec4 vpos;
+//varying vec4 vpos;
 uniform sampler2D size_gradient;
 
 void main()
@@ -22,9 +22,9 @@ void main()
     gl_TexCoord[2] =(gl_MultiTexCoord0*vec4(0.125, 1.0, 1.0, 1.0))+vec4(offset, 0.0, 0.0, 0.0)-vec4(0.125, 0.0, 0.0, 1.0);
     color=gl_Color;
     
-    vec4 wpos=trans_model_to_world* vert; 
-    vpos = gl_ModelViewMatrix * vert;
-    float distToEdge=clamp(pow(distance(wpos.xy, vec2(256.0, 256.0))/256.0, 4.0), 0.0, 1.0);
-    float distToCamera =clamp(-vpos.z*fog.a-0.5, 0.0, 1.0);
-    fog_factor=clamp(distToCamera+distToEdge, 0.0, 1.0);
+    //vec4 wpos=trans_model_to_world* vert; 
+    //vpos = gl_ModelViewMatrix * vert;
+    //float distToEdge=clamp(pow(distance(wpos.xy, vec2(256.0, 256.0))/256.0, 4.0), 0.0, 1.0);
+    //float distToCamera =clamp(-vpos.z*fog.a-0.5, 0.0, 1.0);
+    //fog_factor=clamp(distToCamera+distToEdge, 0.0, 1.0);
     }

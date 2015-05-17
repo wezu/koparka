@@ -44,17 +44,7 @@ void main()
         vec4 color =ambient+(gl_LightSource[0].diffuse)*0.5;    
         //directional =sun
         vec3 lightDir;
-        //vec3 halfV;
-        float NdotL;
-        //float NdotHV; 
-        //lightDir = vec3(gl_LightSource[0].position); 
-        //halfV = gl_LightSource[0].halfVector.xyz;    
-        //NdotL = max(dot(norm,lightDir),0.2);
-        //if (NdotL > 0.0)
-        //    {
-        //   color += gl_LightSource[0].diffuse* NdotL;          
-        //   }
-        //color +=(gl_LightSource[0].diffuse)*0.2*step(0.4,1.0-NdotL);
+        float NdotL;        
         //point lights                 
         float att;
         float dist;
@@ -70,14 +60,9 @@ void main()
                {      
                 lightDir = normalize(pointLight.xyz-vpos.xyz);
                 NdotL = max(dot(norm,lightDir),0.2);
-                //if (NdotL > 0.0)
-                //    {
-                    color += light_color[i] * NdotL*att;
-                //    }
-                //color += light_color[i]*step(0.4,1.0-NdotL)*att*0.2;
+                color += light_color[i] * NdotL*att;
                }
             }    
-        //vec4 fog_color=vec4(fog.rgb, 1.0);
         vec4 final = color*color_tex;
         gl_FragData[0] = mix(final,fog ,fog_factor);
         gl_FragData[0].a=color_tex.a;
