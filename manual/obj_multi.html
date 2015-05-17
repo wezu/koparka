@@ -65,7 +65,7 @@
                         <LI class="nav"><A href="obj_walls.html">Walls</A></LI>                    
                         <LI class="nav"><A href="obj_actors.html">Actors</A></LI>
                         <LI class="nav"><A href="obj_fx.html">Lights, collisions, particle</A></LI>
-                        <LI class="nav"><A href="obj_custom.html">Custom assets</A></LI>
+                        <LI class="nav"><A href="obj_pickup.html">Picking up objects</A></LI><LI class="nav"><A href="obj_custom.html">Custom assets</A></LI>
                     </UL>
             </LI> 
             <LI><LABEL class="collapse" for="_6">Paint Walkmap mode</LABEL>
@@ -109,7 +109,46 @@
         <H1>Multiple objects</H1>
     </DIV> 
     <DIV id="main">    
-     <P>
-     </P>
+    <DIV class="img">
+            <IMG src="img/screen24_small.png"> 
+        </DIV>
+        <H4>Multiple objects</H4> 
+    <P>
+    When building maps it is common to place multiple similar objects like trees or bushes in a forest, rocks or debris in the mountains, or the ever popular wooden box. The Multiple paint sub-mode is made to help with these situations. You can enable this sub-mode by clicking on the multiple boxes icon in the right, top corner of the window:
+    </P>
+    <DIV class="img">
+            <IMG src="img/icon_multi.png"> 
+        </DIV>
+        <H4>Paint Multiple icon</H4>
+    <P>
+    The Multiple paint mode works almost the same as the Place Single objects mode, the difference is that each item on the list represents not one but multiple, similar objects.
+    </P>
+    <P>
+    To place objects on the map, click on the name of the objects on the list visible on the right side of the window and then click on the terrain where you want to place that object. You can press the Tab key to switch to another version of the current object.
+    </P>
+    <P>
+    The size, orientation and height (z-offset) can be changed before placing the object on the map. You can use the same keys that control the brush in other paint modes, these are:
+    </P>
+    <P>
+    A and D to change the scale of the object <BR>
+    W and S to change the height of the object<BR>
+    Q and E to change the rotation of the object <BR>
+    1, 2 and 3 to change the current axis of rotation (1 -heading, 2 -pitch, 3 -roll)<BR>
+    Esc to cancel<BR>
+    </P>
+    <H2>Grid Snap</H2>
+    <P>
+    It is common that some objects need to be placed in a regular fashion, the grid snap setting helps with that. 
+    </P>
+    <P>
+    The editor will place objects at the nearest multiplication of the grid snap value. For example if the grid snap is 0.5 (the default value) and the mouse pointer is at coordinates x=10.53567, y= 346.789  a object would be placed at x=10.5, y=347.0. 
+    </P>
+    <H2>Properties</H2>    
+    <P>
+    The editor allows to set custom properties on any object. These properties are simple strings saved with the map files and it’s up to the end user to give them any meaning. The demo.py and demo_util.py scripts may give some idea how properties can be used. 
+    </P>
+    <P>
+    To add properties to an object just enter the text in the properties window before placing the object on the terrain. 
+    </P>
     </DIV>
 </BODY>
