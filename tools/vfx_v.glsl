@@ -16,7 +16,8 @@ void main()
     vert.y+=size*uv.y;
     gl_Position =vert;   
     gl_TexCoord[0] = gl_MultiTexCoord0;
-    float offset=0.125*round(gl_Color.r/0.125);
+    //float offset=0.125*round(gl_Color.r/0.125);
+    float offset=0.125* floor((gl_Color.r/0.125)+0.5);
     gl_TexCoord[1] = (gl_MultiTexCoord0*vec4(0.125, 1.0, 1.0, 1.0))+vec4(offset, 0.0, 0.0, 0.0);
     gl_TexCoord[2] =(gl_MultiTexCoord0*vec4(0.125, 1.0, 1.0, 1.0))+vec4(offset, 0.0, 0.0, 0.0)-vec4(0.125, 0.0, 0.0, 1.0);
     color=gl_Color;

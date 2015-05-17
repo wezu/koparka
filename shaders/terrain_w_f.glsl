@@ -26,15 +26,16 @@ uniform vec4 ambient; //ambient light color
 uniform vec4 p3d_ClipPlane[1];
 
 uniform float water_level;
+uniform float z_scale;
 
 varying float fogFactor; 
 varying vec2 texUV; 
 varying vec2 texUVrepeat;
 varying vec4 vpos;
-varying float terrainz;
+//varying float terrainz;
 
-//varying vec4 shadowCoord;//not using this
-//uniform sampler2D shadow;//not using this
+varying vec4 shadowCoord;
+//uniform sampler2D shadow;
 
 varying vec4 pointLight [10];
 uniform vec4 light_color[10];
@@ -51,14 +52,14 @@ void main()
         {
         gl_FragData[0] = fog_color;            
         gl_FragData[1]=vec4(1.0,1.0,0.0,0.0);
-        }
+        }        
     else //full version
         {
         vec3 norm=vec3(0.0,0.0,1.0);    
-        const vec3 vLeft=vec3(1.0,0.0,0.0); 
-        float gloss=1.0;        
-        const float pixel=1.0/512.0;
-        const float height_scale=50.0;
+        vec3 vLeft=vec3(1.0,0.0,0.0); 
+        float gloss=0.0;        
+        float pixel=0.001953125;//=1.0/512.0;
+        //const float height_scale=50.0;
         
         //normal vector...
         vec4 me=texture2D(height,texUV);
@@ -72,8 +73,8 @@ void main()
         //form a basis with norm being one of the axes:
         vec3 perp1 = normalize(cross(norm,temp));
         vec3 perp2 = normalize(cross(norm,perp1));
-        //use the basis to move the normal in its own space by the offset        
-        vec3 normalOffset = -height_scale*(((n.r-me.r)-(s.r-me.r))*perp1 - ((e.r-me.r)-(w.r-me.r))*perp2);
+        //use the basis to move the normal in its own space by the offset               
+        vec3 normalOffset = -0.2*z_scale*(((n.r-me.r)-(s.r-me.r))*perp1 - ((e.r-me.r)-(w.r-me.r))*perp2);
         norm += normalOffset;  
         norm = normalize(gl_NormalMatrix * norm);
         
@@ -120,38 +121,40 @@ void main()
         norm.xyz += tangent * norm_gloss.x;
         norm.xyz -= binormal * norm_gloss.y;    
         norm = normalize(norm);
-                   
+                      
         //lights   
         vec4 color =ambient;//vec4(0.0, 0.0, 0.0, 0.0);    
-        //directional =sun
+        //directional =ambient
         vec3 lightDir;
-        vec3 halfV;
+        //vec3 halfV;
         float NdotL;
         float NdotHV; 
         float spec=0.0;
+        float light_spec;
         lightDir = normalize(gl_LightSource[0].position.xyz); 
-        halfV= normalize(gl_LightSource[0].halfVector.xyz);    
-        NdotL = max(dot(norm,lightDir),0.0);
-        if (NdotL > 0.0)
-            {
-           NdotHV = max(dot(norm,halfV),0.0);
-           color += gl_LightSource[0].diffuse * NdotL;
-           float s=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;
-           spec+=pow(NdotHV,200.0)*gloss*s;
-           }   
-        //directional2 = ambient
-        lightDir = normalize(gl_LightSource[1].position.xyz); 
         //halfV= normalize(gl_LightSource[0].halfVector.xyz);    
         NdotL = max(dot(norm,lightDir),0.0);
         if (NdotL > 0.0)
             {
            //NdotHV = max(dot(norm,halfV),0.0);
-           color += gl_LightSource[1].diffuse * NdotL;        
+           color += gl_LightSource[0].diffuse * NdotL;   
+           //light_spec=(gl_LightSource[0].diffuse.x + gl_LightSource[0].diffuse.y +gl_LightSource[0].diffuse.z)/3.0;
+           //spec+=pow(NdotHV,200.0)*gloss*light_spec;           
+           }   
+        //directional2 = ambient
+        //lightDir = normalize(gl_LightSource[1].position.xyz); 
+        //halfV= normalize(gl_LightSource[0].halfVector.xyz);    
+        //NdotL = max(dot(norm,lightDir),0.0);
+        //if (NdotL > 0.0)
+        //    {
+           //NdotHV = max(dot(norm,halfV),0.0);
+        //   color += gl_LightSource[1].diffuse * NdotL;        
            //color +=pow(NdotHV,500.0*gloss)*gloss*2.0;
-           } 
+       //    } 
+        
         //point lights 
         vec3 E;
-        vec3 R;                 
+        vec3 R;          
         int iNumLights = int(num_lights);
         for (int i=0; i<iNumLights; ++i)
             {  
@@ -159,32 +162,42 @@ void main()
                 {      
                 lightDir = normalize(pointLight[i].xyz-vpos.xyz);
                 NdotL = max(dot(norm,lightDir),0.0);
-                if (NdotL > 0.0)
-                    { 
+                //if (NdotL > 0.0)
+                //    { 
                     E = normalize(-vpos.xyz);
                     R = reflect(-lightDir.xyz, norm.xyz);
-                    spec+=pow( max(dot(R, E), 0.0),200.0)*gloss*pointLight[i].w;
+                    //light_spec=(light_color[i].r+light_color[i].g+light_color[i].b)/3.0;
+                    light_spec=dot(light_color[i].rgb, vec3(0.05, 0.05, 0.05)); 
+                    spec+=pow( max(dot(R, E), 0.0),1000.0*gloss)*pointLight[i].w*light_spec;
                     color += light_color[i] * NdotL*pointLight[i].w;
-                    }
+                //    }
                 }
             }    
-        color +=spec;   
+        color +=spec;
         vec4 final= vec4(color.rgb * detail.xyz, 1.0);     
         vec4 walk=vec4(1.0,1.0,1.0,1.0)- step(texture2D(walkmap,texUV), vec4(0.5,0.5,0.5,0.5));
         //vec4 walk=texture2D(walkmap,texUV);
         //final = mix(final,fog ,fogFactor)+walk; 
-        //vec4 water_fog=vec4(0.0, 0.0, 0.05, 1.0);
-        //float water_fog_factor=clamp(distance(terrainz, water_level)*0.1, 0.0, 1.4);
-        //if (terrainz<water_level)
-        //    final=mix(final,water_fog ,water_fog_factor*0.6);                 
+        //vec4 water_fog=vec4(0.01, 0.01, 0.01, 1.0);
+        float shade = 1.0;      
+        //float water_z=water_level+2.0;//new water at different level        
+        //if (terrainz<water_z)//no shadows under water
+        //    {
+        //    float water_fog_factor=1.0-pow(terrainz/(water_z), 4.0);
+        //    final=mix(final,water_fog ,water_fog_factor*0.98);         
+        //    spec=0.0;
+        //    fogFactor=0.0;
+        //    }
+       // else 
+        //    {
+        //    vec4 shadowUV = shadowCoord / shadowCoord.q;
+        //    float shadowColor = texture2D(shadow, shadowUV.xy).r;            
+        //    if (shadowColor < shadowUV.z-0.001)
+        //        shade=0.0;            
+        //    }
+        spec=spec*(1.0-fogFactor)*0.2; 
         gl_FragData[0] = mix(final,fog_color ,fogFactor)+walk;    
-        //shadows
-        //vec4 shadowUV = shadowCoord / shadowCoord.q;
-        //float shadowColor = texture2D(shadow, shadowUV.xy).r;    
-        //float shade = 1.0;
-        //if (shadowColor < shadowUV.z-0.001)
-        //    shade=0.0;        
-        gl_FragData[1]=vec4(fogFactor, 1.0,spec,0.0);        
+        gl_FragData[1]=vec4(fogFactor, shade, spec,0.0);
         }
     }
     
