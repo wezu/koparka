@@ -15,9 +15,10 @@ def _resetPivot(frame):
     frame.flattenLight()
     
 class GuiHelper():
-    def __init__(self, path=""):
+    def __init__(self, path="", theme='icon'):
         self.elements=[]
         self.path=path
+        self.theme=theme
         
         self.font = DGG.getDefaultFont()
         self.font.setPixelsPerUnit(16)       
@@ -39,7 +40,7 @@ class GuiHelper():
         
         self.dialog=DirectFrame(frameSize=_rec2d(512,256),
                                 frameColor=(1,1,1, 1),
-                                frameTexture='icon/dialog.png',
+                                frameTexture=self.theme+'/dialog.png',
                                 text='This is a dialog, no text was set! Alfa, beta, gamma, delta, tango, lambda, epsilon, omega, zeta.',
                                 text_scale=32,
                                 text_wordwrap=15,
@@ -55,7 +56,7 @@ class GuiHelper():
                                     frameColor=(1,1,1,1.0),  
                                     text="YES",
                                     text_scale=32,                                    
-                                    frameTexture='icon/button.png',
+                                    frameTexture=self.theme+'/button.png',
                                     text_font=self.fontBig,
                                     text_pos=(-70,7),
                                     text_fg=(0,1,0,1),
@@ -66,7 +67,7 @@ class GuiHelper():
         self.dialogYes.setTransparency(TransparencyAttrib.MDual)
         self.dialogNo=DirectFrame(frameSize=_rec2d(128,32),
                                     frameColor=(1,1,1,1.0),
-                                    frameTexture='icon/button.png',
+                                    frameTexture=self.theme+'/button.png',
                                     text="NO",
                                     text_scale=32,
                                     text_font=self.fontBig,
@@ -80,7 +81,7 @@ class GuiHelper():
         self.dialogOk=DirectFrame(frameSize=_rec2d(128,32),
                                     frameColor=(1,1,1,1.0),  
                                     text="OK",
-                                    frameTexture='icon/button.png',
+                                    frameTexture=self.theme+'/button.png',
                                     text_scale=32,
                                     text_font=self.fontBig,
                                     text_pos=(-70,7),
@@ -253,7 +254,7 @@ class GuiHelper():
                                     frameColor=(1,1,1, 1),
                                     text=text,
                                     text_scale=32,
-                                    frameTexture='icon/sky_dialog.png',
+                                    frameTexture=self.theme+'/sky_dialog.png',
                                     text_font=self.fontBig,
                                     text_pos=(-280,476),
                                     text_fg=(0.9,0.9,0.9,1), 
@@ -328,7 +329,7 @@ class GuiHelper():
                                     frameColor=(1,1,1, 1),
                                     text=text,
                                     text_scale=32,
-                                    frameTexture='icon/config_dialog.png',
+                                    frameTexture=self.theme+'/config_dialog.png',
                                     text_font=self.fontBig,
                                     text_pos=(-230,476),
                                     text_fg=(0.9,0.9,0.9,1), 
@@ -399,7 +400,7 @@ class GuiHelper():
         #save/load 
         self.SaveLoadFrame=DirectFrame( frameSize=_rec2d(512,512),
                                         frameColor=(1,1,1, 1),
-                                        frameTexture='icon/save_dialog.png',
+                                        frameTexture=self.theme+'/save_dialog.png',
                                         text="Directory:\nHeight:\nDetail:\nGrass:\nObjects:\nCollision:\nWalkMap:",
                                         text_scale=32,
                                         text_font=self.fontBig,
@@ -531,21 +532,21 @@ class GuiHelper():
         
         self.check1=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
-                                frameTexture='icon/yes.png',
+                                frameTexture=self.theme+'/yes.png',
                                 state=DGG.NORMAL, 
                                 parent=self.SaveLoadFrame)
         _resetPivot(self.check1)
         self.check1.setPos(_pos2d(464,48))
         self.check2=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
-                                frameTexture='icon/yes.png',
+                                frameTexture=self.theme+'/yes.png',
                                 state=DGG.NORMAL, 
                                 parent=self.SaveLoadFrame)
         _resetPivot(self.check2)
         self.check2.setPos(_pos2d(464,80))
         self.check3=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
-                                frameTexture='icon/yes.png',
+                                frameTexture=self.theme+'/yes.png',
                                 state=DGG.NORMAL, 
                                 parent=self.SaveLoadFrame)
         _resetPivot(self.check3)
@@ -553,14 +554,14 @@ class GuiHelper():
         
         self.check5=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
-                                frameTexture='icon/yes.png',
+                                frameTexture=self.theme+'/yes.png',
                                 state=DGG.NORMAL, 
                                 parent=self.SaveLoadFrame)
         _resetPivot(self.check5)
         self.check5.setPos(_pos2d(464,144))
         self.check6=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
-                                frameTexture='icon/yes.png',
+                                frameTexture=self.theme+'/yes.png',
                                 state=DGG.NORMAL, 
                                 parent=self.SaveLoadFrame)
         _resetPivot(self.check6)
@@ -568,7 +569,7 @@ class GuiHelper():
         
         self.check7=DirectFrame(frameSize=_rec2d(32,32),
                                 frameColor=(1,1,1,0.99),                      
-                                frameTexture='icon/yes.png',
+                                frameTexture=self.theme+'/yes.png',
                                 state=DGG.NORMAL, 
                                 parent=self.SaveLoadFrame)
         _resetPivot(self.check7)
@@ -650,10 +651,10 @@ class GuiHelper():
     def switchFlag(self, flag_id, event=None):
         if self.flags[flag_id]:
             self.flags[flag_id]=False
-            self.checkers[flag_id]['frameTexture']='icon/no.png'
+            self.checkers[flag_id]['frameTexture']=self.theme+'/no.png'
         else:
             self.flags[flag_id]=True
-            self.checkers[flag_id]['frameTexture']='icon/yes.png'
+            self.checkers[flag_id]['frameTexture']=self.theme+'/yes.png'
             
     def updateBaseNodes(self):
         wp=base.win.getProperties()
@@ -966,7 +967,7 @@ class GuiHelper():
                               text_scale=16,          
                               text_pos=(-256,48),
                               text_align=TextNode.ALeft,
-                              frameTexture='icon/color_picker.png',
+                              frameTexture=self.theme+'/color_picker.png',
                               text_fg=(1,1,1,1),
                               parent=pixel2d)   
         _resetPivot(self.colorPickerFrame)

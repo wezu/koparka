@@ -158,7 +158,7 @@ class Editor (DirectObject):
         self.painter.addCanvas(size=cfg['a_map_size'])
         
         #GUI
-        self.gui=GuiHelper(path)
+        self.gui=GuiHelper(path, cfg['theme'])
         #tooltip bar
         self.tooltip=self.gui.addTooltip(self.gui.BottomLeft, (564, 32),y_offset=-96)
         self.tooltip.hide()
@@ -166,7 +166,7 @@ class Editor (DirectObject):
         self.toolbar_id=self.gui.addToolbar(self.gui.TopLeft, (864, 32),icon_size=48, hover_command=self.onToolbarHover, color=(1,1,1, 0.0))        
         id=0
         for brush in self.brushList:            
-            self.gui.addButton(self.toolbar_id,brush, self.setBrush, [id],tooltip=self.tooltip, tooltip_text='Set Brush Shape', back_icon='icon/icon.png')
+            self.gui.addButton(self.toolbar_id,brush, self.setBrush, [id],tooltip=self.tooltip, tooltip_text='Set Brush Shape', back_icon=cfg['theme']+'/icon.png')
             id+=1
         #texture palette    
         self.palette_id=self.gui.addToolbar(self.gui.TopRight, (80, 512),icon_size=80, x_offset=-80, y_offset=0, hover_command=self.onToolbarHover)
@@ -192,12 +192,12 @@ class Editor (DirectObject):
         self.gui.addButton(self.palette_id, self.textures_diffuse[4], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(0.0, 1.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
         self.gui.addButton(self.palette_id, self.textures_diffuse[5], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(0.0, 0.0, 1.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
         
-        self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[48, 48], self.changeTex,[0] ,tooltip=self.tooltip, tooltip_text='Change texture')        
-        self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[48, 128], self.changeTex,[1] ,tooltip=self.tooltip, tooltip_text='Change texture')        
-        self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[48, 208], self.changeTex,[2] ,tooltip=self.tooltip, tooltip_text='Change texture')        
-        self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[48, 288], self.changeTex,[3] ,tooltip=self.tooltip, tooltip_text='Change texture')        
-        self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[48, 368], self.changeTex,[4] ,tooltip=self.tooltip, tooltip_text='Change texture')        
-        self.gui.addFloatingButton(self.palette_id, [32,32], 'icon/change.png',[48, 448], self.changeTex,[5] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 48], self.changeTex,[0] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 128], self.changeTex,[1] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 208], self.changeTex,[2] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 288], self.changeTex,[3] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 368], self.changeTex,[4] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 448], self.changeTex,[5] ,tooltip=self.tooltip, tooltip_text='Change texture')        
         
         #grass 'palette'
         self.grass_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (80, 512),icon_size=80, x_offset=-80, y_offset=0, hover_command=self.onToolbarHover)
@@ -205,13 +205,13 @@ class Editor (DirectObject):
         for fname in dirList:
             if  Filename(fname).getExtension() in ('dds', 'png'):
                 self.grass_textures.append(cfg['grs_tex_dir']+fname)        
-        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[0], self.setGrassMapColor, [(1.0, 0.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon='icon/icon.png')
-        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[1], self.setGrassMapColor, [(0.0, 1.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon='icon/icon.png')
-        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[2], self.setGrassMapColor, [(0.0, 0.0, 1.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon='icon/icon.png')        
-        self.gui.addButton(self.grass_toolbar_id, 'icon/del.png', self.setGrassMapColor, [(0.0, 0.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Remove Grass', back_icon='icon/icon.png')
-        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], 'icon/change.png',[48, 48], self.changeGrassTex,[0] ,tooltip=self.tooltip, tooltip_text='Change texture')        
-        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], 'icon/change.png',[48, 128], self.changeGrassTex,[1] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], 'icon/change.png',[48, 208], self.changeGrassTex,[2] ,tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[0], self.setGrassMapColor, [(1.0, 0.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
+        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[1], self.setGrassMapColor, [(0.0, 1.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
+        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[2], self.setGrassMapColor, [(0.0, 0.0, 1.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')        
+        self.gui.addButton(self.grass_toolbar_id, cfg['theme']+'/del.png', self.setGrassMapColor, [(0.0, 0.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Remove Grass', back_icon=cfg['theme']+'/icon.png')
+        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 48], self.changeGrassTex,[0] ,tooltip=self.tooltip, tooltip_text='Change texture')        
+        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 128], self.changeGrassTex,[1] ,tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 208], self.changeGrassTex,[2] ,tooltip=self.tooltip, tooltip_text='Change texture')
         self.gui.hideElement(self.grass_toolbar_id)        
                 
         #save/load
@@ -223,17 +223,17 @@ class Editor (DirectObject):
         
         #extra tools and info at the bottom
         self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (704, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover, color=(1,1,1, 0.2))
-        self.size_info=self.gui.addInfoIcon(self.statusbar, 'icon/resize.png', '1.0', tooltip=self.tooltip, tooltip_text='Brush Size or Object Scale:   [A]-Decrease    [D]-Increase')
-        self.color_info=self.gui.addInfoIcon(self.statusbar, 'icon/color.png', '0.05',tooltip=self.tooltip, tooltip_text='Brush Strength or Object Z offset:   [W]-Increase   [S]-Decrease')
-        self.heading_info=self.gui.addInfoIcon(self.statusbar, 'icon/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Rotation ([1][2][3] to change axis in Object Mode):   [Q]-Left   [E]-Right')        
-        self.gui.addButton(self.statusbar, 'icon/config.png', self.configBrush, [True], self.tooltip, 'Configure brush and grid (numeric values)')
-        self.gui.addButton(self.statusbar, 'icon/hm_icon.png', self.setMode, [MODE_HEIGHT], self.tooltip, 'Paint Heightmap Mode [F1]')
-        self.gui.addButton(self.statusbar, 'icon/tex_icon.png', self.setMode, [MODE_TEXTURE], self.tooltip, 'Paint Texture Mode [F2]')
-        self.gui.addButton(self.statusbar, 'icon/grass.png', self.setMode, [MODE_GRASS], self.tooltip, 'Paint Grass Mode [F3]')
-        self.gui.addButton(self.statusbar, 'icon/place_icon.png', self.setMode, [MODE_OBJECT], self.tooltip, 'Paint Objects Mode [F4]')
-        self.gui.addButton(self.statusbar, 'icon/walkmap_icon.png', self.setMode, [MODE_WALK], self.tooltip, 'Paint Walkmap Mode [F5]')
-        self.gui.addButton(self.statusbar, 'icon/sky_sea_icon.png', self.configSkySea,[True], tooltip=self.tooltip, tooltip_text='Configure stone and sea and sky (and all that they encompass) [F6]')
-        self.gui.addButton(self.statusbar, 'icon/save.png', self.showSaveMenu, tooltip=self.tooltip, tooltip_text='Save/Load [F7]')
+        self.size_info=self.gui.addInfoIcon(self.statusbar, cfg['theme']+'/resize.png', '1.0', tooltip=self.tooltip, tooltip_text='Brush Size or Object Scale:   [A]-Decrease    [D]-Increase')
+        self.color_info=self.gui.addInfoIcon(self.statusbar, cfg['theme']+'/color.png', '0.05',tooltip=self.tooltip, tooltip_text='Brush Strength or Object Z offset:   [W]-Increase   [S]-Decrease')
+        self.heading_info=self.gui.addInfoIcon(self.statusbar, cfg['theme']+'/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Rotation ([1][2][3] to change axis in Object Mode):   [Q]-Left   [E]-Right')        
+        self.gui.addButton(self.statusbar, cfg['theme']+'/config.png', self.configBrush, [True], self.tooltip, 'Configure brush and grid (numeric values)')
+        self.gui.addButton(self.statusbar, cfg['theme']+'/hm_icon.png', self.setMode, [MODE_HEIGHT], self.tooltip, 'Paint Heightmap Mode [F1]')
+        self.gui.addButton(self.statusbar, cfg['theme']+'/tex_icon.png', self.setMode, [MODE_TEXTURE], self.tooltip, 'Paint Texture Mode [F2]')
+        self.gui.addButton(self.statusbar, cfg['theme']+'/grass.png', self.setMode, [MODE_GRASS], self.tooltip, 'Paint Grass Mode [F3]')
+        self.gui.addButton(self.statusbar, cfg['theme']+'/place_icon.png', self.setMode, [MODE_OBJECT], self.tooltip, 'Paint Objects Mode [F4]')
+        self.gui.addButton(self.statusbar, cfg['theme']+'/walkmap_icon.png', self.setMode, [MODE_WALK], self.tooltip, 'Paint Walkmap Mode [F5]')
+        self.gui.addButton(self.statusbar, cfg['theme']+'/sky_sea_icon.png', self.configSkySea,[True], tooltip=self.tooltip, tooltip_text='Configure stone and sea and sky (and all that they encompass) [F6]')
+        self.gui.addButton(self.statusbar, cfg['theme']+'/save.png', self.showSaveMenu, tooltip=self.tooltip, tooltip_text='Save/Load [F7]')
         #gray out buttons
         self.gui.grayOutButtons(self.statusbar, (4,10), None)
         
@@ -271,12 +271,12 @@ class Editor (DirectObject):
                 self.gui.addListButton(self.collision_toolbar_id, fname[:-4], command=self.setObject, arg=[cfg['coll_dir']+fname])        
         #object-mode toolbar
         self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 64), icon_size=64, x_offset=-192, y_offset=0, hover_command=self.onToolbarHover)
-        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_object.png', self.setObjectMode,[OBJECT_MODE_ONE],tooltip=self.tooltip, tooltip_text='Place single objects')
-        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_multi.png', self.setObjectMode,[OBJECT_MODE_MULTI],tooltip=self.tooltip, tooltip_text='Place multiple, similar objects')
-        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_wall.png', self.setObjectMode,[OBJECT_MODE_WALL],tooltip=self.tooltip, tooltip_text='Place walls')
-        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_pointer.png', self.setObjectMode,[OBJECT_MODE_SELECT],tooltip=self.tooltip, tooltip_text='Pickup placed objects')
-        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_actor.png', self.setObjectMode,[OBJECT_MODE_ACTOR],tooltip=self.tooltip, tooltip_text='Place actors (models with animations)')
-        self.gui.addButton(self.mode_toolbar_id, 'icon/icon_collision.png', self.setObjectMode,[OBJECT_MODE_COLLISION],tooltip=self.tooltip, tooltip_text='Place Collision solids, lights and particles')
+        self.gui.addButton(self.mode_toolbar_id, cfg['theme']+'/icon_object.png', self.setObjectMode,[OBJECT_MODE_ONE],tooltip=self.tooltip, tooltip_text='Place single objects')
+        self.gui.addButton(self.mode_toolbar_id, cfg['theme']+'/icon_multi.png', self.setObjectMode,[OBJECT_MODE_MULTI],tooltip=self.tooltip, tooltip_text='Place multiple, similar objects')
+        self.gui.addButton(self.mode_toolbar_id, cfg['theme']+'/icon_wall.png', self.setObjectMode,[OBJECT_MODE_WALL],tooltip=self.tooltip, tooltip_text='Place walls')
+        self.gui.addButton(self.mode_toolbar_id, cfg['theme']+'/icon_pointer.png', self.setObjectMode,[OBJECT_MODE_SELECT],tooltip=self.tooltip, tooltip_text='Pickup placed objects')
+        self.gui.addButton(self.mode_toolbar_id, cfg['theme']+'/icon_actor.png', self.setObjectMode,[OBJECT_MODE_ACTOR],tooltip=self.tooltip, tooltip_text='Place actors (models with animations)')
+        self.gui.addButton(self.mode_toolbar_id, cfg['theme']+'/icon_collision.png', self.setObjectMode,[OBJECT_MODE_COLLISION],tooltip=self.tooltip, tooltip_text='Place Collision solids, lights and particles')
         self.gui.grayOutButtons(self.mode_toolbar_id, (0,6), 0)
         #object-mode select toolbar
         self.select_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 384), icon_size=32, x_offset=-192, y_offset=128, hover_command=self.onToolbarHover, color=(0,0,0, 0.5)) 
@@ -290,32 +290,32 @@ class Editor (DirectObject):
             self.gui.addEntry(self.select_toolbar_id, size_x=180, offset_x=30)
         self.gui.addEntry(self.select_toolbar_id, size_x=125, offset_x=85)
         self.gui.addEntry(self.select_toolbar_id, size_x=125, offset_x=85)
-        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/apply.png',[32, 264], self.applyTransform,[0] ,tooltip=self.tooltip, tooltip_text='Apply changes in position, rotation and scale')        
-        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/pickup.png',[32, 304], self.pickUp,[0] ,tooltip=self.tooltip, tooltip_text='Pick up the selected object and move it manualy')        
-        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], 'icon/delete.png',[32, 344], self.deleteObject,[0] ,tooltip=self.tooltip, tooltip_text='Delete the selected object')        
+        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], cfg['theme']+'/apply.png',[32, 264], self.applyTransform,[0] ,tooltip=self.tooltip, tooltip_text='Apply changes in position, rotation and scale')        
+        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], cfg['theme']+'/pickup.png',[32, 304], self.pickUp,[0] ,tooltip=self.tooltip, tooltip_text='Pick up the selected object and move it manualy')        
+        self.gui.addFloatingButton(self.select_toolbar_id, [128,32], cfg['theme']+'/delete.png',[32, 344], self.deleteObject,[0] ,tooltip=self.tooltip, tooltip_text='Delete the selected object')        
         #color button
         self.gui.addColorPicker(apply_command=self.setLightColor)
         self.color_toolbar=self.gui.addToolbar(self.gui.TopLeft, (64, 64),icon_size=64, hover_command=self.onToolbarHover, color=(1,1,1, 0.0))
-        self.gui.addButton(self.color_toolbar, 'icon/icon_rgb.png', self.gui.showColorPicker,[],tooltip=self.tooltip, tooltip_text='Set Light Color') 
+        self.gui.addButton(self.color_toolbar, cfg['theme']+'/icon_rgb.png', self.gui.showColorPicker,[],tooltip=self.tooltip, tooltip_text='Set Light Color') 
         
         
         #extra buttons for height paint mode (up/down/level)
         self.heightmode_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (192, 32), icon_size=64, y_offset=-64,x_offset=-192, hover_command=self.onToolbarHover, color=(1,1,1, 0.0))        
-        self.gui.addButton(self.heightmode_toolbar_id, 'icon/up.png', self.changeHeightMode,[HEIGHT_MODE_UP],tooltip=self.tooltip, tooltip_text='Raise terrain mode (click to set mode)')
-        self.gui.addButton(self.heightmode_toolbar_id, 'icon/down.png', self.changeHeightMode,[HEIGHT_MODE_DOWN],tooltip=self.tooltip, tooltip_text='Lower terrain mode (click to set mode)')
-        self.gui.addButton(self.heightmode_toolbar_id, 'icon/level.png', self.changeHeightMode,[HEIGHT_MODE_LEVEL],tooltip=self.tooltip, tooltip_text='Level terrain mode (click to set mode)')
+        self.gui.addButton(self.heightmode_toolbar_id, cfg['theme']+'/up.png', self.changeHeightMode,[HEIGHT_MODE_UP],tooltip=self.tooltip, tooltip_text='Raise terrain mode (click to set mode)')
+        self.gui.addButton(self.heightmode_toolbar_id, cfg['theme']+'/down.png', self.changeHeightMode,[HEIGHT_MODE_DOWN],tooltip=self.tooltip, tooltip_text='Lower terrain mode (click to set mode)')
+        self.gui.addButton(self.heightmode_toolbar_id, cfg['theme']+'/level.png', self.changeHeightMode,[HEIGHT_MODE_LEVEL],tooltip=self.tooltip, tooltip_text='Level terrain mode (click to set mode)')
         self.gui.grayOutButtons(self.heightmode_toolbar_id, (0,3), 0)
         
         #extra buttons for walkmap paint (walkable/unwealkable)
         self.walkmap_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (128, 64), icon_size=64, y_offset=-64,x_offset=-128, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))        
-        self.gui.addButton(self.walkmap_toolbar_id, 'icon/icon_nowalk.png', self.changeWalkMode,[WALK_MODE_NOWALK],tooltip=self.tooltip, tooltip_text='Paint un-walkable area(marked RED)')
-        self.gui.addButton(self.walkmap_toolbar_id, 'icon/icon_walk.png', self.changeWalkMode,[WALK_MODE_WALK],tooltip=self.tooltip, tooltip_text='Paint walkable area')        
+        self.gui.addButton(self.walkmap_toolbar_id, cfg['theme']+'/icon_nowalk.png', self.changeWalkMode,[WALK_MODE_NOWALK],tooltip=self.tooltip, tooltip_text='Paint un-walkable area(marked RED)')
+        self.gui.addButton(self.walkmap_toolbar_id, cfg['theme']+'/icon_walk.png', self.changeWalkMode,[WALK_MODE_WALK],tooltip=self.tooltip, tooltip_text='Paint walkable area')        
         self.gui.grayOutButtons(self.walkmap_toolbar_id, (0,2), 0)
         
         #extra buttons for grass paint (add/remove)
         #self.grass_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (128, 64), icon_size=64, y_offset=-64,x_offset=-128, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))                
-        #self.gui.addButton(self.grass_toolbar_id, 'icon/no_grass.png', self.changeGrassMode,[GRASS_MODE_REMOVE],tooltip=self.tooltip, tooltip_text='Remove grass')        
-        #self.gui.addButton(self.grass_toolbar_id, 'icon/grass.png', self.changeGrassMode,[GRASS_MODE_PAINT],tooltip=self.tooltip, tooltip_text='Paint grass')
+        #self.gui.addButton(self.grass_toolbar_id, cfg['theme']+'/no_grass.png', self.changeGrassMode,[GRASS_MODE_REMOVE],tooltip=self.tooltip, tooltip_text='Remove grass')        
+        #self.gui.addButton(self.grass_toolbar_id, cfg['theme']+'/grass.png', self.changeGrassMode,[GRASS_MODE_PAINT],tooltip=self.tooltip, tooltip_text='Paint grass')
         #self.gui.grayOutButtons(self.grass_toolbar_id, (0,2), 1)
         #self.painter.brushes[BUFFER_GRASS].setColor(1,0,0,1)
         
@@ -639,6 +639,7 @@ class Editor (DirectObject):
         cfg['key_cam_pan2']=ConfigVariableString('koparka-key-camera-pan2','alt').getValue()
         cfg['key_cam_zoomin2']=ConfigVariableString('koparka-key-camera-zoomin2','=').getValue()
         cfg['key_cam_zoomout2']=ConfigVariableString('koparka-key-camera-zoomout2','-').getValue() 
+        cfg['theme']=ConfigVariableString('koparka-gui-theme','icon').getValue()
         
     def setLightColor(self):        
         if self.objectPainter.currentObject:

@@ -81,3 +81,5 @@ koparka-key-camera-rotate2 control
 koparka-key-camera-pan2 alt
 koparka-key-camera-zoomin2 =
 koparka-key-camera-zoomout2 -
+#gui theme
+koparka-gui-theme icon
