@@ -77,7 +77,7 @@
             <LI><LABEL class="collapse" for="_7">Map configuration</LABEL>
                 <INPUT id="_7" type="checkbox" checked>
                     <UL>
-                        <LI class="nav"><A href="config_h2o.html">&gt;Water</A></LI>
+                        <LI class="nav"><A href="config_h2o.html">&gt;Water and Sky</A></LI>
                         <LI class="nav"><A href="config_ter.html">Terrain</A></LI>
                     </UL>
             </LI>    
@@ -106,10 +106,66 @@
     <DIV id="top">        
         <A href="w_map.html" class="left">&lt;&lt;- PREVIOUS</A>
          <A href="config_ter.html" class="right">NEXT -&gt;&gt;</A>        
-        <H1>Water configuration</H1>
+        <H1>Water and Sky configuration</H1>
     </DIV> 
     <DIV id="main">    
-     <P>
-     </P>
+        <DIV class="img">
+            <IMG src="img/screen7_small.png"> 
+        </DIV>
+        <H4>Water, Sky and terrain config dialog</H4>
+    <P>
+    The editor allows to configure a water plane and a sky dome, these are part of the map configuration because all the water and sky settings are saved with the map file. 
+    </P>  
+    <P>
+    <H2>Sky settings</H2>
+    <P>
+    Sky tile<BR>
+    This is the number of times the cloud texture is repeated over the sky dome. A big number will make the clouds small and detailed but the repeating pattern of the texture can become obvious, a small number will create large, blurred clouds. 
+    </P>
+    <P>
+    Cloud speed <BR>
+    This is the distance the clouds move per frame in the texture space. The apparent speed at which the clouds move varies depending on the Sky tile value, but bigger numbers will always make the clouds move faster. 
+    </P>
+        <DIV class="img">        
+            <IMG src="img/screen27_small.png"> 
+        </DIV>
+        <DIV class="img">
+            <IMG src="img/screen28_small.png"> 
+        </DIV>
+        <H4>Sky tiling settings</H4>
+    
+    
+    <H2>Water settings</H2>
+    <P>
+    Wave tile<BR>
+    Water waves are repeated this many times. This refers to the kind of waves one can see on an open sea. The waves are not only a shading effect but they deform the surface of the water plane. The waves also produce foam
+    </P>
+    <P>
+    Wave height  <BR>  
+    Scaling factor for the waves. 
+    </P>
+    <P>
+    Wave XY Move    <BR>
+    This is the relative speed at which the waves move across the surface in the X and Y direction.
+    </P>
+    <P>
+    Water Tile    <BR>
+    Apart from large waves the water shader also uses a normal map (dx/dy map to be precise) for smaller details (ripples), this is the number of times this texture is repeated over the water surface. This will not effect the distortion effect – that is a screen space effect and it’s size changes with the view. 
+    </P>
+    <P>
+    Water speed    <BR>
+    A speed factor for the water ripples.
+   </P>
+   <P>
+    Water level    <BR>
+    The level at which the water plane is drawn. A value of -1 disables rendering water and updating the water reflection buffer.         
+    </P>
+        <DIV class="img">
+        <IMG src="img/water1.png"> 
+        <IMG src="img/water2.png"> 
+        <IMG src="img/water3.png"> 
+        <IMG src="img/water4.png"> 
+        </DIV>
+        <H4>Water settings</H4>
     </DIV>
 </BODY>
