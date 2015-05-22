@@ -81,6 +81,7 @@ class Editor (DirectObject):
         #manager for post process filters (fxaa, soft shadows, dof)
         manager=FilterManager(base.win, base.cam)
         fxaa_only=True
+        print cfg['filters']
         if cfg['filters']==2:
             fxaa_only=False
         self.filters=self.setupFilters(manager, fxaa_only=fxaa_only)
@@ -573,7 +574,7 @@ class Editor (DirectObject):
         #taskMgr.doMethodLater(.1, self.clockTick,'clock_task')
     
     def loadcfg(self):
-        cfg['filters']=ConfigVariableInt('filters', 2).getValue()       
+        cfg['filters']=ConfigVariableInt('koparka-filters', 2).getValue()       
         #render grass? 0=no 1=yes
         cfg['grass']=ConfigVariableBool('koparka-use-grass',True).getValue()
         #size of the maps savesd by the editor

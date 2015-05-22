@@ -93,12 +93,7 @@
             <LI><LABEL class="collapse" for="_9">Saving and Loading</LABEL>
                 <INPUT id="_9" type="checkbox">
                     <UL>
-                        <LI class="nav"><A href="save_h.html">Height map</A></LI>
-                        <LI class="nav"><A href="save_d.html">Detail maps</A></LI>
-                        <LI class="nav"><A href="save_g.html">Grass map</A></LI>
-                        <LI class="nav"><A href="save_nav.html">Navigation map</A></LI>
-                        <LI class="nav"><A href="save_obj.html">Objects</A></LI>
-                        <LI class="nav"><A href="save_coll.html">Collision mesh</A></LI>                    
+                        <LI class="nav"><A href="save_h.html">Save/Load dialog</A></LI>                    
                     </UL>
             </LI>
         </OL>
@@ -109,7 +104,57 @@
         <H1>The configuration file</H1>
     </DIV> 
     <DIV id="main">    
-     <P>
+    <P>
+    Some options of the editor can be configured with a standard Panda3D prc file. The editor automatically loads all configuration variables stored in a config file named cfg.prc
+    </P>
+    <P>
+    Refer to the Panda3D manual for more information on configuration options, this manual will only deal with Koparka specific options:
+    </P>
+    <P>
+    koparka-use-grass 1<BR>
+    Setting this value to 0 will disable grass (with a significant framerate increase) <BR><BR>
+
+    koparka-height-map-size 512<BR>
+    koparka-attribute-map-size 512<BR>
+    koparka-grass-map-size 512<BR>
+    koparka-walk-map-size 256<BR>
+    The size (in pixels) of the maps used by the editor. All maps are square so a value of 512 means a map size of 512x512 pixels.<BR><BR>
+
+    koparka-brush-dir brush/<BR>
+    koparka-terrain-tex-diffuse-dir tex/diffuse/<BR>
+    koparka-terrain-tex-normal-dir tex/normal/<BR>
+    koparka-grass-tex-dir grass/<BR>
+    koparka-model-dir models/<BR>
+    koparka-walls-dir models_walls/<BR>
+    koparka-actors-dir models_actor/<BR>
+    koparka-collision-dir models_collision/<BR>
+    Names of the directories  where the editor will look for assets. Note the trailing /<BR><BR>
+
+    koparka-default-height-map data/def_height.png<BR>
+    koparka-default-attribute-map data/atr_def.png<BR>
+    koparka-default-terrain-mesh data/mesh80k.bam<BR>
+    koparka-default-skydome-mesh data/skydome2<BR>
+    koparka-default-water-mesh data/waterplane<BR>
+    koparka-default-water-tex data/water.png<BR>
+    koparka-default-water-wave-tex data/ocen3.png<BR>
+    Names of critical resources loaded by the editor<BR><BR>
+
+    koparka-terrain-shadows True<BR>
+    koparka-grass-shadows False<BR>
+    koparka-object-shadows True<BR>
+    Object groups that should cast shadows<BR><BR>
+
+    koparka-terrain-reflection True<BR>
+    koparka-objects-reflection True<BR>
+    koparka-sky-reflection True<BR>
+    koparka-grass-reflection False<BR>
+    Object groups that should be visible in water reflections<BR><BR>
+
+    koparka-key-*<BR>
+    Keybinds<BR><BR>
+
+    koparka-gui-theme icon<BR>
+    Name of the directory containing GUI icons and widget backgrounds
      </P>
     </DIV>
 </BODY>

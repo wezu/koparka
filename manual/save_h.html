@@ -93,23 +93,61 @@
             <LI><LABEL class="collapse" for="_9">Saving and Loading</LABEL>
                 <INPUT id="_9" type="checkbox" checked>
                     <UL>
-                        <LI class="nav"><A href="save_h.html">&gt;Height map</A></LI>
-                        <LI class="nav"><A href="save_d.html">Detail maps</A></LI>
-                        <LI class="nav"><A href="save_g.html">Grass map</A></LI>
-                        <LI class="nav"><A href="save_nav.html">Navigation map</A></LI>
-                        <LI class="nav"><A href="save_obj.html">Objects</A></LI>
-                        <LI class="nav"><A href="save_coll.html">Collision mesh</A></LI>                    
+                        <LI class="nav"><A href="save_h.html">&gt;Save/Load dialog</A></LI>                    
                     </UL>
             </LI>
         </OL>
     </DIV>
     <DIV id="top">        
-        <A href="config_file.html" class="left">&lt;&lt;- PREVIOUS</A>
-         <A href="save_d.html" class="right">NEXT -&gt;&gt;</A>        
-        <H1>Saving/Loading the height map</H1>
+        <A href="config_file.html" class="left">&lt;&lt;- PREVIOUS</A>    
+        <H1>Saving/Loading a map</H1>
     </DIV> 
-    <DIV id="main">    
-     <P>
-     </P>
+    <DIV id="main"> 
+        <DIV class="img">
+            <IMG src="img/screen18_small.png"> 
+        </DIV>
+        <H4>Save/Load dialog</H4> 
+    <P>
+    To save or load a map you need to click on the save/load icon:
+        <DIV class="img">
+            <IMG src="img/save.png"> 
+        </DIV>
+    </P>
+    <P>    
+    The data exported from the editor is in the form of multiple files stored in one folder (directory).  It is possible to change the names of the files exported, but it is advised to keep the default names and only change the name of the directory where the files will be saved – this will make loading files easier. 
+    </P>
+    <P>    
+    It is not necessary to save (or load)  all of the files. You can select the files you want by clicking on the tick box next to the name of the file – a green tick indicated the file will be saved (loaded) and a red cross says it won’t be. 
+    </P>    
+    <H2>Heightmap</H2>
+    <P>
+    The heightmap is a single grayscale image, it is saved as a png file
+    </P>
+    <H2>Detailmap</H2>
+    <P>
+    The editor uses two detail maps, they are saved with a 0 and 1 suffix as RGB png images.
+    </P>
+    <H2>Grass</H2>
+    <P>
+    The grass map is a single rgb image saved as a png file.
+    </P>
+    <H2>Objects</H2>
+    <P>
+    Objects are saved to a json file. To be more specific the placement and properties of all the objects on the map are written to a dictionary (along with map specific configuration –water, sky, terrain) and serialized to the json file format.
+    </P>
+    <H2>Collision</H2>    
+    <P>
+    The collision mesh is saved as a egg file. It is arranged in a quad tree.
+    </P>
+    <H2>WalkMap</H2>
+    <P>
+    The walkmap is saved as a png image, the image is then used to construct and write out a PandAI navmesh (csv table)
+    </P>
+    <P>
+    The editor ships with a sample level that can be examined and also used with the demo that also ships with the editor. Look for the sample level in the save/default1 directory and the demo in the demo.py script. 
+    </P>
+    <P>
+    Keep in mind the demo is a proof of concept type of software, build from cannibalized pieces of code and should not be considered as a good example of writing code that uses data exported from the Koparka editor. Still… it works. 
+    </P>
     </DIV>
 </BODY>
