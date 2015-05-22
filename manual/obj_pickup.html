@@ -65,8 +65,8 @@
                         <LI class="nav"><A href="obj_walls.html">Walls</A></LI>                    
                         <LI class="nav"><A href="obj_actors.html">Actors</A></LI>
                         <LI class="nav"><A href="obj_fx.html">Lights, collisions, particle</A></LI>
-                        <LI class="nav"><A href="obj_pickup.html">Picking up objects</A></LI>
-                        <LI class="nav"><A href="obj_custom.html">&gt;Custom assets</A></LI>
+                        <LI class="nav"><A href="obj_pickup.html">&gt;Picking up objects</A></LI>
+                        <LI class="nav"><A href="obj_custom.html">Custom assets</A></LI>
                     </UL>
             </LI> 
             <LI><LABEL class="collapse" for="_6">Paint Walkmap mode</LABEL>
@@ -105,91 +105,31 @@
         </OL>
     </DIV>    
     <DIV id="top">        
-        <A href="obj_pickup.html" class="left">&lt;&lt;- PREVIOUS</A>
-         <A href="w_map.html" class="right">NEXT -&gt;&gt;</A>        
-        <H1>Custom assets</H1>
+        <A href="obj_fx.html" class="left">&lt;&lt;- PREVIOUS</A>
+         <A href="obj_custom.html" class="right">NEXT -&gt;&gt;</A>        
+        <H1>Picking up objects</H1>
     </DIV> 
     <DIV id="main">    
-    <H2>Models</H2>
+        <DIV class="img">
+            <IMG src="img/icon_pointer.png"> 
+        </DIV>
+    <H4>Pickup mode icon</H4>
     <P>
-    The editor accepts models in both bam (binary) and egg (text) formats. To add a new object to the editor just copy it to the /models/ directory. 
-    </P>
-    <H2>Multiple Models</H2>
-    <P>
-    If you have multiple, similar objects that you would like to use with the Paint Multiple tool, you will need to create a new folder inside the /models/ directory and put all the model files there.  
-    </P>
-    <H2>Actors</H2>
-    <P>
-    Panda3D uses the same model format for both animated meshes and the animation itself, to distinguish between them the Koparka editor uses a specific naming convention. An animated mesh should have a _m_ prefix, the animation should have a _a_ prefix. The editor will also look for a file with a _c_ prefix – this one is used for collisions (but only for actors). 
+    As the name suggests the pickup mode allows to pick up already placed objects, move, scale rotate them, edit custom properties or delete the object altogether.  
     </P>
     <P>
-    Currently the editor only uses one animation per actor, this animation should have a _default suffix. 
+    To select a object click on the arrow icon and then click on the object you want to edit. 
+    </P>
+        <DIV class="img">
+            <IMG src="img/screen4_small.png"> 
+        </DIV>    
+    <P>
+    Once a object is selected you can edit its position (X,Y, Z input fields), rotation (H, P, R input fields) and scale (the Scale input field). If the edited object is a light, the color of that light can also be changed. You can also edit the objects custom properties. All these modifications will be applied to the object after clicking the Apply button.
     </P>
     <P>
-    For example the windmill that ships with the editor consists of these files:<BR>
-    _a_windmill_default.egg (animation)<BR>
-    _c_windmill.egg (collision)<BR>
-    _m_windmill.egg (model)<BR>
+    If you click on the Pick Up button the object can also be moved manually (with the mouse and keys), just like in place object mode. 
     </P>
-    To add actors to the editor put all the needed files in the /models_actor/ folder. 
-
-    <H2>Walls and connected objects</H2>
-    <P>
-    Adding wall objects is similar to adding objects for multiple paint. You will need to create a folder in the /models_walls/ folder and put all the models there.
-    </P>
-    <P>
-    The wall objects also need to have a special node named next that will indicate where the next object should be connected. This should be an empty node with only a Transform entry.
-    </P>
-    <H2>Particle effects</H2>
-    <P>
-    Particle effects are loaded from json files. The Koparka editor ships with a visual editor that allows to create such files (tools/patric.py). The json file and the textures it uses should be placed in the /particle/ folder.
-    </P>
-    <P>    
-    A particle effect can be attached to any object, all that is needed is to place a particle tag inside the mode file, for example 
-    &lt;Tag&gt; particle { fire.json }
-    will load the particle effect from the file particle/fire.json
-    </P>
-    <P>
-    For ease of use it is recommended to attach particle effects to a model and the model should be placed in the /models_collision/ folder. 
-    </P> 
-    <H2>Lights</H2>
-    <P>
-    Lights can be attached to any model, just like particle effects, all that is needed is to add a tag like this to a egg file:<BR>
-    &lt;Tag&gt; light {1}<BR>
-    It is recommended not to make custom assets with lights and use the point light model provided with the editor. 
-    </P>
-    <H2>Collision mesh</H2>
-    <P>
-    Each object should have a collision mesh. If a object has none, then a simple collision sphere will be generated, but it is strongly advised to provide objects with custom collision meshes. For typical objects the editor will look for a node named collision and expect it to be a valid collision mesh (or solid or group of solids) – this should be part of the model file. 
-    </P>
-    <P>    
-    For actors, the collision mesh must be in a separate file with the _c_ prefix.
-    </P>
-    <H2>Shaders</H2>
-    <P>
-    By default all objects use a set of default shaders (default_c.glsl vertex shader and default_f.glsl fragment shader). The shader expects a model to have 1 diffuse (color) texture, 1 normal+gloss texture, vertex normals, tangent and binormals – if any of these are missing results may vary.
-    </P>
-    <P>
-    The editor can also automatically load a different shader for each object. The shader name must be placed in a tag inside the model file.  
-    </P>
-    <P>
-    For GLSL shaders the tag name must be glsl_shader and the value the name pattern of the shaders for example if a tag like this would be added to a model file:
-    &lt;Tag&gt; "glsl_shader" {tree}<BR>
-    The editor will try to load shaders/tree_v.glsl for the vertex shader and shaders/tree_f.glsl for the fragment shader.
-    </P>
-    <P>    
-    For Cg shaders the tag should be named cg_shader, and the value should be the filename (with extension) of the cg shader  -cg vertex and fragment shaders are stored in one file.
-    </P>
-    <P>
-    The editor ships with some useful shaders:<BR>
-    tree  <BR>
-    This is a shader that makes vegetation move in a semi random fashion. <BR><BR>
-
-    light<BR>
-    This shader is used to hide light and particle collision solids when the editor is not in object paint mode<BR><BR>
-
-    distort<BR>
-    This shader creates a volume of distortion <BR><BR>
-    </P>
+    Clicking the Delete button will permanently remove the object from the map.  
+     </P>
     </DIV>
 </BODY>

@@ -105,11 +105,30 @@
     </DIV>    
     <DIV id="top">        
         <A href="obj_actors.html" class="left">&lt;&lt;- PREVIOUS</A>
-         <A href="obj_custom.html" class="right">NEXT -&gt;&gt;</A>        
+         <A href="obj_pickup.html" class="right">NEXT -&gt;&gt;</A>        
         <H1>Lights, collisions, particle</H1>
     </DIV> 
     <DIV id="main">    
+    <DIV class="img">
+            <IMG src="img/icon_collision.png"> 
+        </DIV>
+    <H4>Particle, collision, lights, effects icon</H4>
      <P>
-     </P>
+     Particle effects, collision solids, lights and other special objects are placed on the map in the exact same fashion as any other objects (but some do have extra options). They have been separated into a new category for ease of use. Refer to the part of the manual dealing with placing single objects for more details.
+    <P>
+    <H2>Lights</H2>
+    <P>
+    The editor allows to place point (omni) lights. The size (area it illuminates) can be changed just as the size of any other object (using  A and D keys), the color can be changed using the color picker widget. 
+    </P>
+    Clicking on the color picker icon will show the color picker dialog, in that dialog window you can pick a color by clicking on the color gradient or typing in a coma separated RGB value (in the 0-255 range for each component) and confirming it with the enter key. The color of the light will be changed when you click the ok button.
+    <DIV class="img">
+            <IMG src="img/screen26_small.png"> 
+        </DIV>
+    <H4>Color picker dialog</H4> 
+    </P>
+    <H2>Performance note</H2>
+    <P>
+    The default shaders use a forward shading approach, that means that the number of lights used has an impact on the performance. By default the editor allows to put 9 lights (+sun) in one map. 
+    </P>
     </DIV>
 </BODY>

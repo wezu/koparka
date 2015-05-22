@@ -286,9 +286,8 @@ class Editor (DirectObject):
         self.gui.elements[self.select_toolbar_id]['frame']['text_fg']=(1,1,1,1)
         self.gui.elements[self.select_toolbar_id]['frame']['text_font']=self.gui.fontBig
         self.gui.elements[self.select_toolbar_id]['frame']['text_pos']=(16,-24)
-        for i in range(5):
-            self.gui.addEntry(self.select_toolbar_id, size_x=180, offset_x=30)
-        self.gui.addEntry(self.select_toolbar_id, size_x=125, offset_x=85)
+        for i in range(6):
+            self.gui.addEntry(self.select_toolbar_id, size_x=180, offset_x=30)        
         self.gui.addEntry(self.select_toolbar_id, size_x=125, offset_x=85)
         self.gui.addFloatingButton(self.select_toolbar_id, [128,32], cfg['theme']+'/apply.png',[32, 264], self.applyTransform,[0] ,tooltip=self.tooltip, tooltip_text='Apply changes in position, rotation and scale')        
         self.gui.addFloatingButton(self.select_toolbar_id, [128,32], cfg['theme']+'/pickup.png',[32, 304], self.pickUp,[0] ,tooltip=self.tooltip, tooltip_text='Pick up the selected object and move it manualy')        
