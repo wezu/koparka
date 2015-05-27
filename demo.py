@@ -1,6 +1,7 @@
 from panda3d.core import loadPrcFileData
 loadPrcFileData('','textures-power-2 None')#needed for fxaa
 #loadPrcFileData('','win-size 1280 720')
+#loadPrcFileData('','notify-level spam')
 loadPrcFileData('','win-size 1024 768')
 #loadPrcFileData('','win-size 854 480')
 loadPrcFileData('','show-frame-rate-meter  1')
@@ -78,7 +79,7 @@ class Demo (DirectObject):
         
         #lights and shadows    
         self.sun=setupLights(self.lManager)                
-        self.shadows=setupShadows(buffer_size=1024)                
+        self.shadows=setupShadows(buffer_size=1024)
         
         #camera controll
         base.disableMouse()  
@@ -117,10 +118,10 @@ class Demo (DirectObject):
         #pathfinding
         self.navi=Navigator(path+directory+'/navmesh.csv', self.pcNode, self.actor)
         self.target=render.attachNewNode('target')
-        self.setTime(14.5)
+        self.setTime(7.5)
         #tasks
         taskMgr.add(self.update, 'update_task', sort=45)
-        self.clock=14.5        
+        self.clock=7.5        
         taskMgr.doMethodLater(1.0, self.clockTick,'clock_task', sort=10)
         self.accept( 'window-event', self.windowEventHandler) 
         
