@@ -83,10 +83,10 @@ void main()
     vec4 final= vec4(color.rgb * color_map.xyz, color_map.a);          
     gl_FragData[0] = mix(final ,fog_color, fog_factor);     
     //shadows
-    //vec4 shadowUV = shadowCoord / shadowCoord.q;
-    //float shadowColor = texture2D(shadow, shadowUV.xy).r;    
-    //float shade = 1.0;
-    //if (shadowColor < shadowUV.z-0.001)
-    //    shade=0.0;        
-    gl_FragData[1]=vec4(fog_factor, 1.0, spec*(1.0-fog_factor),0.0);
+    vec4 shadowUV = shadowCoord / shadowCoord.q;
+    float shadowColor = texture2D(shadow, shadowUV.xy).r;    
+    float shade = 1.0;
+    if (shadowColor < shadowUV.z-0.001)
+        shade=0.0;        
+    gl_FragData[1]=vec4(fog_factor, shade, shade*spec*(1.0-fog_factor),0.0);
     }

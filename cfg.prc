@@ -2,6 +2,7 @@
 load-display pandagl
 textures-power-2 None
 win-size 1024 768
+#win-size 1280 720
 show-frame-rate-meter  1
 sync-video 0
 framebuffer-srgb true
@@ -11,12 +12,14 @@ texture-minfilter  mipmap
 texture-magfilter  linear
 #show-buffers 1
 #undecorated 1
+pstats-gpu-timing true
 
 #koparka specific config
 #koparka-filters
 # 0 - none 
 # 1 - fxaa only
 # 2 - all on (screen space soft shadows, glare/flare, etc.)
+# currently all but "2" are broken (?) 
 koparka-filters 2
 #render grass? 0=no 1=yes
 koparka-use-grass 1
@@ -42,6 +45,21 @@ koparka-default-skydome-mesh data/skydome2
 koparka-default-water-mesh data/waterplane
 koparka-default-water-tex data/water.png
 koparka-default-water-wave-tex data/ocen3.png
+#shaders
+# _v is for vertex shader
+#_f is for fragment shader
+#these shaders are all GLSL, if you want to use Cg... em.. don't
+koparka-shader-terrain_v shaders/terrain_v.glsl
+koparka-shader-terrain_f shaders/terrain_f.glsl
+#the 'editor' shader is used for drawing the pointer
+koparka-shader-editor_v shaders/editor_v.glsl
+koparka-shader-editor_f shaders/editor_f.glsl
+koparka-shader-water_v shaders/water2_v.glsl
+koparka-shader-water_f shaders/water2_f.glsl
+koparka-shader-grass_v shaders/grass_lights_v.glsl
+koparka-shader-grass_f shaders/grass_lights_f.glsl
+koparka-shader-sky_v shaders/cloud_v.glsl
+koparka-shader-sky_f shaders/cloud_f.glsl
 #shadows (what is seen by the shadow casting camera)
 koparka-terrain-shadows True
 koparka-grass-shadows False

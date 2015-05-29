@@ -9,8 +9,9 @@ loadPrcFileData('','framebuffer-srgb true')
 loadPrcFileData('','texture-minfilter  mipmap')
 loadPrcFileData('','texture-magfilter  linear')
 loadPrcFileData('','default-texture-color-space sRGB')
+loadPrcFileData('','pstats-gpu-timing true')
 #loadPrcFileData('','show-buffers 1')
-loadPrcFileData('','threading-model Cull/Draw')
+#loadPrcFileData('','threading-model Cull/Draw')
 #loadPrcFileData('','undecorated 1')
 #loadPrcFileData('','compressed-textures  1')
 loadPrcFileData('','sync-video 0')
@@ -56,7 +57,7 @@ class Demo (DirectObject):
         #init ShowBase
         base = ShowBase.ShowBase()    
         base.setBackgroundColor(1,1,1) 
-        
+        #PStatClient.connect()
         self.lManager=LightManager()
         self.skyimg=PNMImage("data/sky_grad.png")
         
@@ -126,7 +127,7 @@ class Demo (DirectObject):
         self.accept( 'window-event', self.windowEventHandler) 
         
     def clockTick(self, task):
-        self.clock+=0.01
+        self.clock+=0.05
         if self.clock>23.9:
             self.clock=0.0
         self.setTime(self.clock)                
@@ -223,4 +224,4 @@ class Demo (DirectObject):
         return task.cont
         
 app=Demo('save/default1')
-run()      
+base.run()      

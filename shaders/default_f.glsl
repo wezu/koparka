@@ -90,5 +90,5 @@ void main()
     float shade = 1.0;
     if (shadowColor < shadowUV.z-0.001)
         shade=0.0;        
-    gl_FragData[1]=vec4(fog_factor, 1.0,spec*(1.0-fog_factor),0.0);
+    gl_FragData[1]=vec4(fog_factor, 1.0,shade*spec*(1.0-fog_factor),0.0);
     }
