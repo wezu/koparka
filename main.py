@@ -67,6 +67,7 @@ GRASS_MODE_REMOVE=0
 
 MASK_WATER=BitMask32.bit(1)
 MASK_SHADOW=BitMask32.bit(2)
+MASK_TERRAIN_ONLY=BitMask32.bit(3)
 
 cfg={}
 
@@ -75,6 +76,7 @@ class Editor (DirectObject):
         self.loadcfg()
         #init ShowBase
         base = ShowBase.ShowBase()
+        render.hide(MASK_TERRAIN_ONLY)
         base.enableParticles()
         #PStatClient.connect()
 
@@ -350,6 +352,7 @@ class Editor (DirectObject):
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
         self.mesh.setBin("background", 11)
+        self.mesh.show(MASK_TERRAIN_ONLY)
         if cfg['shadow_terrain']==False:
             self.mesh.hide(MASK_SHADOW)
         if cfg['reflect_terrain']==False:
