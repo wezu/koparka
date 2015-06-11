@@ -79,7 +79,7 @@ class Editor (DirectObject):
         render.hide(MASK_TERRAIN_ONLY)
         base.enableParticles()
         #PStatClient.connect()
-
+        
         #manager for post process filters (fxaa, soft shadows, dof)
         manager=FilterManager(base.win, base.cam)
         fxaa_only=True
@@ -147,7 +147,7 @@ class Editor (DirectObject):
             if  Filename(fname).getExtension() in ('png', 'tga', 'dds'):
                 self.brushList.append(cfg['brush_dir']+fname)
 
-        self.painter=BufferPainter(self.brushList, showBuff=False)
+        self.painter=BufferPainter(self.brushList, showBuff=False, use_gl_select=cfg['use_gl_select'])
         #BUFFER_HEIGHT
         self.painter.addCanvas(size=cfg['h_map_size'], default_tex=cfg['h_map_def'])
         #BUFFER_ATR
@@ -352,7 +352,7 @@ class Editor (DirectObject):
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
         self.mesh.setBin("background", 11)
-        self.mesh.show(MASK_TERRAIN_ONLY)
+        self.mesh.showThrough(MASK_TERRAIN_ONLY)
         if cfg['shadow_terrain']==False:
             self.mesh.hide(MASK_SHADOW)
         if cfg['reflect_terrain']==False:
@@ -678,6 +678,7 @@ class Editor (DirectObject):
         cfg['key_cam_zoomin2']=ConfigVariableString('koparka-key-camera-zoomin2','=').getValue()
         cfg['key_cam_zoomout2']=ConfigVariableString('koparka-key-camera-zoomout2','-').getValue()
         cfg['theme']=ConfigVariableString('koparka-gui-theme','icon').getValue()
+        cfg['use_gl_select']=ConfigVariableBool('koparka-gl-select', False).getValue()
         
     def setLightColor(self):
         if self.objectPainter.currentObject:

@@ -1,7 +1,8 @@
 from panda3d.core import *
 
 class BufferPainter ():
-    def __init__(self, brushList, showBuff=False):        
+    def __init__(self, brushList, showBuff=False, use_gl_select=False):    
+        self.use_gl_select=use_gl_select    
         self.brushList=brushList        
         #make a pointer
         self.pointer = loader.loadModel("data/pointer")
@@ -32,7 +33,43 @@ class BufferPainter ():
             base.bufferViewer.setPosition("lrcorner")
             base.bufferViewer.setCardSize(0.2, 0.0) 
         
-        
+        if self.use_gl_select:
+            self.pickingTex = Texture("picking_texture")
+            props = FrameBufferProperties()
+            props.setRgbaBits(16, 16, 0, 0)
+            self.pickingBuffer = base.win.makeTextureBuffer("picking_buffer",
+                                                      1, 1,
+                                                      self.pickingTex,
+                                                      to_ram=True,
+                                                      fbp=props)
+
+            self.pickingBuffer.setClearColor(VBase4())
+            self.pickingBuffer.setSort(-100)
+            self.pickingPeeker = self.pickingTex.peek()
+            self.pickingCam = base.makeCamera(self.pickingBuffer) 
+            node = self.pickingCam.node()           
+            #lens = OrthographicLens()
+            #lens.setFilmSize(1, 1)
+            #node.setLens(lens)
+            lens = node.getLens()            
+            lens.setNear(32.0)
+            lens.setFar(2**16)
+            lens.setFov(2.0)
+            cull_bounds = lens.makeBounds()
+            lens.setFov(0.4)
+            node.setCullBounds(cull_bounds)
+            #MASK_TERRAIN_ONLY=BitMask32.bit(3)
+            node.setCameraMask(BitMask32.bit(3))
+            
+            state_np = NodePath("picking_state")
+            shaderAtt = ShaderAttrib.make()
+            shaderAtt= shaderAtt.setShader(Shader.load(Shader.SLGLSL, "shaders/pick_v.glsl","shaders/pick_f.glsl"),1)
+            state_np.setAttrib(shaderAtt, 1)
+            #state_np.setTransparency(TransparencyAttrib.MAlpha, 1)
+            node.setInitialState(state_np.getState())
+            
+            self.pixel=VBase4()
+            
         taskMgr.add(self.__getMousePos, "_Editor__getMousePos")
    
     def write(self, id, file, returnPNMImage=False):
@@ -151,9 +188,22 @@ class BufferPainter ():
             nearPoint = Point3()
             farPoint = Point3()
             base.camLens.extrude(mpos, nearPoint, farPoint)
-            if self.plane.intersectsLine(pos3d, render.getRelativePoint(camera, nearPoint),render.getRelativePoint(camera, farPoint)):                
-                self.pointer.setX(min(512.0, max(0.0, pos3d[0]))) 
-                self.pointer.setY(min(512.0, max(0.0, pos3d[1])))                
-                for brush in self.brushes:
-                    brush.setPos(self.pointer.getPos())
+            if self.use_gl_select:
+                self.pickingCam.lookAt(farPoint)
+
+                if not self.pickingPeeker:
+                    self.pickingPeeker = self.pickingTex.peek()
+                else:    
+                    self.pickingPeeker.lookup(self.pixel, .5, .5)                
+                    self.pointer.setX(min(512.0, max(0.0, self.pixel[0]*512.0))) 
+                    self.pointer.setY(min(512.0, max(0.0, self.pixel[1]*512.0)))                
+                    for brush in self.brushes:
+                        brush.setPos(self.pointer.getPos())
+                
+            else:    
+                if self.plane.intersectsLine(pos3d, render.getRelativePoint(camera, nearPoint),render.getRelativePoint(camera, farPoint)):                
+                    self.pointer.setX(min(512.0, max(0.0, pos3d[0]))) 
+                    self.pointer.setY(min(512.0, max(0.0, pos3d[1])))                
+                    for brush in self.brushes:
+                        brush.setPos(self.pointer.getPos())
         return task.again          

@@ -283,7 +283,7 @@ def setupWater(path, height_map):
     waterNP.setPos(256, 256, 0)
     waterNP.setTransparency(TransparencyAttrib.MAlpha)
     waterNP.flattenLight()
-    waterNP.setPos(0, 0, 30)
+    waterNP.setPos(0, 0, 30)    
     waterNP.reparentTo(render)
     #Add a buffer and camera that will render the reflection texture
     wBuffer = base.win.makeTextureBuffer("water", 512, 512)

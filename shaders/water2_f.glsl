@@ -23,7 +23,7 @@ uniform float z_scale;
 
 void main()
     {  
-    vec4 fog_color=vec4(fog.rgb, 0.0);  
+    vec4 fog_color=vec4(fog.rgb, 1.0);  
     vec4 distortion1 = normalize(texture2D(water_norm, gl_TexCoord[0].xy));
     vec4 distortion2 = normalize(texture2D(water_norm, gl_TexCoord[1].xy));
     vec4 normalmap=distortion1+distortion2;
@@ -106,7 +106,7 @@ void main()
     final+=foam*((color*0.5)+0.2);        
     final+=specular*color;
     float displace=(facing)+(foam);                     
-    final.a=clamp(facing+specular, 0.95, 1.0);
+    final.a=clamp(facing+specular, 0.8, 1.0);
     final =mix(final, fog_color, fog_factor);
     gl_FragData[0]=final;
     gl_FragData[1] =vec4(fog_factor, 1.0,specular,0.4+(1.0-displace)*0.5);//(fog, shadow, glare, displace)

@@ -104,3 +104,6 @@ koparka-key-camera-zoomin2 =
 koparka-key-camera-zoomout2 -
 #gui theme
 koparka-gui-theme icon
+#select by using a color in a 1x1 texture buffer 
+#slow and not working at the moment
+koparka-gl-select False
