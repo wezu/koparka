@@ -89,6 +89,15 @@ class BufferPainter ():
         myTexture.load(p)        
         self.paintPlanes[id].setTexture(myTexture, 1)
     
+    def setBrushAlpha(self,  slider=None, alpha=None):
+        if slider:
+            alpha=slider['value']
+        new_alpha=min(1.0, max(0.0, alpha))           
+        self.brushAlpha=new_alpha                
+        for brush in self.brushes:
+            color=brush.getColor()              
+            brush.setColor(color[0],color[1],color[2], new_alpha)
+            
     def adjustBrushAlpha(self, alpha):                
         new_alpha=min(1.0, max(0.0, self.brushAlpha+alpha))           
         self.brushAlpha=new_alpha                
@@ -109,10 +118,26 @@ class BufferPainter ():
         for brush in self.brushes:            
             brush.setTexture(loader.loadTexture(self.brushList[id]))
             
-    def adjustBrushHeading(self, heading):
-        for brush in self.brushes:            
-            brush.setH(brush.getH()+heading)
+    def setBrushHeading(self, slider=None, heading=None):
+        if slider:
+            heading=slider['value']
+        for brush in self.brushes:        
+            new_heading =heading%360.0     
+            brush.setH(new_heading)            
             
+    def adjustBrushHeading(self, heading):               
+        for brush in self.brushes:        
+            new_heading =(brush.getH()+heading)%360.0     
+            brush.setH(new_heading)
+            
+    def setBrushSize(self, slider=None, size=None):
+        if slider:
+            size=slider['value']
+        new_size=min(10.00, max(0.01, size))                        
+        self.brushSize=new_size 
+        for brush in self.brushes:                         
+            brush.setScale(new_size)
+                    
     def adjustBrushSize(self, size):
         new_size=min(10.00, max(0.01, self.brushSize+size))                        
         self.brushSize=new_size 

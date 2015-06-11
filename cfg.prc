@@ -16,10 +16,10 @@ pstats-gpu-timing true
 
 #koparka specific config
 #koparka-filters
-# 0 - none 
+# 0 - none
 # 1 - fxaa only
 # 2 - all on (screen space soft shadows, glare/flare, etc.)
-# currently all but "2" are broken (?) 
+# currently all but "2" are broken (?)
 koparka-filters 2
 #render grass? 0=no 1=yes
 koparka-use-grass 1
@@ -51,6 +51,9 @@ koparka-default-water-wave-tex data/ocen3.png
 #these shaders are all GLSL, if you want to use Cg... em.. don't
 koparka-shader-terrain_v shaders/terrain_v.glsl
 koparka-shader-terrain_f shaders/terrain_f.glsl
+#terrain shader that shows the walkmap
+koparka-shader-terrain_w_v shaders/terrain_v.glsl
+koparka-shader-terrain_w_f shaders/terrain_w_f.glsl
 #the 'editor' shader is used for drawing the pointer
 koparka-shader-editor_v shaders/editor_v.glsl
 koparka-shader-editor_f shaders/editor_f.glsl

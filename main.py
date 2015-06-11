@@ -223,9 +223,9 @@ class Editor (DirectObject):
 
         #extra tools and info at the bottom
         self.statusbar=self.gui.addToolbar(self.gui.BottomLeft, (704, 128), icon_size=64, y_offset=-64, hover_command=self.onToolbarHover, color=(1,1,1, 0.2))
-        self.size_info=self.gui.addInfoIcon(self.statusbar, cfg['theme']+'/resize.png', '1.0', tooltip=self.tooltip, tooltip_text='Brush Size or Object Scale:   [A]-Decrease    [D]-Increase')
-        self.color_info=self.gui.addInfoIcon(self.statusbar, cfg['theme']+'/color.png', '0.05',tooltip=self.tooltip, tooltip_text='Brush Strength or Object Z offset:   [W]-Increase   [S]-Decrease')
-        self.heading_info=self.gui.addInfoIcon(self.statusbar, cfg['theme']+'/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Rotation ([1][2][3] to change axis in Object Mode):   [Q]-Left   [E]-Right')
+        self.size_info=self.gui.addInfoIcon(self.statusbar, cfg['theme']+'/resize.png', '1.0', tooltip=self.tooltip, tooltip_text='Brush Size or Object Scale:   [A]-Decrease    [D]-Increase', slider_cmd=self.setSize, slider_range=(0.1, 10.0))
+        self.color_info=self.gui.addInfoIcon(self.statusbar, cfg['theme']+'/color.png', '0.05',tooltip=self.tooltip, tooltip_text='Brush Strength or Object Z offset:   [W]-Increase   [S]-Decrease', slider_cmd=self.setStrength, slider_range=(0.0, 1.0))
+        self.heading_info=self.gui.addInfoIcon(self.statusbar, cfg['theme']+'/rotate.png', '0',tooltip=self.tooltip, tooltip_text='Rotation ([1][2][3] to change axis in Object Mode):   [Q]-Left   [E]-Right', slider_cmd=self.setHeading, slider_range=(0.0, 360.0))
         self.gui.addButton(self.statusbar, cfg['theme']+'/config.png', self.configBrush, [True], self.tooltip, 'Configure brush and grid (numeric values)')
         self.gui.addButton(self.statusbar, cfg['theme']+'/hm_icon.png', self.setMode, [MODE_HEIGHT], self.tooltip, 'Paint Heightmap Mode [F1]')
         self.gui.addButton(self.statusbar, cfg['theme']+'/tex_icon.png', self.setMode, [MODE_TEXTURE], self.tooltip, 'Paint Texture Mode [F2]')
@@ -570,8 +570,31 @@ class Editor (DirectObject):
         #tasks
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task', sort=46)
         #self.clock=12.0
-        #taskMgr.doMethodLater(.1, self.clockTick,'clock_task')
-
+        #taskMgr.doMethodLater(.1, self.clockTick,'clock_task') 
+    
+    def setHeading(self,slider):
+        if self.mode in (MODE_GRASS,MODE_HEIGHT, MODE_TEXTURE, MODE_WALK):
+            self.painter.setBrushHeading(slider)
+            self.heading_info['text']=self.hpr_axis+'%.0f'%self.painter.brushes[0].getH()
+        else:            
+            self.heading_info['text']=self.objectPainter.setHpr(self.hpr_axis, slider=slider)        
+        
+    def setStrength(self, slider):
+        if self.mode in (MODE_GRASS,MODE_HEIGHT, MODE_TEXTURE, MODE_WALK):
+            self.painter.setBrushAlpha(slider)
+            self.color_info['text']='%.2f'%self.painter.brushAlpha
+        else:
+            self.objectPainter.setZ(slider)
+            self.color_info['text']='%.2f'%self.objectPainter.currentZ
+                
+    def setSize(self,slider):
+        if self.mode in (MODE_GRASS,MODE_HEIGHT, MODE_TEXTURE, MODE_WALK):
+            self.painter.setBrushSize(slider)
+            self.size_info['text']='%.2f'%self.painter.brushSize
+        else:
+            self.objectPainter.setScale(slider)
+            self.size_info['text']='%.2f'%self.objectPainter.currentScale
+        
     def loadcfg(self):
         cfg['filters']=ConfigVariableInt('koparka-filters', 2).getValue()
         #render grass? 0=no 1=yes
@@ -612,6 +635,8 @@ class Editor (DirectObject):
         #shaders
         cfg['shader_terrain_v']=ConfigVariableString('koparka-shader-terrain_v', 'shaders/terrain_v.glsl').getValue()
         cfg['shader_terrain_f']=ConfigVariableString('koparka-shader-terrain_f', 'shaders/terrain_f.glsl').getValue()
+        cfg['shader_terrain_w_v']=ConfigVariableString('koparka-shader-terrain_w_v', 'shaders/terrain_v.glsl').getValue()
+        cfg['shader_terrain_w_f']=ConfigVariableString('koparka-shader-terrain_w_f', 'shaders/terrain_w_f.glsl').getValue()
         cfg['shader_editor_v']=ConfigVariableString('koparka-shader-editor_v', 'shaders/editor_v.glsl').getValue()
         cfg['shader_editor_f']=ConfigVariableString('koparka-shader-editor_f', 'shaders/editor_f.glsl').getValue()
         cfg['shader_water_v']=ConfigVariableString('koparka-shader-water_v', 'shaders/water2_v.glsl').getValue()
@@ -650,7 +675,7 @@ class Editor (DirectObject):
         cfg['key_cam_zoomin2']=ConfigVariableString('koparka-key-camera-zoomin2','=').getValue()
         cfg['key_cam_zoomout2']=ConfigVariableString('koparka-key-camera-zoomout2','-').getValue()
         cfg['theme']=ConfigVariableString('koparka-gui-theme','icon').getValue()
-
+        
     def setLightColor(self):
         if self.objectPainter.currentObject:
             if self.objectPainter.currentObject.hasPythonTag('hasLight'):
@@ -678,7 +703,7 @@ class Editor (DirectObject):
         c2=[p2[0]/255.0,p2[1]/255.0,p2[2]/255.0, p2[3]/255.0]
         return Vec4( c1[0]*blend+c2[0]*(1.0-blend), c1[1]*blend+c2[1]*(1.0-blend), c1[2]*blend+c2[2]*(1.0-blend), c1[3]*blend+c2[3]*(1.0-blend))
 
-    def setTime(self, time, event=None):
+    def setTime(self, time, event=None, fog_co=1.0):
         sunpos=min(0.5, max(-0.5,(time-12.0)/14.0))
         render.setShaderInput('sunpos', sunpos)
         x1=int(time)
@@ -704,7 +729,7 @@ class Editor (DirectObject):
         p1=self.skyimg.getPixel(x1, 3)
         p2=self.skyimg.getPixel(x2, 3)
         fogColor=self.blendPixels(p1, p2, blend)
-        fogColor[3]=abs(sunpos)*0.01+0.001
+        fogColor[3]=(abs(sunpos)*0.01+0.001)*fog_co
 
         if time<6.0 or time>18.0:
             p=0.0
@@ -947,14 +972,14 @@ class Editor (DirectObject):
             self.painter.plane = Plane(Vec3(0, 0, 1), Point3(0, 0, self.gui.ConfigOptions[6]))
             self.controler.cameraNode.setZ(self.gui.ConfigOptions[6])
             daytime=float(self.gui.ConfigOptions[7])
-            self.setTime(daytime)
+            self.setTime(daytime, fog_co=float(self.gui.ConfigOptions[8]))
             #render.setShaderInput('daytime', daytime)
             #self.dlight.setColor(Vec4(color, color, color, 1))
             if self.mode==MODE_OBJECT:
                 #hpr
                 self.setAxis='H: '
                 self.heading_info['text']=self.setAxis+str(self.gui.ConfigOptions[2])
-                self.objectPainter.currentHPR=(self.gui.ConfigOptions[2],self.gui.ConfigOptions[3], self.gui.ConfigOptions[4])
+                self.objectPainter.currentHPR=[self.gui.ConfigOptions[2],self.gui.ConfigOptions[3], self.gui.ConfigOptions[4]]
                 #scale
                 self.objectPainter.currentScale=self.gui.ConfigOptions[0]
                 self.size_info['text']='%.2f'%self.objectPainter.currentScale
@@ -1583,7 +1608,7 @@ class Editor (DirectObject):
             self.accept('mouse1', self.paint)
             self.ignore('mouse1-up')
             self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_WALK])
-            self.mesh.setShader(Shader.load(Shader.SLGLSL, cfg["shader_terrain_v"], cfg["shader_terrain_f"]))
+            self.mesh.setShader(Shader.load(Shader.SLGLSL, cfg["shader_terrain_w_v"], cfg["shader_terrain_w_f"]))
             render.setShaderInput("show_lights", 0.3)
         elif mode==MODE_WALK:
             if guiEvent!=None:
@@ -1616,7 +1641,7 @@ class Editor (DirectObject):
             self.gui.hideElement(self.color_toolbar)
             self.objectPainter.stop()
             self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_WALK])
-            self.mesh.setShader(Shader.load(Shader.SLGLSL, cfg["shader_terrain_v"], cfg["shader_terrain_f"]))
+            self.mesh.setShader(Shader.load(Shader.SLGLSL, cfg["shader_terrain_w_v"], cfg["shader_terrain_w_f"]))
             render.setShaderInput("show_lights", 0.0)
         self.mode=mode
         self.heading_info['text']=self.hpr_axis+'%.0f'%self.painter.brushes[0].getH()

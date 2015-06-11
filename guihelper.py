@@ -93,6 +93,24 @@ class GuiHelper():
         self.dialogOk.setTransparency(TransparencyAttrib.MDual)
         self.dialog.hide()
         
+        self.slider = DirectSlider(range=(0,100),
+                                    value=50,
+                                    pageSize=1,      
+                                    thumb_relief=DGG.FLAT,
+                                    frameTexture=self.theme+'/slider_back.png',
+                                    thumb_frameTexture=self.theme+'/button.png',                                    
+                                    scale=64,
+                                    orientation=DGG.VERTICAL,
+                                    thumb_frameSize=(0.2, -0.2, -0.1, 0.1),
+                                    frameSize=(2.0, -2.0, -1, 1),
+                                    #command=self.set_slider,
+                                    #extraArgs=[self.slider],
+                                    parent=pixel2d)  
+        self.slider.setPos(_pos2d(32,64))
+        self.slider['extraArgs']=[self.slider]
+        self.slider.setTransparency(TransparencyAttrib.MDual)
+        self.slider.hide()
+        
     def yesNoDialog(self, text, command, arg=[]):
         self.dialog.show()
         self.dialogYes.show()
@@ -152,6 +170,9 @@ class GuiHelper():
         elif id==7:#light
             value=min(23.0, max(0.0, value))    
             self.ConfigOptions[id]=value 
+        elif id==8:#fog
+            value=min(1.0, max(0.0, value))    
+            self.ConfigOptions[id]=value    
         elif id==100:#Terrain Tile
             try:                    
                 value=min(512.0, max(1.0,value))
@@ -318,10 +339,10 @@ class GuiHelper():
         
         
     def addConfigDialog(self, command): 
-        labels=['Brush Scale:','Brush Strength(Z):','Heading:','Pitch:','Roll:','Grid Size:','Grid Z:','Time(0-23h):']
-        self.ConfigOptions=[1.0, 1.0, 0.0, 0.0, 0.0, 16, 0.05, 12.0 ]
-                           # 0    1    2    3    4    5    6    7
-                           #Scale A    H    P    R  Grid  GridZ Sun 
+        labels=['Brush Scale:','Brush Strength(Z):','Heading:','Pitch:','Roll:','Grid Size:','Grid Z:','Time(0-23h):', 'Fog density:']
+        self.ConfigOptions=[1.0, 1.0, 0.0, 0.0, 0.0, 16, 0.05, 12.0 , 1.0]
+                           # 0    1    2    3    4    5    6    7      8
+                           #Scale A    H    P    R  Grid  GridZ Sun   Fog
         text=""
         for item in labels:
             text+=item+'\n'
@@ -350,7 +371,7 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.ConfigFrame)
         _resetPivot(self.okButton)        
-        self.okButton.setPos(_pos2d(352,282))
+        self.okButton.setPos(_pos2d(352,314))
         
         self.cancelButton=DirectFrame(frameSize=_rec2d(128,32),
                                     frameColor=(0,0,1,0.0),  
@@ -362,7 +383,7 @@ class GuiHelper():
                                     state=DGG.NORMAL, 
                                     parent=self.ConfigFrame)
         _resetPivot(self.cancelButton)        
-        self.cancelButton.setPos(_pos2d(32,282)) 
+        self.cancelButton.setPos(_pos2d(32,314)) 
         
         self.okButton.bind(DGG.B1PRESS, self.validateAndExec, [command,2, 8, 0])        
         self.cancelButton.bind(DGG.B1PRESS, command, [False]) 
@@ -881,7 +902,7 @@ class GuiHelper():
             frame.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None]) 
         return frame
         
-    def addInfoIcon(self, toolbar, icon, text, tooltip=None, tooltip_text=None):       
+    def addInfoIcon(self, toolbar, icon, text, tooltip=None, tooltip_text=None, slider_cmd=None, slider_range=None):       
         parent=self.elements[toolbar]['frame']
         x=len(self.elements[toolbar]['buttons'])*64
           
@@ -901,8 +922,38 @@ class GuiHelper():
             frame['state']=DGG.NORMAL
             frame.bind(DGG.WITHIN, self.setTooltip,[tooltip, tooltip_text])  
             frame.bind(DGG.WITHOUT, self.setTooltip,[tooltip, None])
+        if slider_cmd:    
+            frame.bind(DGG.B1PRESS, self.popupSlider, [frame, slider_cmd, slider_range])    
         return frame
         
+    def popupSlider(self, parent, slider_cmd, slider_range, event=None):        
+        if self.slider.isHidden():
+            self.slider.show()
+            self.slider['range']=(slider_range[0],slider_range[1])
+            try:
+                self.slider['value']=float(parent['text'])
+            except:   
+                self.slider['value']=float(parent['text'].split(": ")[1]) 
+            self.slider['command']=slider_cmd            
+            pos=parent.getPos(pixel2d)
+            pos[0]+=32.0
+            pos[2]+=64.0
+            self.slider.setPos(pos)
+        else:
+            self.slider.hide()    
+            pos=parent.getPos(pixel2d)
+            pos[0]+=32.0
+            pos[2]+=64.0
+            if pos!=self.slider.getPos():                
+                self.slider.setPos(pos)
+                self.slider['range']=(slider_range[0],slider_range[1])
+                try:
+                    self.slider['value']=float(parent['text'])
+                except:   
+                    self.slider['value']=float(parent['text'].split(": ")[1])
+                self.slider['command']=slider_cmd
+                self.slider.show()    
+                
     def setTooltip(self, tooltip, tooltip_text, guiEvent=None):
         if tooltip_text:
             tooltip.show()

@@ -84,6 +84,21 @@ class ObjectPainter():
             temp=self.currentHPR[i]%360.0            
             newHpr.append(temp)    
         self.currentHPR=newHpr
+    
+    def setHpr(self, axis, slider=None, amount=None):
+        if slider:
+            amount=slider['value']
+        if axis=='H: ':
+            i=0
+        elif axis=='P: ':
+            i=1
+        elif axis=='R: ':
+            i=2         
+        self.currentHPR[i]=amount 
+        self.normalizeHPR()
+        if self.currentObject!=None:
+            self.currentObject.setHpr(self.currentHPR[0],self.currentHPR[1],self.currentHPR[2])        
+        return axis+'%.0f'%self.currentHPR[i]    
         
     def adjustHpr(self, amount, axis):
         if axis=='H: ':
@@ -96,12 +111,19 @@ class ObjectPainter():
         self.currentHPR[i]=new 
         self.normalizeHPR()
         if self.currentObject!=None:
-            self.currentObject.setHpr(self.currentHPR[0],self.currentHPR[1],self.currentHPR[2])
-        #if self.currentLight is not None:
-        #    color=(self.currentHPR[0]/255.0,self.currentHPR[1]/255.0,self.currentHPR[2]/255.0)                    
-        #    self.lightManager.setColor(self.currentLight, color)
+            self.currentObject.setHpr(self.currentHPR[0],self.currentHPR[1],self.currentHPR[2])        
         return axis+'%.0f'%self.currentHPR[i]
-        
+    
+    def setScale(self, slider=None, amount=None):
+        if slider:
+            amount=slider['value']
+        new=min(10.0, max(0.1, amount)) 
+        self.currentScale=new
+        if self.currentObject!=None:
+            self.currentObject.setScale(self.currentScale)
+        if self.currentLight is not None:                               
+            self.lightManager.setRadius(self.currentLight, 10.0*self.currentScale)
+                
     def adjustScale(self, amount):
         new=min(10.0, max(0.1, self.currentScale+amount)) 
         self.currentScale=new
@@ -109,7 +131,15 @@ class ObjectPainter():
             self.currentObject.setScale(self.currentScale)
         if self.currentLight is not None:                               
             self.lightManager.setRadius(self.currentLight, 10.0*self.currentScale)
-            
+    
+    def setZ(self, slider=None, amount=None):
+        if slider:
+            amount=(slider['value']*20.0)-10.0
+        new=min(10.0, max(-10.0, amount)) 
+        self.currentZ=new
+        if self.currentObject!=None:
+            self.currentObject.setZ(self.currentZ)
+                    
     def adjustZ(self, amount):
         new=min(100.0, max(-100.0, self.currentZ+amount)) 
         self.currentZ=new

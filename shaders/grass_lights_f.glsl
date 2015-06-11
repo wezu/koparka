@@ -35,7 +35,7 @@ void main()
         color_tex+=texture2D(p3d_Texture0,texUV)*blend_mask.r;
         color_tex+=texture2D(p3d_Texture1,texUV)*blend_mask.g;
         color_tex+=texture2D(p3d_Texture2,texUV)*blend_mask.b;                    
-        color_tex.a-=fog_factor;
+        //color_tex.a-=fog_factor;
         if (color_tex.a<0.5)
             discard;    
         vec3 norm = normalize(normal);  
