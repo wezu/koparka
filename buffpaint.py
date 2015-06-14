@@ -50,7 +50,7 @@ class BufferPainter ():
                                                   fbp=props)
 
         self.pickingBuffer.setClearColor(VBase4())
-        self.pickingBuffer.setSort(-100)
+        self.pickingBuffer.setSort(10)
         self.pickingPeeker = self.pickingTex.peek()
         self.pickingCam = base.makeCamera(self.pickingBuffer) 
         node = self.pickingCam.node()  
