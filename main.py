@@ -147,7 +147,7 @@ class Editor (DirectObject):
             if  Filename(fname).getExtension() in ('png', 'tga', 'dds'):
                 self.brushList.append(cfg['brush_dir']+fname)
 
-        self.painter=BufferPainter(self.brushList, showBuff=False, use_gl_select=cfg['use_gl_select'])
+        self.painter=BufferPainter(self.brushList, showBuff=False)
         #BUFFER_HEIGHT
         self.painter.addCanvas(size=cfg['h_map_size'], default_tex=cfg['h_map_def'])
         #BUFFER_ATR
@@ -158,7 +158,10 @@ class Editor (DirectObject):
         self.painter.addCanvas(size=cfg['w_map_size'],  brush_shader=loader.loadShader('shaders/brush3.cg'))
         #BUFFER_ATR2=4
         self.painter.addCanvas(size=cfg['a_map_size'])
-
+        #gl selection
+        if cfg['use_gl_select']:
+            self.painter.setupGlSelect(self.painter.textures[BUFFER_HEIGHT])
+            
         #GUI
         self.gui=GuiHelper(path, cfg['theme'])
         #tooltip bar

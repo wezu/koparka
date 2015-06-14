@@ -3,7 +3,6 @@
 
 varying vec2 wpos;
 
-
 void main()
     { 
     //pack the x and y wpos into rgba    

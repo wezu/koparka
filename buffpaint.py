@@ -1,8 +1,9 @@
 from panda3d.core import *
 
 class BufferPainter ():
-    def __init__(self, brushList, showBuff=False, use_gl_select=False):    
-        self.use_gl_select=use_gl_select    
+    def __init__(self, brushList, showBuff=False):    
+        self.use_gl_select=False   
+        self.pixel=VBase4() #used by gl picking
         self.brushList=brushList        
         #make a pointer
         self.pointer = loader.loadModel("data/pointer")
@@ -32,46 +33,48 @@ class BufferPainter ():
             base.bufferViewer.toggleEnable()
             base.bufferViewer.setPosition("lrcorner")
             base.bufferViewer.setCardSize(0.2, 0.0) 
-        
-        if self.use_gl_select:
-            self.pickingTex = Texture("picking_texture")
-            props = FrameBufferProperties()
-            props.setRgbaBits(16, 16, 0, 0)
-            self.pickingBuffer = base.win.makeTextureBuffer("picking_buffer",
-                                                      1, 1,
-                                                      self.pickingTex,
-                                                      to_ram=True,
-                                                      fbp=props)
-
-            self.pickingBuffer.setClearColor(VBase4())
-            self.pickingBuffer.setSort(-100)
-            self.pickingPeeker = self.pickingTex.peek()
-            self.pickingCam = base.makeCamera(self.pickingBuffer) 
-            node = self.pickingCam.node()           
-            #lens = OrthographicLens()
-            #lens.setFilmSize(1, 1)
-            #node.setLens(lens)
-            lens = node.getLens()            
-            lens.setNear(32.0)
-            lens.setFar(2**16)
-            lens.setFov(2.0)
-            cull_bounds = lens.makeBounds()
-            lens.setFov(0.4)
-            node.setCullBounds(cull_bounds)
-            #MASK_TERRAIN_ONLY=BitMask32.bit(3)
-            node.setCameraMask(BitMask32.bit(3))
-            
-            state_np = NodePath("picking_state")
-            shaderAtt = ShaderAttrib.make()
-            shaderAtt= shaderAtt.setShader(Shader.load(Shader.SLGLSL, "shaders/pick_v.glsl","shaders/pick_f.glsl"),1)
-            state_np.setAttrib(shaderAtt, 1)
-            #state_np.setTransparency(TransparencyAttrib.MAlpha, 1)
-            node.setInitialState(state_np.getState())
-            
-            self.pixel=VBase4()
             
         taskMgr.add(self.__getMousePos, "_Editor__getMousePos")
    
+    def setupGlSelect(self, height, scale=100.0):
+        self.use_gl_select=True
+        self.pointer.setZ(0.0)
+        self.pickingTex = Texture("picking_texture")
+        props = FrameBufferProperties()
+        props.setRgbaBits(16, 16, 0, 0)
+        props.setSrgbColor(False)
+        self.pickingBuffer = base.win.makeTextureBuffer("picking_buffer",
+                                                  1, 1,
+                                                  self.pickingTex,
+                                                  to_ram=True,
+                                                  fbp=props)
+
+        self.pickingBuffer.setClearColor(VBase4())
+        self.pickingBuffer.setSort(-100)
+        self.pickingPeeker = self.pickingTex.peek()
+        self.pickingCam = base.makeCamera(self.pickingBuffer) 
+        node = self.pickingCam.node()  
+        lens = node.getLens()            
+        lens.setNear(32.0)
+        lens.setFar(2**16)
+        lens.setFov(2.0)
+        cull_bounds = lens.makeBounds()
+        lens.setFov(0.4)
+        node.setCullBounds(cull_bounds)
+        #MASK_TERRAIN_ONLY=BitMask32.bit(3)
+        node.setCameraMask(BitMask32.bit(3))
+        #node.showFrustum()
+        
+        state_np = NodePath("picking_state")
+        #shaderAtt = ShaderAttrib.make()
+        #shaderAtt= shaderAtt.setShader(Shader.load(Shader.SLGLSL, "shaders/pick_v.glsl","shaders/pick_f.glsl"),1)
+        state_np.setShader(Shader.load(Shader.SLGLSL, "shaders/pick_v.glsl","shaders/pick_f.glsl"),1)
+        state_np.setShaderInput("height", height)
+        state_np.setShaderInput("z_scale", scale)
+        state_np.setShaderInput("fubar", 0.5)
+        #state_np.setAttrib(shaderAtt, 1)        
+        node.setInitialState(state_np.getState())
+        
     def write(self, id, file, returnPNMImage=False):
         p=PNMImage(self.buffSize[id], self.buffSize[id],4)              
         base.graphicsEngine.extractTextureData(self.textures[id],base.win.getGsg())
