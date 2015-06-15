@@ -123,6 +123,7 @@
         <P>
             The position of the brush is controlled with the mouse and displayed as a vertical line with two triangle arrows (blue and red) at one end (called the 3D cursor). The brush is automatically moved to where the mouse cursor points, but not to a point on the terrain mesh but on the grid plane. 
         </P>
+        <P>In recent versions of the editor you can use a option called gl-picking - without going into to much detail, it is enough to say that using this option the 3D cursor is placed directly on the terrain mesh and not on the grid plane. It has a performance impact and it's disabled by default, to enable it change a config variable called "koparka-gl-select" to True (in the cfg.prc file).</P>
         <P>
             The shape of the brush can be selected by clicking on any of the brush shape buttons located at the  top of the window. The currently selected brush is highlighted green.
         </P>
@@ -141,6 +142,11 @@
         <P>
             The strength of the brush can be controlled with W and S keys. Holding down the W key will increase the brush strength, whereas holding down the S key will decrease it. The strength of the brush is actually its transparency, where 0.0 is totally transparent and 1.0 is opaque. Using the Raise and Lower paint modes the strength controls how fast the feature is applied, using the Level mode it sets the desired level (height). At all times the current strength of the brush is displayed as a numerical value on the second icon in the bottom left corner of the window.
         </P>
+        <P>In recent versions of the editor you can also change the size, strength and rotation of a brush by clicking the appropriate icon and adjusting a pop-up slider.</P>        
+        <DIV class="img">
+            <IMG src="img/slider.png">             
+            <H4>A pop-up slider</H4>
+        </DIV>
         <P>
             Like other brush setting it can also be set using the configuration dialog. 
         </P>  

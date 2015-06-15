@@ -71,7 +71,6 @@ class BufferPainter ():
         state_np.setShader(Shader.load(Shader.SLGLSL, "shaders/pick_v.glsl","shaders/pick_f.glsl"),1)
         state_np.setShaderInput("height", height)
         state_np.setShaderInput("z_scale", scale)
-        state_np.setShaderInput("fubar", 0.5)
         #state_np.setAttrib(shaderAtt, 1)        
         node.setInitialState(state_np.getState())
         

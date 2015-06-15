@@ -920,6 +920,8 @@ class Editor (DirectObject):
             #self.mesh.setShaderInput("z_scale", TerrainScale)
             render.setShaderInput("z_scale", TerrainScale)
             self.mesh.setShaderInput("tex_scale", TerrainTile)
+            if cfg['use_gl_select']:
+                self.painter.setupGlSelect(self.painter.textures[BUFFER_HEIGHT], TerrainScale)
             if WaterLevel>0.0:
                 self.wBuffer.setActive(True)
                 self.waterNP.show()
