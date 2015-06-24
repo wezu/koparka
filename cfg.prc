@@ -51,6 +51,9 @@ koparka-default-water-wave-tex data/ocen3.png
 #these shaders are all GLSL, if you want to use Cg... em.. don't
 koparka-shader-terrain_v shaders/terrain_v.glsl
 koparka-shader-terrain_f shaders/terrain_f.glsl
+koparka-shader-terrain_tc 
+koparka-shader-terrain_tes 
+koparka-shader-terrain_geo 
 #terrain shader that shows the walkmap
 koparka-shader-terrain_w_v shaders/terrain_v.glsl
 koparka-shader-terrain_w_f shaders/terrain_w_f.glsl

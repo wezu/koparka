@@ -34,7 +34,17 @@ def sort_nicely( l ):
     convert = lambda text: int(text) if text.isdigit() else text
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
     l.sort( key=alphanum_key )
-
+    
+def convertToPatches(model):
+    """ Converts a model to patches. This is required before being able
+    to use it with tesselation shaders """
+    #self.debug("Converting model to patches ..")
+    for node in model.find_all_matches("**/+GeomNode"):
+        geom_node = node.node()
+        num_geoms = geom_node.get_num_geoms()
+        for i in range(num_geoms):
+            geom_node.modify_geom(i).make_patches_in_place()
+            
 BUFFER_HEIGHT=0
 BUFFER_ATR=1
 BUFFER_GRASS=2
@@ -344,18 +354,23 @@ class Editor (DirectObject):
             id=self.textures_normal.index(tex)
             self.mesh.setTexture(self.mesh.findTextureStage('tex{0}n'.format(id+1)), loader.loadTexture(tex, anisotropicDegree=2), 1)
         self.mesh.reparentTo(render)
-        self.mesh.setShader(Shader.load(Shader.SLGLSL, cfg["shader_terrain_v"],cfg["shader_terrain_f"]))
+        if cfg["shader_terrain_tes"]=='':
+            self.mesh.setShader(Shader.load(Shader.SLGLSL, cfg["shader_terrain_v"],cfg["shader_terrain_f"]))
+        else:
+            convertToPatches(self.mesh)  
+            self.mesh.setShader(Shader.load(Shader.SLGLSL, cfg["shader_terrain_v"],cfg["shader_terrain_f"],"",cfg["shader_terrain_tc"],cfg["shader_terrain_tes"]))            
+            
         self.mesh.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT])
         self.mesh.setShaderInput("atr1", self.painter.textures[BUFFER_ATR])
         self.mesh.setShaderInput("atr2", self.painter.textures[BUFFER_ATR2])
         self.mesh.setShaderInput("walkmap", self.painter.textures[BUFFER_WALK])
         render.setShaderInput("z_scale", 100.0)
         self.mesh.setShaderInput("tex_scale", 16.0)
-        self.mesh.setTransparency(TransparencyAttrib.MNone)
+        self.mesh.setTransparency(TransparencyAttrib.MNone, 1)
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
         self.mesh.setBin("background", 11)
-        self.mesh.showThrough(MASK_TERRAIN_ONLY)
+        self.mesh.showThrough(MASK_TERRAIN_ONLY)        
         if cfg['shadow_terrain']==False:
             self.mesh.hide(MASK_SHADOW)
         if cfg['reflect_terrain']==False:
@@ -484,6 +499,7 @@ class Editor (DirectObject):
         self.ambientLight.setHpr(base.camera.getHpr())
         self.ambientLight.wrtReparentTo(base.camera)
         render.setShaderInput("ambient", Vec4(.001, .001, .001, 1))
+        render.setShaderInput("ambientLight", self.ambientLight)
 
         #render shadow map
         depth_map = Texture()
@@ -641,6 +657,9 @@ class Editor (DirectObject):
         #shaders
         cfg['shader_terrain_v']=ConfigVariableString('koparka-shader-terrain_v', 'shaders/terrain_v.glsl').getValue()
         cfg['shader_terrain_f']=ConfigVariableString('koparka-shader-terrain_f', 'shaders/terrain_f.glsl').getValue()
+        cfg['shader_terrain_tc']=ConfigVariableString('koparka-shader-terrain_tc', '').getValue()
+        cfg['shader_terrain_tes']=ConfigVariableString('koparka-shader-terrain_tes', '').getValue()
+        cfg['shader_terrain_geo']=ConfigVariableString('koparka-shader-terrain_geo', '').getValue()
         cfg['shader_terrain_w_v']=ConfigVariableString('koparka-shader-terrain_w_v', 'shaders/terrain_v.glsl').getValue()
         cfg['shader_terrain_w_f']=ConfigVariableString('koparka-shader-terrain_w_f', 'shaders/terrain_w_f.glsl').getValue()
         cfg['shader_editor_v']=ConfigVariableString('koparka-shader-editor_v', 'shaders/editor_v.glsl').getValue()
