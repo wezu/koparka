@@ -46,7 +46,7 @@ def loadModel(file, collision=None, animation=None):
         coll.find('**/collision').setCollideMask(BitMask32.bit(2))        
         coll.find('**/collision').setPythonTag('object', model)
         if animation:
-            model.setPythonTag('actor_files', [file,animation,coll]) 
+            model.setPythonTag('actor_files', [file,animation,collision]) 
     else:
         try:
             model.find('**/collision').setCollideMask(BitMask32.bit(2))        
@@ -67,7 +67,9 @@ def loadModel(file, collision=None, animation=None):
         
 def LoadScene(file, quad_tree, actors, terrain, textures, current_textures, grass, grass_tex, current_grass_tex, flatten=False):
     json_data=None
-    with open(file) as f:  
+    if not os.path.exists(file+'.json'):
+        return None    
+    with open(file+'.json') as f:  
         json_data=json.load(f)
     return_data=[]    
     for object in json_data:
@@ -139,13 +141,13 @@ def SaveScene(file, quad_tree, extra_data=None):
             export_data.append(item)    
     for node in quad_tree:
         for child in node.getChildren():
-            temp={}
-            if child.hasPythonTag('model_file'):
-                temp['model']=unicode(child.getPythonTag('model_file'))
-            elif child.hasPythonTag('actor_files'):
+            temp={}            
+            if child.hasPythonTag('actor_files'):
                 temp['actor']=unicode(child.getPythonTag('actor_files')[0])
                 temp['actor_anims']=child.getPythonTag('actor_files')[1]
                 temp['actor_collision']=child.getPythonTag('actor_files')[2]
+            elif child.hasPythonTag('model_file'):
+                temp['model']=unicode(child.getPythonTag('model_file'))    
             if child.hasPythonTag('light_color'):
                 c=child.getPythonTag('light_color')
                 temp['color_r']=c[0]    

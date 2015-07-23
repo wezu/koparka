@@ -24,6 +24,7 @@ from collisiongen import GenerateCollisionEgg
 from navmeshgen import GenerateNavmeshCSV
 from objectpainter import ObjectPainter
 from jsonloader import SaveScene, LoadScene
+#from sqliteloader import SaveScene, LoadScene
 from lightmanager import LightManager
 import os, sys
 import random
@@ -1264,17 +1265,17 @@ class Editor (DirectObject):
                 feedback+=file+' '
         if self.gui.flags[4]:#objects and textures used for terrain
             print "loading objects",
-            file=path+save_dir+"/"+self.gui.entry6.get()+'.json'
-            if os.path.exists(file):
-                data=LoadScene(file,
-                               self.objectPainter.quadtree,
-                               self.objectPainter.actors,
-                               self.mesh,
-                               self.textures_diffuse,
-                               self.curent_textures,
-                               self.grass,
-                               self.grass_textures,
-                               self.current_grass_textures)
+            file=path+save_dir+"/"+self.gui.entry6.get()
+            data=LoadScene(file,
+                           self.objectPainter.quadtree,
+                           self.objectPainter.actors,
+                           self.mesh,
+                           self.textures_diffuse,
+                           self.curent_textures,
+                           self.grass,
+                           self.grass_textures,
+                           self.current_grass_textures)
+            if data:               
                 i=0
                 for id in self.curent_textures:
                     self.gui.elements[self.palette_id]['buttons'][i]['frameTexture']=self.textures_diffuse[id]

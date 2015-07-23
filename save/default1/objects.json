@@ -39,7 +39,7 @@
         "position_y": 118.0,
         "position_z": 27.562742233276367,
         "props": "",
-        "rotation_h": -127.5,
+        "rotation_h": -127.50000762939453,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.1100000143051147
@@ -69,6 +69,23 @@
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.1100000143051147
+    },
+    {
+        "actor": "models_actor/_m_windmill.egg",
+        "actor_anims": {
+            "_default": "models_actor/_a_windmill_default.egg"
+        },
+        "actor_collision": "models_actor/_c_windmill",
+        "parent_index": 6,
+        "parent_name": "quadB3",
+        "position_x": 284.0,
+        "position_y": 151.0,
+        "position_z": 24.13134765625,
+        "props": "",
+        "rotation_h": 90.62999725341797,
+        "rotation_p": 0.0010000000474974513,
+        "rotation_r": 0.0010000000474974513,
+        "scale": 1.0
     },
     {
         "model": "models/trees/tree5.egg",
@@ -273,7 +290,7 @@
         "position_y": 316.0,
         "position_z": 24.190000534057617,
         "props": "",
-        "rotation_h": -127.5,
+        "rotation_h": -127.50000762939453,
         "rotation_p": 0.0009999999310821295,
         "rotation_r": 0.0010000000474974513,
         "scale": 1.4800000190734863
@@ -286,7 +303,7 @@
         "position_y": 355.5,
         "position_z": 24.329999923706055,
         "props": "{'startpos':1,'coll_mask':0, 'hide':1}",
-        "rotation_h": -127.5,
+        "rotation_h": -127.50000762939453,
         "rotation_p": 0.0009999999310821295,
         "rotation_r": 0.0010000000474974513,
         "scale": 1.9800000190734863
@@ -390,7 +407,7 @@
         "position_y": 420.79559326171875,
         "position_z": 24.705883026123047,
         "props": "",
-        "rotation_h": 56.45706558227539,
+        "rotation_h": 56.457069396972656,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.0
@@ -418,7 +435,7 @@
         "props": "",
         "rotation_h": 128.13156127929688,
         "rotation_p": 6.820155704190256e-06,
-        "rotation_r": 2.0355550198972866e-13,
+        "rotation_r": 1.3814622189245451e-13,
         "scale": 1.0
     },
     {
@@ -431,7 +448,7 @@
         "props": "",
         "rotation_h": 139.0874786376953,
         "rotation_p": -8.395628356083762e-06,
-        "rotation_r": 2.0355550198972866e-13,
+        "rotation_r": 1.4831088831004924e-13,
         "scale": 1.0
     },
     {
@@ -494,7 +511,7 @@
         "position_y": 466.5,
         "position_z": 24.432950973510742,
         "props": "",
-        "rotation_h": 125.0,
+        "rotation_h": 125.00000762939453,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 1.1100000143051147
@@ -559,7 +576,7 @@
         "position_y": 443.5,
         "position_z": 21.255882263183594,
         "props": "",
-        "rotation_h": 17.49999237060547,
+        "rotation_h": 17.499996185302734,
         "rotation_p": 0.0,
         "rotation_r": 0.0,
         "scale": 0.8700000047683716
