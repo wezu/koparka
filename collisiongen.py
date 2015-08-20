@@ -1,5 +1,5 @@
 from panda3d.core import PNMImage
-import os, sys
+from direct.stdpy.file import file
 
 def GenerateCollisionEgg(heightmap, output, input='data/collision3k.egg', scale=100.0):
     #heightmap=PNMImage()

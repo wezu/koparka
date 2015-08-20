@@ -1,6 +1,7 @@
 from panda3d.core import *
 import json
-import os
+#import os
+from direct.stdpy.file import exists, open
 from direct.actor.Actor import Actor
 from vfx_loader import createEffect
 
@@ -24,7 +25,7 @@ def loadModel(file, collision=None, animation=None):
             model.setPythonTag('hasLight', True)
         if geom.hasTag('particle'):
             file='particle/'+geom.getTag('particle')
-            if os.path.exists(file):
+            if exists(file):
                 with open(file) as f:  
                     values=json.load(f)
                 p=createEffect(values)                
@@ -67,7 +68,7 @@ def loadModel(file, collision=None, animation=None):
         
 def LoadScene(file, quad_tree, actors, terrain, textures, current_textures, grass, grass_tex, current_grass_tex, flatten=False):
     json_data=None
-    if not os.path.exists(file+'.json'):
+    if not exists(file+'.json'):
         return None    
     with open(file+'.json') as f:  
         json_data=json.load(f)
