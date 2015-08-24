@@ -4,7 +4,7 @@ from direct.showbase.DirectObject import DirectObject
 from direct.interval.IntervalGlobal import *
 from panda3d.ai import *
 import json
-import os
+#import os
 from ast import literal_eval as astEval
 
 MASK_WATER=BitMask32.bit(1)

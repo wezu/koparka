@@ -15,7 +15,9 @@ from direct.showbase.DirectObject import DirectObject
 from direct.gui.DirectGui import *
 import json
 from ast import literal_eval as astEval
-import os
+from os import makedirs
+from os.path import dirname
+from direct.stdpy.file import listdir, exists
 
 def clamp(x, min_val=0.0, max_val=1.0):
     return min(max_val, max(min_val, float(x))) 
@@ -69,7 +71,7 @@ class Editor (DirectObject):
         self.saveDir="particle/effect"        
         i=0
         p=self.saveDir
-        while(os.path.exists(p)):
+        while(exists(p)):
             p=self.saveDir+str(i)
             i+=1
         self.saveDir=p
@@ -666,7 +668,7 @@ class Editor (DirectObject):
         self.shapePickerFrame.setPos(_pos2d(base.win.getXSize()/2-256, 0))
         self.shapePickerButtons=[]
         self.shapeTex=[]
-        dirList=os.listdir(Filename("tex/").toOsSpecific())
+        dirList=listdir(Filename("tex/").toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('png', 'tga', 'dds'):
                 self.shapeTex.append("tex/"+fname)
@@ -691,10 +693,10 @@ class Editor (DirectObject):
 
     def export(self, event=None):
         self.saveDir=self.saveEntry.get()
-        dir=os.path.dirname(self.saveDir)
+        dir=dirname(self.saveDir)
         print dir
-        if not os.path.exists(dir):
-           os.makedirs(dir)   
+        if not exists(dir):
+           makedirs(dir)   
         self.values['color_gradient']=self.saveDir+"_color.png"
         self.values['size_gradient']=self.saveDir+"_size.png"
         self.values['shape_gradient']=self.saveDir+"_shape.png"

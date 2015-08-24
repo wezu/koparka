@@ -6,7 +6,6 @@ if appRunner:
     path=appRunner.p3dFilename.getDirname()+'/'
 else:
     path=""
-
 from panda3d.core import WindowProperties
 wp = WindowProperties.getDefault()
 wp.setOrigin(-2,-2)
@@ -26,7 +25,9 @@ from objectpainter import ObjectPainter
 from jsonloader import SaveScene, LoadScene
 #from sqliteloader import SaveScene, LoadScene
 from lightmanager import LightManager
-import os, sys
+import sys
+from os import makedirs
+from direct.stdpy.file import listdir, exists, isdir
 import random
 import re
 
@@ -153,7 +154,7 @@ class Editor (DirectObject):
 
         #painter
         self.brushList=[]
-        dirList=os.listdir(Filename(path+cfg['brush_dir']).toOsSpecific())
+        dirList=listdir(Filename(path+cfg['brush_dir']).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('png', 'tga', 'dds'):
                 self.brushList.append(cfg['brush_dir']+fname)
@@ -186,7 +187,7 @@ class Editor (DirectObject):
             id+=1
         #texture palette
         self.palette_id=self.gui.addToolbar(self.gui.TopRight, (80, 512),icon_size=80, x_offset=-80, y_offset=0, hover_command=self.onToolbarHover)
-        dirList=os.listdir(Filename(path+cfg['dif_tex_dir']).toOsSpecific())
+        dirList=listdir(Filename(path+cfg['dif_tex_dir']).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('dds'):
                 self.textures_diffuse.append(fname)
@@ -217,7 +218,7 @@ class Editor (DirectObject):
 
         #grass 'palette'
         self.grass_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (80, 512),icon_size=80, x_offset=-80, y_offset=0, hover_command=self.onToolbarHover)
-        dirList=os.listdir(Filename(path+cfg['grs_tex_dir']).toOsSpecific())
+        dirList=listdir(Filename(path+cfg['grs_tex_dir']).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('dds', 'png'):
                 self.grass_textures.append(cfg['grs_tex_dir']+fname)
@@ -262,26 +263,26 @@ class Editor (DirectObject):
         self.collision_toolbar_id=self.gui.addScrolledToolbar(self.gui.TopRight, 192,(192, 6000), x_offset=-192, y_offset=128, hover_command=self.onToolbarHover, color=(0,0,0, 0.5))
 
         #get models
-        dirList=os.listdir(Filename(path+cfg['model_dir']).toOsSpecific())
+        dirList=listdir(Filename(path+cfg['model_dir']).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('egg', 'bam'):
                 self.gui.addListButton(self.object_toolbar_id, fname[:-4], command=self.setObject, arg=[cfg['model_dir']+fname])
-            elif os.path.isdir(path+cfg['model_dir']+fname):
+            elif isdir(path+cfg['model_dir']+fname):
                 self.gui.addListButton(self.multi_toolbar_id, fname, command=self.setRandomObject, arg=[cfg['model_dir']+fname+"/"])
         #get walls
-        dirList=os.listdir(Filename(path+cfg['walls_dir']).toOsSpecific())
+        dirList=listdir(Filename(path+cfg['walls_dir']).toOsSpecific())
         for fname in dirList:
-            if os.path.isdir(path+cfg['walls_dir']+fname):
+            if isdir(path+cfg['walls_dir']+fname):
                 self.gui.addListButton(self.wall_toolbar_id, fname, command=self.setRandomObject, arg=[cfg['walls_dir']+fname+"/"])
         #get actors
-        dirList=os.listdir(Filename(path+cfg['actors_dir']).toOsSpecific())
+        dirList=listdir(Filename(path+cfg['actors_dir']).toOsSpecific())
         for fname in dirList:
             if Filename(fname).getExtension() in ('egg', 'bam') and fname.startswith('_m_'):
                 self.gui.addListButton(self.actor_toolbar_id, fname[3:-4], command=self.setActor, arg=[cfg['actors_dir']+fname])
         #get collision-models
         #these hava a part named 'editor', when loading these 'editor' parts should be hidden
         #appart from that collision-models are just like normal models
-        dirList=os.listdir(Filename(path+cfg['coll_dir']).toOsSpecific())
+        dirList=listdir(Filename(path+cfg['coll_dir']).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('egg', 'bam'):
                 self.gui.addListButton(self.collision_toolbar_id, fname[:-4], command=self.setObject, arg=[cfg['coll_dir']+fname])
@@ -1078,7 +1079,7 @@ class Editor (DirectObject):
         if model_path==None:
             model_path=self.last_model_path
         models=[]
-        dirList=os.listdir(Filename(model_path).toOsSpecific())
+        dirList=listdir(Filename(model_path).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('egg', 'bam'):
                 models.append(model_path+fname)
@@ -1089,7 +1090,7 @@ class Editor (DirectObject):
         if model_path==None:
             model_path=self.last_model_path
         models=[]
-        dirList=os.listdir(Filename(model_path).toOsSpecific())
+        dirList=listdir(Filename(model_path).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('egg', 'bam'):
                 models.append(model_path+fname)
@@ -1105,7 +1106,7 @@ class Editor (DirectObject):
         if model_path==None:
             model_path=self.last_model_path
         models=[]
-        dirList=os.listdir(Filename(model_path).toOsSpecific())
+        dirList=listdir(Filename(model_path).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('egg', 'bam'):
                 models.append(model_path+fname)
@@ -1232,7 +1233,7 @@ class Editor (DirectObject):
         if self.gui.flags[0]:#height map
             print "loading height map...",
             file=path+save_dir+"/"+self.gui.entry2.get()+'.png'
-            if os.path.exists(file):
+            if exists(file):
                 self.painter.paintPlanes[BUFFER_HEIGHT].setTexture(loader.loadTexture(file))
                 print "done"
             else:
@@ -1241,14 +1242,14 @@ class Editor (DirectObject):
         if self.gui.flags[1]:#atr map, both
             print "loading detail map...",
             file=path+save_dir+"/"+self.gui.entry3.get()+'0.png'
-            if os.path.exists(file):
+            if exists(file):
                 self.painter.paintPlanes[BUFFER_ATR].setTexture(loader.loadTexture(file))
                 print "ok...",
             else:
                 print "FILE NOT FOUND!"
                 feedback+=file+' '
             file=path+save_dir+"/"+self.gui.entry3.get()+'1.png'
-            if os.path.exists(file):
+            if exists(file):
                 self.painter.paintPlanes[BUFFER_ATR2].setTexture(loader.loadTexture(file))
                 print "done"
             else:
@@ -1257,7 +1258,7 @@ class Editor (DirectObject):
         if self.gui.flags[2]:#grass map
             print "loading grass map...",
             file=path+save_dir+"/"+self.gui.entry5.get()+'.png'
-            if os.path.exists(file):
+            if exists(file):
                 self.painter.paintPlanes[BUFFER_GRASS].setTexture(loader.loadTexture(file))
                 print "done"
             else:
@@ -1330,7 +1331,7 @@ class Editor (DirectObject):
         if self.gui.flags[5]:#collision
             print "loading collision mesh...",
             file=path+save_dir+"/"+self.gui.entry7.get()+'.egg'
-            if os.path.exists(file):
+            if exists(file):
                 if self.collision_mesh:
                     self.collision_mesh.removeNode()
                 self.collision_mesh=loader.loadModel(file)
@@ -1343,7 +1344,7 @@ class Editor (DirectObject):
         if self.gui.flags[6]:#nav map
             print "loading navigation map...",
             file=path+save_dir+"/"+self.gui.entry8.get()+".png"
-            if os.path.exists(file):
+            if exists(file):
                 self.painter.paintPlanes[BUFFER_WALK].setTexture(loader.loadTexture(file))
                 print "done"
             else:
@@ -1357,7 +1358,7 @@ class Editor (DirectObject):
 
     def save(self, override, guiEvent=None):
         save_dir=path+self.gui.entry1.get()
-        if os.path.exists(path+save_dir):
+        if exists(path+save_dir):
             if override=="ASK":
                 self.gui.yesNoDialog(text=save_dir+" already exists! \nOverride files?", command=self.save,arg=[])
                 self.gui.SaveLoadFrame.hide()
@@ -1367,7 +1368,7 @@ class Editor (DirectObject):
                 self.hideSaveMenu()
                 return
         else:
-            os.makedirs(Filename(path+save_dir).toOsSpecific())
+            makedirs(Filename(path+save_dir).toOsSpecific())
         if self.gui.flags[0]:#height map
             print "saving height map...",
             self.painter.write(BUFFER_HEIGHT, path+save_dir+"/"+self.gui.entry2.get()+'.png')
@@ -1799,5 +1800,7 @@ class Editor (DirectObject):
     def setGrassMapColor(self, color, event=None):
         self.painter.brushes[BUFFER_GRASS].setColor(color[0],color[1],color[2],self.painter.brushAlpha)
 
-app=Editor()
-base.run()
+if __name__ == "__main__":
+    app=Editor()
+    base.run()
+

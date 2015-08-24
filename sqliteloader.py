@@ -1,6 +1,7 @@
 from panda3d.core import *
 import sqlite3
-import os
+#import os
+from direct.stdpy.file import listdir, exists
 from direct.actor.Actor import Actor
 from vfx_loader import createEffect
 
@@ -10,7 +11,7 @@ def findAnims(model):
     anim_name='_a_'+temp[1][:-4]
     name_len=len(anim_name)
     anim_dict={}
-    dirList=os.listdir(Filename(path).toOsSpecific())
+    dirList=listdir(Filename(path).toOsSpecific())
     for fname in dirList:                        
         if Filename(fname).getExtension() in ('egg', 'bam'): 
             if fname.startswith(anim_name):
@@ -37,7 +38,7 @@ def loadModel(file, collision=None, animation=None):
             model.setPythonTag('hasLight', True)
         if geom.hasTag('particle'):
             file='particle/'+geom.getTag('particle')
-            if os.path.exists(file):
+            if exists(file):
                 with open(file) as f:  
                     values=json.load(f)
                 p=createEffect(values)                

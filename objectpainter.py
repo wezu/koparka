@@ -2,8 +2,7 @@ from panda3d.core import *
 from direct.actor.Actor import Actor
 #from direct.particles.ParticleEffect import ParticleEffect
 from jsonloader import loadModel
-import os
-
+from direct.stdpy.file import listdir
 
 class ObjectPainter():
     def __init__(self, lightManager): 
@@ -162,7 +161,7 @@ class ObjectPainter():
         anim_name='_a_'+temp[1][:-4]
         name_len=len(anim_name)
         anim_dict={}
-        dirList=os.listdir(Filename(path).toOsSpecific())
+        dirList=listdir(Filename(path).toOsSpecific())
         for fname in dirList:                        
             if Filename(fname).getExtension() in ('egg', 'bam'): 
                 if fname.startswith(anim_name):

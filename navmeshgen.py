@@ -1,4 +1,5 @@
 from panda3d.core import PNMImage
+from direct.stdpy.file import open
 
 def GetNeighbors(pos, map, map_size, world_map_size=512.0):   
     node_size=world_map_size/map_size
