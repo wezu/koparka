@@ -1,3 +1,4 @@
+from __future__ import print_function
 from panda3d.core import PNMImage
 from direct.stdpy.file import file
 
@@ -6,9 +7,17 @@ def GenerateCollisionEgg(heightmap, output, input='data/collision3k.egg', scale=
     #heightmap.read(image)
     input_egg=file(input, 'r')
     output_egg=file(output, 'w')
-    isVertexPos=False    
-    print "Generating mesh, this may take a while..."
+    isVertexPos=False  
+    print("Generating mesh, this may take a while...", end="")
+    i=1
     for line in input_egg.readlines():
+        i+=1
+        if i%20000==0:
+            try:
+                base.graphicsEngine.renderFrame()
+                print('.', end="")
+            except:
+                pass
         if isVertexPos:
             vertex=line.split()
             x= int(float(vertex[0]))
@@ -32,3 +41,4 @@ def GenerateCollisionEgg(heightmap, output, input='data/collision3k.egg', scale=
                 output_egg.write(line)
     output_egg.close()   
     input_egg.close()
+    print("done!")

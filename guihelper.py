@@ -38,6 +38,22 @@ class GuiHelper():
         self.Center=pixel2d.attachNewNode('Center')
         self.updateBaseNodes()
         
+        self.wait=DirectFrame(frameSize=_rec2d(512,256),
+                                frameColor=(1,1,1, 1),
+                                frameTexture=self.theme+'/dialog.png',
+                                text='Please wait...',
+                                text_scale=32,
+                                text_wordwrap=15,
+                                text_font=self.fontBig,
+                                text_pos=(-256,160),
+                                text_fg=(1,1,1,1),
+                                text_align=TextNode.ACenter,
+                                parent=self.Center)
+        _resetPivot(self.wait)
+        self.wait.setPos(_pos2d(-256, -128))        
+        self.wait.setTransparency(TransparencyAttrib.MDual)
+        self.wait.hide()
+        
         self.dialog=DirectFrame(frameSize=_rec2d(512,256),
                                 frameColor=(1,1,1, 1),
                                 frameTexture=self.theme+'/dialog.png',
@@ -267,7 +283,7 @@ class GuiHelper():
         #so the hack...well it looks like it won't be as 'propre' as advertised         
         #labels=['Sky Color:','Fog Color:','Cloud Color:','Cloud Tile:','Cloud Speed:','Horizont:','Water Tile:','Water Speed:', 'Water Wave:','Water Level:\n(-1 to disable)']
         labels=['Terrain Tile:', 'Terrain Scale:', 'Sky Tile:','Cloud Speed:', 'Wave Tile:','Wave Height:','Wave XY Move:' ,'Water Tile:','Water Speed:', 'Water Level:\n(-1 to disable)']
-        self.SkySeaOptions=[16.0, 100.0,            8.0,       0.008,            6.0,         1.0,           [0.005, 0.002], 20.0,         0.01,            30.0]
+        self.SkySeaOptions=[16.0, 100.0,            8.0,       0.008,            6.0,         1.0,           [0.005, 0.002], 20.0,         0.01,            -1]
         text=""
         for item in labels:
             text+=item+'\n'

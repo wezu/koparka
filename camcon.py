@@ -61,7 +61,7 @@ class CameraControler (DirectObject):
         #self.waterCamera=None
         #self.wPlane=None
         
-        taskMgr.add(self.update, "camcon_update", sort=45)
+        taskMgr.add(self.update, "camcon_update", sort=-10)
         
     def zoom(self, t):
         base.camera.setY(base.camera, t)
@@ -85,8 +85,8 @@ class CameraControler (DirectObject):
         #Sequence(Wait(0.1), Func(base.win.movePointer, 0, base.win.getXSize()/2, base.win.getYSize()/2)).start()
     
     def rotate_control(self, h, p):
-        LerpFunc(self._rotateCamH,fromData=0,toData=h, duration=.2).start()
-        LerpFunc(self._rotateCamP,fromData=0,toData=p, duration=.2).start()        
+        LerpFunc(self._rotateCamH,fromData=0,toData=h, duration=.1).start()
+        LerpFunc(self._rotateCamP,fromData=0,toData=p, duration=.1).start()        
         #Sequence(Wait(0.1), Func(base.win.movePointer, 0, base.win.getXSize()/2, base.win.getYSize()/2)).start()
         
     def update(self, task):
@@ -99,7 +99,7 @@ class CameraControler (DirectObject):
             if self.keyMap['pan']:
                 base.win.movePointer(0, base.win.getXSize()/2, base.win.getYSize()/2)
                 if not self.skip:
-                    if abs(deltaX)+abs(deltaY)>0.01:
+                    if abs(deltaX)+abs(deltaY)>0.001:
                         self.move_control(deltaX, deltaY)
                         #base.win.movePointer(0, base.win.getXSize()/2, base.win.getYSize()/2)
                         #self.cameraNode.setX(self.cameraNode, 2.0*deltaX*self.mouseSpeed)

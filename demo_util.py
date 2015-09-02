@@ -159,7 +159,7 @@ def LoadScene(path, file, quad_tree, actors, terrain, grass, flatten=False):
         elif 'model' in object:
             model=loadModel(path+object['model'])
         elif 'actor' in object:
-            model=loadModel(path+object['actor'],path+object['actor_collision'],path+object['actor_anims'])
+            model=loadModel(path+object['actor'],path+object['actor_collision'],object['actor_anims'])
             actors.append(model)
         else:
             return_data.append(object)

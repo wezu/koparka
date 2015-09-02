@@ -145,7 +145,8 @@ class Editor (DirectObject):
         self.textures_normal=[]
         self.grass_textures=[]
         self.current_grass_textures=[0,1,2]
-
+        self.last_object_index=0
+        
         #camera control
         base.disableMouse()
         self.controler=CameraControler(cfg)
@@ -265,27 +266,30 @@ class Editor (DirectObject):
         #get models
         dirList=listdir(Filename(path+cfg['model_dir']).toOsSpecific())
         for fname in dirList:
-            if  Filename(fname).getExtension() in ('egg', 'bam'):
-                self.gui.addListButton(self.object_toolbar_id, fname[:-4], command=self.setObject, arg=[cfg['model_dir']+fname])
+            if  Filename(fname).getExtension() in ('egg', 'bam', 'pz'):
+                model_name=str(Filename(fname).getBasenameWoExtension()).strip(".egg")
+                self.gui.addListButton(self.object_toolbar_id, model_name, command=self.setObject, arg=[cfg['model_dir']+model_name])
             elif isdir(path+cfg['model_dir']+fname):
-                self.gui.addListButton(self.multi_toolbar_id, fname, command=self.setRandomObject, arg=[cfg['model_dir']+fname+"/"])
+                self.gui.addListButton(self.multi_toolbar_id, fname, command=self.setNextObject, arg=[cfg['model_dir']+fname+"/"])
         #get walls
         dirList=listdir(Filename(path+cfg['walls_dir']).toOsSpecific())
         for fname in dirList:
             if isdir(path+cfg['walls_dir']+fname):
-                self.gui.addListButton(self.wall_toolbar_id, fname, command=self.setRandomObject, arg=[cfg['walls_dir']+fname+"/"])
+                self.gui.addListButton(self.wall_toolbar_id, fname, command=self.setNextObject, arg=[cfg['walls_dir']+fname+"/"])
         #get actors
         dirList=listdir(Filename(path+cfg['actors_dir']).toOsSpecific())
         for fname in dirList:
-            if Filename(fname).getExtension() in ('egg', 'bam') and fname.startswith('_m_'):
-                self.gui.addListButton(self.actor_toolbar_id, fname[3:-4], command=self.setActor, arg=[cfg['actors_dir']+fname])
+            if Filename(fname).getExtension() in ('egg', 'bam', 'pz') and fname.startswith('_m_'):
+                model_name=str(Filename(fname).getBasenameWoExtension()).strip(".egg")
+                self.gui.addListButton(self.actor_toolbar_id, model_name[3:], command=self.setActor, arg=[cfg['actors_dir']+model_name])
         #get collision-models
         #these hava a part named 'editor', when loading these 'editor' parts should be hidden
         #appart from that collision-models are just like normal models
         dirList=listdir(Filename(path+cfg['coll_dir']).toOsSpecific())
         for fname in dirList:
-            if  Filename(fname).getExtension() in ('egg', 'bam'):
-                self.gui.addListButton(self.collision_toolbar_id, fname[:-4], command=self.setObject, arg=[cfg['coll_dir']+fname])
+            if  Filename(fname).getExtension() in ('egg', 'bam', 'pz'):
+                model_name=str(Filename(fname).getBasenameWoExtension()).strip(".egg")
+                self.gui.addListButton(self.collision_toolbar_id,  model_name, command=self.setObject, arg=[cfg['coll_dir']+model_name])
         #object-mode toolbar
         self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 64), icon_size=64, x_offset=-192, y_offset=0, hover_command=self.onToolbarHover)
         self.gui.addButton(self.mode_toolbar_id, cfg['theme']+'/icon_object.png', self.setObjectMode,[OBJECT_MODE_ONE],tooltip=self.tooltip, tooltip_text='Place single objects')
@@ -571,6 +575,7 @@ class Editor (DirectObject):
         self.accept(cfg['key_alpha_down'], self.keyMap.__setitem__, ['alpha_down', True])
         self.accept(cfg['key_alpha_down']+'-up', self.keyMap.__setitem__, ['alpha_down', False])
         self.accept(cfg['key_next'], self.nextModel)
+        self.accept(cfg['key_prev'], self.previousModel)
         self.accept(cfg['key_mode_height'], self.setMode,[MODE_HEIGHT,'hotkey'])
         self.accept(cfg['key_mode_tex'], self.setMode,[MODE_TEXTURE,'hotkey'])
         self.accept(cfg['key_mode_grass'], self.setMode,[MODE_GRASS,'hotkey'])
@@ -590,7 +595,7 @@ class Editor (DirectObject):
         self.setBrush(0)
         self.painter.brushes[BUFFER_ATR].setColor(0,0,0,1.0)
         self.painter.brushes[BUFFER_ATR2].setColor(0,0,1,1.0)
-        self.setTime(14.0)
+        self.setTime(12.0)
         #tasks
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task', sort=46)
         #self.clock=12.0
@@ -681,6 +686,7 @@ class Editor (DirectObject):
         cfg['key_alpha_up']=ConfigVariableString('koparka-key-alpha-up','w').getValue()
         cfg['key_alpha_down']=ConfigVariableString('koparka-key-alpha-down','s').getValue()
         cfg['key_next']=ConfigVariableString('koparka-key-next','tab').getValue()
+        cfg['key_prev']=ConfigVariableString('koparka-key-prev','backspace').getValue()
         cfg['key_mode_height']=ConfigVariableString('koparka-key-height-mode','f1').getValue()
         cfg['key_mode_tex']=ConfigVariableString('koparka-key-texture-mode','f2').getValue()
         cfg['key_mode_grass']=ConfigVariableString('koparka-key-grass-mode','f3').getValue()
@@ -743,9 +749,9 @@ class Editor (DirectObject):
         p1=self.skyimg.getPixel(x1, 0)
         p2=self.skyimg.getPixel(x2, 0)
         sunColor=self.blendPixels(p1, p2, blend)
-        sunColor[0]=sunColor[0]*1.5
-        sunColor[1]=sunColor[1]*1.5
-        sunColor[2]=sunColor[2]*1.5
+        sunColor[0]=sunColor[0]*1.3
+        sunColor[1]=sunColor[1]*1.3
+        sunColor[2]=sunColor[2]*1.3
         p1=self.skyimg.getPixel(x1, 1)
         p2=self.skyimg.getPixel(x2, 1)
         skyColor=self.blendPixels(p1, p2, blend)
@@ -1081,42 +1087,61 @@ class Editor (DirectObject):
         models=[]
         dirList=listdir(Filename(model_path).toOsSpecific())
         for fname in dirList:
-            if  Filename(fname).getExtension() in ('egg', 'bam'):
-                models.append(model_path+fname)
+            if  Filename(fname).getExtension() in ('egg', 'bam', 'pz'):
+                model_name=str(Filename(fname).getBasenameWoExtension()).strip(".egg")
+                models.append(model_path+model_name)
         self.objectPainter.loadWall(random.choice(models))
         self.last_model_path=model_path
 
-    def nextWall(self, model_path=None):
+    def nextWall(self, model_path=None, direction=1):
         if model_path==None:
             model_path=self.last_model_path
+        else:
+            self.last_object_index=-1    
         models=[]
         dirList=listdir(Filename(model_path).toOsSpecific())
         for fname in dirList:
-            if  Filename(fname).getExtension() in ('egg', 'bam'):
-                models.append(model_path+fname)
-        if self.objectPainter.currentWall:
-            self.objectPainter.loadWall(random.choice(models), True)
+            if  Filename(fname).getExtension() in ('egg', 'bam', 'pz'):
+                model_name=str(Filename(fname).getBasenameWoExtension()).strip(".egg")
+                models.append(model_path+model_name)
+        if self.last_object_index+direction < len(models):  
+            self.last_object_index+=direction                
         else:
-            self.objectPainter.loadModel(random.choice(models))
+            self.last_object_index=0            
+        #print self.last_object_index        
+                
+        if self.objectPainter.currentWall:
+            self.objectPainter.loadWall(models[self.last_object_index], True)
+        else:
+            self.objectPainter.loadModel(models[self.last_object_index])
         self.last_model_path=model_path
 
-    def setRandomObject(self, model_path=None, id=None, guiEvent=None):
+    def setNextObject(self, model_path=None, direction=1, id=None, guiEvent=None):
         #if id!=None:
         #    self.gui.blink(self.multi_toolbar_id, id)
         if model_path==None:
             model_path=self.last_model_path
+        else:    
+            self.last_object_index=-1 
         models=[]
         dirList=listdir(Filename(model_path).toOsSpecific())
         for fname in dirList:
-            if  Filename(fname).getExtension() in ('egg', 'bam'):
-                models.append(model_path+fname)
-        self.objectPainter.loadModel(random.choice(models))
+            if  Filename(fname).getExtension() in ('egg', 'bam', 'pz'):
+                model_name=str(Filename(fname).getBasenameWoExtension()).strip(".egg")
+                models.append(model_path+model_name)                         
+                
+        if self.last_object_index+direction < len(models):  
+            self.last_object_index+=direction                
+        else:
+            self.last_object_index=0            
+        #print self.last_object_index        
+        self.objectPainter.loadModel(models[self.last_object_index])                
         #self.objectPainter.adjustHpr(random.randint(0,72)*5,axis='H: ')
         #self.objectPainter.adjustScale(random.randint(-1,1)*0.05)
         #self.heading_info['text']=self.objectPainter.adjustHpr(0,self.hpr_axis)
         #self.size_info['text']='%.2f'%self.objectPainter.currentScale
-        self.last_model_path=model_path
-
+        self.last_model_path=model_path        
+        
     def setActor(self, model, id=None, guiEvent=None):
         if id!=None:
             #self.gui.blink(self.object_toolbar_id, id)
@@ -1211,7 +1236,7 @@ class Editor (DirectObject):
         self.setMode(self.mode)
 
     def CreateGrassTile(self, uv_offset, pos, parent, fogcenter=Vec3(0,0,0), count=256):
-        grass=loader.loadModel("data/grass_model_lo")
+        grass=loader.loadModel("data/grass_big")
         #grass.setTwoSided(True)
         grass.setTransparency(TransparencyAttrib.MBinary, 1)
         grass.reparentTo(parent)
@@ -1492,7 +1517,7 @@ class Editor (DirectObject):
                     self.props.set(self.objectPainter.currentObject.getPythonTag('props'))
             elif self.object_mode==OBJECT_MODE_MULTI:
                 self.objectPainter.drop(props)
-                self.setRandomObject()
+                self.setNextObject()
             elif self.object_mode==OBJECT_MODE_WALL:
                 self.objectPainter.drop(props)
                 self.objectPainter.currentObject=render.attachNewNode('temp')
@@ -1678,27 +1703,40 @@ class Editor (DirectObject):
 
     def genCollision(self, yes, file, guiEvent=None):
         if yes:
+            if guiEvent!=None:
+                self.gui.dialog.hide()
+                self.gui.wait.show() 
+                base.graphicsEngine.renderFrame()
+                base.graphicsEngine.renderFrame()
             heightmap=PNMImage(self.painter.buffSize[BUFFER_HEIGHT], self.painter.buffSize[BUFFER_HEIGHT],4)
             base.graphicsEngine.extractTextureData(self.painter.textures[BUFFER_HEIGHT],base.win.getGsg())
             self.painter.textures[BUFFER_HEIGHT].store(heightmap)
             GenerateCollisionEgg(heightmap, file, input='data/collision80k.egg',scale=self.gui.SkySeaOptions[1] )
             if self.collision_mesh:
                 self.collision_mesh.removeNode()
+            print "Loading mesh..."    
             self.collision_mesh=loader.loadModel(file, noCache=True)
             self.collision_mesh.reparentTo(render)
             self.collision_mesh.setCollideMask(BitMask32.bit(1))
         if guiEvent!=None:
             self.gui.dialog.hide()
             if yes:
+                self.gui.wait.hide()
                 self.gui.okDialog(text="Collision mesh saved to:\n"+file, command=self.hideDialog)
-
+        
     def nextModel(self):
         if self.mode==MODE_OBJECT:
             if self.object_mode==OBJECT_MODE_MULTI:
-                self.setRandomObject()
+                self.setNextObject()
             if self.object_mode==OBJECT_MODE_WALL:
                 self.nextWall()
-
+    def previousModel(self):
+        if self.mode==MODE_OBJECT:
+            if self.object_mode==OBJECT_MODE_MULTI:
+                self.setNextObject(direction=-1)
+            if self.object_mode==OBJECT_MODE_WALL:
+                self.nextWall(direction=-1)
+                
     def update(self):
         if self.mode==MODE_HEIGHT:
             if self.keyMap['paint']:

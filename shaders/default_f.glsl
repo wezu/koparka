@@ -74,7 +74,7 @@ void main()
                 { 
                 E = normalize(-vpos.xyz);
                 R = reflect(-L.xyz, N.xyz);
-                light_spec=dot(light_color[i].rgb, vec3(1.0, 1.0, 1.0))*0.33;
+                light_spec=dot(light_color[i].rgb, vec3(1.0, 1.0, 1.0));//*0.33;
                 spec+=pow( max(dot(R, E), 0.0),200.0)*gloss*att*light_spec;
                 color += light_color[i] * NdotL*att;
                 }

@@ -6,13 +6,13 @@ win-size 1024 768
 show-frame-rate-meter  1
 sync-video 0
 framebuffer-srgb true
-default-texture-color-space sRGB
-textures-srgb true
+#default-texture-color-space sRGB
+#textures-srgb true
 texture-minfilter  mipmap
 texture-magfilter  linear
 #show-buffers 1
 #undecorated 1
-pstats-gpu-timing true
+#pstats-gpu-timing true
 
 #koparka specific config
 #koparka-filters
@@ -84,6 +84,7 @@ koparka-key-scale-down a
 koparka-key-alpha-up w
 koparka-key-alpha-down s
 koparka-key-next tab
+koparka-key-prev backspace
 koparka-key-height-mode f1
 koparka-key-texture-mode f2
 koparka-key-grass-mode f3

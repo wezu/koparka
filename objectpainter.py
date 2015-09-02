@@ -86,7 +86,7 @@ class ObjectPainter():
     
     def setHpr(self, axis, slider=None, amount=None):
         if slider:
-            amount=slider['value']
+            amount=int(slider['value'])
         if axis=='H: ':
             i=0
         elif axis=='P: ':
@@ -155,18 +155,17 @@ class ObjectPainter():
             self.currentWall.removeNode()
             self.currentWall=None
 
-    def loadActor(self, model):
-        temp=model.split('_m_')
-        path=temp[0]
-        anim_name='_a_'+temp[1][:-4]
-        name_len=len(anim_name)
+    def loadActor(self, model):        
+        dir_name=Filename(model).getDirname()+'/'
+        model_name=Filename(model).getBasename()[3:]
+        name_len=len(model_name)        
         anim_dict={}
-        dirList=listdir(Filename(path).toOsSpecific())
+        dirList=listdir(Filename(dir_name).toOsSpecific())
         for fname in dirList:                        
             if Filename(fname).getExtension() in ('egg', 'bam'): 
-                if fname.startswith(anim_name):
-                    anim_dict[fname[name_len:-4]]=path+fname
-        actor=loadModel(model,path+"_c_"+temp[1][:-4],anim_dict)            
+                if fname.startswith("_a_"+model_name):
+                    anim_dict[fname[4+name_len:-4]]=dir_name+fname[:-4]
+        actor=loadModel(model,dir_name+"_c_"+model_name,anim_dict)            
         self.actors.append(actor)
         self.currentObject=self.actors[-1]
         self.currentObject.reparentTo(render)

@@ -159,7 +159,7 @@ class BufferPainter ():
             
     def setBrushHeading(self, slider=None, heading=None):
         if slider:
-            heading=slider['value']
+            heading=int(slider['value'])
         for brush in self.brushes:        
             new_heading =heading%360.0     
             brush.setH(new_heading)            
