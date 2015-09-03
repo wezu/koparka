@@ -1105,10 +1105,12 @@ class Editor (DirectObject):
                 model_name=str(Filename(fname).getBasenameWoExtension()).strip(".egg")
                 models.append(model_path+model_name)
         if self.last_object_index+direction < len(models):  
-            self.last_object_index+=direction                
+            self.last_object_index+=direction
+            if self.last_object_index<0:
+                self.last_object_index=len(models)-1                
         else:
             self.last_object_index=0            
-        #print self.last_object_index        
+        print "model index: ", self.last_object_index
                 
         if self.objectPainter.currentWall:
             self.objectPainter.loadWall(models[self.last_object_index], True)
@@ -1131,10 +1133,12 @@ class Editor (DirectObject):
                 models.append(model_path+model_name)                         
                 
         if self.last_object_index+direction < len(models):  
-            self.last_object_index+=direction                
+            self.last_object_index+=direction
+            if self.last_object_index<0:
+                self.last_object_index=len(models)-1
         else:
             self.last_object_index=0            
-        #print self.last_object_index        
+        print "model index: ", self.last_object_index
         self.objectPainter.loadModel(models[self.last_object_index])                
         #self.objectPainter.adjustHpr(random.randint(0,72)*5,axis='H: ')
         #self.objectPainter.adjustScale(random.randint(-1,1)*0.05)

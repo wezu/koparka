@@ -97,7 +97,7 @@ class ObjectPainter():
         self.normalizeHPR()
         if self.currentObject!=None:
             self.currentObject.setHpr(self.currentHPR[0],self.currentHPR[1],self.currentHPR[2])        
-        return axis+'%.0f'%self.currentHPR[i]    
+        return axis+'%.1f'%self.currentHPR[i]    
         
     def adjustHpr(self, amount, axis):
         if axis=='H: ':
@@ -111,7 +111,7 @@ class ObjectPainter():
         self.normalizeHPR()
         if self.currentObject!=None:
             self.currentObject.setHpr(self.currentHPR[0],self.currentHPR[1],self.currentHPR[2])        
-        return axis+'%.0f'%self.currentHPR[i]
+        return axis+'%.1f'%self.currentHPR[i]
     
     def setScale(self, slider=None, amount=None):
         if slider:
