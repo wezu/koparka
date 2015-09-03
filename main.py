@@ -267,7 +267,9 @@ class Editor (DirectObject):
         dirList=listdir(Filename(path+cfg['model_dir']).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('egg', 'bam', 'pz'):
-                model_name=str(Filename(fname).getBasenameWoExtension()).strip(".egg")
+                model_name=Filename(fname).getBasenameWoExtension()
+                if model_name[-4:]=='.egg':
+                    model_name=model_name[:-4]
                 self.gui.addListButton(self.object_toolbar_id, model_name, command=self.setObject, arg=[cfg['model_dir']+model_name])
             elif isdir(path+cfg['model_dir']+fname):
                 self.gui.addListButton(self.multi_toolbar_id, fname, command=self.setNextObject, arg=[cfg['model_dir']+fname+"/"])
@@ -279,8 +281,10 @@ class Editor (DirectObject):
         #get actors
         dirList=listdir(Filename(path+cfg['actors_dir']).toOsSpecific())
         for fname in dirList:
-            if Filename(fname).getExtension() in ('egg', 'bam', 'pz') and fname.startswith('_m_'):
-                model_name=str(Filename(fname).getBasenameWoExtension()).strip(".egg")
+            if Filename(fname).getExtension() in ('egg', 'bam', 'pz') and fname.startswith('_m_'):                
+                model_name=Filename(fname).getBasenameWoExtension()
+                if model_name[-4:]=='.egg':
+                    model_name=model_name[:-4]
                 self.gui.addListButton(self.actor_toolbar_id, model_name[3:], command=self.setActor, arg=[cfg['actors_dir']+model_name])
         #get collision-models
         #these hava a part named 'editor', when loading these 'editor' parts should be hidden
@@ -288,7 +292,9 @@ class Editor (DirectObject):
         dirList=listdir(Filename(path+cfg['coll_dir']).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('egg', 'bam', 'pz'):
-                model_name=str(Filename(fname).getBasenameWoExtension()).strip(".egg")
+                model_name=Filename(fname).getBasenameWoExtension()
+                if model_name[-4:]=='.egg':
+                    model_name=model_name[:-4]
                 self.gui.addListButton(self.collision_toolbar_id,  model_name, command=self.setObject, arg=[cfg['coll_dir']+model_name])
         #object-mode toolbar
         self.mode_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (192, 64), icon_size=64, x_offset=-192, y_offset=0, hover_command=self.onToolbarHover)
