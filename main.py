@@ -800,7 +800,7 @@ class Editor (DirectObject):
             glareTex = Texture()
             flareTex = Texture()
             #blurr shadows #1
-            interquad0 = manager.renderQuadInto(colortex=blurTex, div=2)
+            interquad0 = manager.renderQuadInto(colortex=blurTex, div=4)
             interquad0.setShader(Shader.load(Shader.SLGLSL, path+"shaders/blur_v.glsl", path+"shaders/blur_f.glsl"))
             interquad0.setShaderInput("input_map", auxTex)
             filters.append(interquad0)
