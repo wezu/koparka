@@ -1,44 +1,31 @@
 from __future__ import print_function
-from panda3d.core import PNMImage
-from direct.stdpy.file import file
+from panda3d.core import LPoint3d, CS_default
+from panda3d.egg import EggData
+#from math import floor
 
 def GenerateCollisionEgg(heightmap, output, input='data/collision3k.egg', scale=100.0):
-    #heightmap=PNMImage()
-    #heightmap.read(image)
-    input_egg=file(input, 'r')
-    output_egg=file(output, 'w')
-    isVertexPos=False  
+    input_egg = EggData()
+    input_egg.read(input)
+    output_egg = EggData()
+    output_egg.setCoordinateSystem(CS_default)
+    output_egg.stealChildren(input_egg)
+    VertexPool = output_egg.getChildren()[1]
     print("Generating mesh, this may take a while...", end="")
-    i=1
-    for line in input_egg.readlines():
-        i+=1
-        if i%20000==0:
+    for i in range(VertexPool.getHighestIndex()):
+        if i%20000 == 0:
             try:
                 base.graphicsEngine.renderFrame()
                 print('.', end="")
             except:
                 pass
-        if isVertexPos:
-            vertex=line.split()
-            x= int(float(vertex[0]))
-            y= int(float(vertex[1]))
-            if x==512:
-                x=511
-            if x==0:
-                x=1    
-            if y==512:
-                y=511
-            if y==0:
-                y=1     
-            vertex[2]=heightmap.getBright(x,512-y)*scale
-            output_egg.write('    '+vertex[0]+' '+vertex[1]+' '+str(vertex[2])+'\n')
-            isVertexPos=False
-        else:
-            if line.strip().startswith('<Vertex>'): 
-                isVertexPos=True
-                output_egg.write(line)
-            else:
-                output_egg.write(line)
-    output_egg.close()   
-    input_egg.close()
-    print("done!")
+        vert = VertexPool.getVertex(i)
+        x0, y0, _ = vert.getPos3()
+        #x, y = int(floor(x0+0.5)), int(floor(y0+0.5))
+        x, y = int(x0), int(y0)
+        if x==512: x=511
+        elif x==0: x=1    
+        if y==512: y=511
+        elif y==0: y=1
+        vert.setPos(LPoint3d(x0, y0, heightmap.getBright(x,512-y)*scale))
+        
+    output_egg.writeEgg(output)
