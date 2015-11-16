@@ -10,7 +10,7 @@ framebuffer-srgb true
 #textures-srgb true
 texture-minfilter  mipmap
 texture-magfilter  linear
-#show-buffers 1
+show-buffers 0
 #undecorated 1
 #pstats-gpu-timing true
 
@@ -41,6 +41,7 @@ koparka-collision-dir models_collision/
 koparka-default-height-map data/def_height.png
 koparka-default-attribute-map data/atr_def.png
 koparka-default-terrain-mesh data/mesh80k.bam
+#koparka-default-terrain-mesh data/big_mesh.egg
 koparka-default-skydome-mesh data/skydome2
 koparka-default-water-mesh data/waterplane
 koparka-default-water-tex data/water.png
@@ -60,10 +61,10 @@ koparka-shader-terrain_w_f shaders/terrain_w_f.glsl
 #the 'editor' shader is used for drawing the pointer
 koparka-shader-editor_v shaders/editor_v.glsl
 koparka-shader-editor_f shaders/editor_f.glsl
-koparka-shader-water_v shaders/water2_v.glsl
-koparka-shader-water_f shaders/water2_f.glsl
-koparka-shader-grass_v shaders/grass_lights_v.glsl
-koparka-shader-grass_f shaders/grass_lights_f.glsl
+koparka-shader-water_v shaders/water_v.glsl
+koparka-shader-water_f shaders/water_f.glsl
+koparka-shader-grass_v shaders/grass_v.glsl
+koparka-shader-grass_f shaders/grass_f.glsl
 koparka-shader-sky_v shaders/cloud_v.glsl
 koparka-shader-sky_f shaders/cloud_f.glsl
 #shadows (what is seen by the shadow casting camera)

@@ -61,7 +61,7 @@ class CameraControler (DirectObject):
         #self.waterCamera=None
         #self.wPlane=None
         
-        taskMgr.add(self.update, "camcon_update", sort=-10)
+        taskMgr.add(self.update, "camcon_update")
         
     def zoom(self, t):
         base.camera.setY(base.camera, t)

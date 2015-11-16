@@ -260,8 +260,11 @@ class ObjectPainter():
     def update(self, snap):
         if base.mouseWatcherNode.hasMouse():      
             mpos = base.mouseWatcherNode.getMouse()
-            self.pickerRay.setFromLens(base.camNode, mpos.getX(), mpos.getY())            
-            self.traverser.traverse(render)
+            self.pickerRay.setFromLens(base.camNode, mpos.getX(), mpos.getY()) 
+            try:           
+                self.traverser.traverse(render)
+            except:
+                print "error?"    
             if self.queue.getNumEntries() > 0:        
                 self.queue.sortEntries()                
                 self.hit_pos=self.queue.getEntry(0).getSurfacePoint(render)

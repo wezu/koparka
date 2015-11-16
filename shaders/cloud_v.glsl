@@ -1,8 +1,14 @@
 //GLSL
-#version 110
+#version 140
+uniform mat4 p3d_ModelViewProjectionMatrix;
+in vec4 p3d_Vertex;
+in vec2 p3d_MultiTexCoord0;
 
-varying vec3 vpos;
-//varying float h;
+out vec3 vpos;
+out vec2 uv0;
+out vec2 uv1;
+out vec2 uv2;
+out vec2 uv3;
 
 uniform float sunpos;
 uniform float osg_FrameTime;
@@ -11,11 +17,11 @@ uniform float cloudSpeed;
 
 void main()
     { 
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;    
-    gl_TexCoord[0] =gl_MultiTexCoord0*cloudTile-osg_FrameTime*cloudSpeed;
-    gl_TexCoord[1] =gl_MultiTexCoord0*cloudTile*0.25-osg_FrameTime*cloudSpeed*0.1;  
-    gl_TexCoord[3] =gl_MultiTexCoord0*10.0-osg_FrameTime*0.002;    
-    gl_TexCoord[2] =gl_MultiTexCoord0+vec4(0.0,sunpos,0.0, 0.0);    
-    vpos=gl_Vertex.xyz;    
+    gl_Position = p3d_ModelViewProjectionMatrix * p3d_Vertex;    
+    uv0 =p3d_MultiTexCoord0*cloudTile-osg_FrameTime*cloudSpeed;
+    uv1 =p3d_MultiTexCoord0*cloudTile*0.25-osg_FrameTime*cloudSpeed*0.1;  
+    uv2 =p3d_MultiTexCoord0+vec2(0.0,sunpos);
+    uv3 =p3d_MultiTexCoord0*10.0-osg_FrameTime*0.002;            
+    vpos=p3d_Vertex.xyz;    
     }
     

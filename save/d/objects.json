@@ -1,0 +1,51 @@
+[
+    {
+        "CloudSpeed": 0.008,
+        "SkyTile": 8.0,
+        "TerrainScale": 100.0,
+        "TerrainTile": 16.0,
+        "WaterLevel": -1,
+        "WaterSpeed": 0.01,
+        "WaterTile": 20.0,
+        "WaveHeight": 1.0,
+        "WaveTile": 6.0,
+        "WaveXYMove": [
+            0.005,
+            0.002
+        ]
+    },
+    {
+        "textures": [
+            "tex/diffuse/0.dds",
+            "tex/diffuse/1.dds",
+            "tex/diffuse/2.dds",
+            "tex/diffuse/3.dds",
+            "tex/diffuse/4.dds",
+            "tex/diffuse/5.dds"
+        ]
+    },
+    {
+        "grass": [
+            "grass/1.png",
+            "grass/2.png",
+            "grass/3.png"
+        ]
+    },
+    {
+        "actor": "models_actor/_m_windmill",
+        "actor_anims": {
+            "default": "models_actor/_a_windmill_default"
+        },
+        "actor_collision": "models_actor/_c_windmill",
+        "parent_index": 9,
+        "parent_name": "quadC2",
+        "position_x": 248.0,
+        "position_y": 262.0,
+        "position_z": 25.09804344177246,
+        "props": "",
+        "rotation_h": 0.0,
+        "rotation_p": 0.0,
+        "rotation_r": 0.0,
+        "scale": 1.0
+    }
+]
