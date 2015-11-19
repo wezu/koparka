@@ -142,7 +142,8 @@ void main()
         //    shade=fogFactor;                    
         //specular=specular*(1.0-fogFactor)*0.2;                
         final=mix(final,  min(vec4(0.0, 0.02, 0.04, 1.0), vec4(fog.rgb, 1.0)), waterFog);
-        gl_FragData[0] = mix(final, vec4(fog.rgb, 1.0),fogFactor*fogFactor);                
+        gl_FragData[0] = mix(final, vec4(fog.rgb, 1.0),fogFactor*fogFactor);       
+        //gl_FragData[0] = vec4(texUV.rg, 0.0, 1.0);                                         
         //gl_FragData[0] = vec4(fog_color.rgb, 1.0);                
         //gl_FragData[1]=vec4(fogFactor, shade, shade*specular,0.0);       
         //gl_FragData[0] = vec4(1.0, 0.0, 0.0, 0.0);

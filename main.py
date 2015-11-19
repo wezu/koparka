@@ -70,6 +70,7 @@ OBJECT_MODE_PICKUP=6
 HEIGHT_MODE_UP=0
 HEIGHT_MODE_DOWN=1
 HEIGHT_MODE_LEVEL=2
+HEIGHT_MODE_BLUR=3
 
 WALK_MODE_NOWALK=0
 WALK_MODE_WALK=1
@@ -162,13 +163,16 @@ class Editor (DirectObject):
 
         self.painter=BufferPainter(self.brushList, showBuff=False)
         #BUFFER_HEIGHT
-        self.painter.addCanvas(size=cfg['h_map_size'], default_tex=cfg['h_map_def'])
+        self.painter.addCanvas(size=cfg['h_map_size'],
+                               default_tex=cfg['h_map_def'],
+                               brush_shader=Shader.load(Shader.SLGLSL, "shaders/brush_v.glsl","shaders/brush_f.glsl"),
+                               shader_inputs={"use_map":0.0})
         #BUFFER_ATR
         self.painter.addCanvas(size=cfg['a_map_size'], default_tex=cfg['a_map_def'])
         #BUFFER_GRASS
         self.painter.addCanvas(size=cfg['g_map_size'])
         #BUFFER_WALK =3
-        self.painter.addCanvas(size=cfg['w_map_size'],  brush_shader=loader.loadShader('shaders/brush3.cg'))
+        self.painter.addCanvas(size=cfg['w_map_size'],  brush_shader=Shader.load(Shader.SLGLSL, "shaders/brush3_v.glsl","shaders/brush3_f.glsl"))
         #BUFFER_ATR2=4
         self.painter.addCanvas(size=cfg['a_map_size'])
         #gl selection
@@ -326,11 +330,12 @@ class Editor (DirectObject):
 
 
         #extra buttons for height paint mode (up/down/level)
-        self.heightmode_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (192, 32), icon_size=64, y_offset=-64,x_offset=-192, hover_command=self.onToolbarHover, color=(1,1,1, 0.0))
+        self.heightmode_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (256, 32), icon_size=64, y_offset=-64,x_offset=-256, hover_command=self.onToolbarHover, color=(1,1,1, 0.0))
         self.gui.addButton(self.heightmode_toolbar_id, cfg['theme']+'/up.png', self.changeHeightMode,[HEIGHT_MODE_UP],tooltip=self.tooltip, tooltip_text='Raise terrain mode (click to set mode)')
         self.gui.addButton(self.heightmode_toolbar_id, cfg['theme']+'/down.png', self.changeHeightMode,[HEIGHT_MODE_DOWN],tooltip=self.tooltip, tooltip_text='Lower terrain mode (click to set mode)')
         self.gui.addButton(self.heightmode_toolbar_id, cfg['theme']+'/level.png', self.changeHeightMode,[HEIGHT_MODE_LEVEL],tooltip=self.tooltip, tooltip_text='Level terrain mode (click to set mode)')
-        self.gui.grayOutButtons(self.heightmode_toolbar_id, (0,3), 0)
+        self.gui.addButton(self.heightmode_toolbar_id, cfg['theme']+'/blur.png', self.changeHeightMode,[HEIGHT_MODE_BLUR],tooltip=self.tooltip, tooltip_text='Smooth terrain mode (click to set mode)')
+        self.gui.grayOutButtons(self.heightmode_toolbar_id, (0,4), 0)
 
         #extra buttons for walkmap paint (walkable/unwealkable)
         self.walkmap_toolbar_id=self.gui.addToolbar(self.gui.BottomRight, (128, 64), icon_size=64, y_offset=-64,x_offset=-128, hover_command=self.onToolbarHover, color=(1,1,1, 0.3))
@@ -973,25 +978,35 @@ class Editor (DirectObject):
     def changeHeightMode(self, mode=None, guiEvent=None):
         if mode==None:
             mode=self.height_mode+1
-        if mode>HEIGHT_MODE_LEVEL:
+        if mode>HEIGHT_MODE_BLUR:
             mode=HEIGHT_MODE_UP
         if mode==HEIGHT_MODE_UP:
             self.tempColor=1
             self.painter.brushAlpha=self.tempAlpha
             self.painter.brushes[BUFFER_HEIGHT].setColor(1,1,1,self.painter.brushAlpha)
             self.color_info['text']='%.2f'%self.tempAlpha
+            self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 0.0)
         if mode==HEIGHT_MODE_DOWN:
             self.tempColor=0
             self.painter.brushAlpha=self.tempAlpha
             self.painter.brushes[BUFFER_HEIGHT].setColor(0,0,0,self.painter.brushAlpha)
             self.color_info['text']='%.2f'%self.tempAlpha
+            self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 0.0)
         if mode==HEIGHT_MODE_LEVEL:
             self.tempColor=self.painter.brushAlpha
             self.tempAlpha=self.painter.brushAlpha
             self.painter.brushAlpha=1
             self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
             self.color_info['text']='%.2f'%self.tempColor
-        self.gui.grayOutButtons(self.heightmode_toolbar_id, (0,3), mode)
+            self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 0.0)
+        if mode==HEIGHT_MODE_BLUR:
+            self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 1.0)
+            self.tempColor=self.painter.brushAlpha
+            self.tempAlpha=self.painter.brushAlpha
+            self.painter.brushAlpha=1
+            self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
+            self.color_info['text']='%.2f'%self.tempColor    
+        self.gui.grayOutButtons(self.heightmode_toolbar_id, (0,4), mode)
         self.height_mode=mode
 
     def focusOnProperties(self):

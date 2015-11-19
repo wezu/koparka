@@ -116,6 +116,7 @@ class BufferPainter ():
         self.brushes[-1].setColor(1, 1, 1, 0.05) 
         if brush_shader:           
             self.brushes[-1].setShader(brush_shader)
+            self.brushes[-1].setShaderInput('map', self.textures[-1])
             if shader_inputs:
                 for input in shader_inputs:
                     self.brushes[-1].setShaderInput(input, shader_inputs[input])
@@ -127,7 +128,9 @@ class BufferPainter ():
         myTexture=Texture()
         myTexture.load(p)        
         self.paintPlanes[id].setTexture(myTexture, 1)
-    
+        self.brushes[id].setShaderInput('map', myTexture)
+        
+        
     def setBrushAlpha(self,  slider=None, alpha=None):
         if slider:
             alpha=slider['value']
