@@ -20,7 +20,7 @@ out vec2 texUVrepeat;
 out vec4 vpos;
 //out vec4 fog_color;
 out vec4 world_pos;
-out float waterFog;
+//out float waterFog;
 //uniform float bias;
 //uniform mat4 trans_model_to_clip_of_shadowCamera;
 //out vec4 shadowCoord;
@@ -38,7 +38,7 @@ void main()
     vpos=p3d_ModelViewMatrix * vert;
     float distToEdge=clamp(pow(distance(vert.xy, vec2(256.0, 256.0))*0.004, 8.0), 0.0, 1.0);
     float distToCamera =clamp(-vpos.z*fog.a-0.5, 0.0, 1.0);
-    waterFog= clamp((vert.z-water_level)*-0.2, 0.0, 0.9);
+    //waterFog= clamp((vert.z-water_level)*-0.5, 0.0, 0.95);
     //fog_color=mix(vec4(fog.rgb, 0.0), vec4(0.0, 0.02, 0.04, 0.0), waterFog);    
     //fog_color=min(vec4(fog.rgb, 0.0), fog_color);
     fogFactor=clamp(distToCamera+distToEdge, 0.0, 1.0);  

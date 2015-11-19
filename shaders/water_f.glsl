@@ -38,7 +38,7 @@ uniform vec3 camera_pos;
 
 void main()
     {  
-    vec4 fog_color=vec4(fog.rgb, 1.0);  
+    vec4 fog_color=vec4(fog.rgb, 0.0);  
     vec4 distortion =texture(water_norm, uv0);
          distortion +=texture(water_norm, uv1);
     vec4 normalmap=normalize((distortion)*2.0-1.0);
@@ -81,7 +81,7 @@ void main()
     float h_map=texture(height, uv2).r;
     if (h_map*z_scale>water_level+3.0) 
         discard;         
-    float foam=clamp(h_map*z_scale-(water_level-2.0), 0.0, 4.0)*0.25;
+    float foam=clamp(h_map*z_scale-(water_level-5.0), 0.0, 4.0)*0.25;
     //foam+=me;
     foam+=clamp((me-0.5)*4.0, 0.0, 1.0)*wave.w;//*0.04;
     foam=clamp(foam, 0.0, 1.0);    
@@ -97,7 +97,7 @@ void main()
     
             
     //do lights
-    vec3 color =ambient;//+vec4(0.0, 0.135, 0.195, 1.0)*me;
+    vec3 color =vec3(0.01, 0.01, 0.01);
     vec3 L;
     vec3 R;
     float att;       
@@ -120,13 +120,16 @@ void main()
     foam*=(1.0-ff);
     specular*=(1.0-ff); 
     vec3 refl=textureProj(reflection, uv3+distortion).rgb;        
-    refl=mix(refl, vec3(0.01, 0.01, 0.011), 0.5); 
+    //refl=mix(refl, vec3(0.01, 0.01, 0.011), 0.5); 
     
-    vec4 final=vec4(mix(color*vec3(0.1, 0.2, 0.3),refl.rgb,facing)+color*distortion.a*foam, 0.7+facing);
+    vec3 water_color=min(color*vec3(0.05, 0.1, 0.15), color);
+    
+    vec4 final=vec4(mix(water_color,refl.rgb,facing+foam*distortion.a)+color*distortion.a*foam, 0.5+facing);
     
     //vec4 final=refl*facing2;           
     final+=specular;           
     final =mix(final, fog_color, ff);
+    final.a=clamp(final.a, 0.5, 0.95);
     //final =mix(final,vec4(distortion.aaa, distortion.a*foam), foam);    
     //final.a=clamp(facing2, 0.9,1.0);        
     //final.a=facing2;

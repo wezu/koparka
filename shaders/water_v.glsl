@@ -37,7 +37,7 @@ void main()
     vec4 h_tex=textureLod(water_height, uv, 0.0);  
     float h= mix(h_tex.b, h_tex.a, blend)*wave.w;  
     vec4 vert=p3d_Vertex;
-    vert.z+=(h*5.0)-2.0; 
+    vert.z+=(h*5.0)+1.0; 
 	gl_Position = p3d_ModelViewProjectionMatrix * vert; 
              
     uv0 = p3d_MultiTexCoord0*tile+osg_FrameTime*speed;

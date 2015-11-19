@@ -366,7 +366,15 @@ class Editor (DirectObject):
         #TODO(maybe): remove default tex from model ... and fix filtering then somehow
         for tex in self.textures_diffuse[:6]:
             id=self.textures_diffuse.index(tex)
-            self.mesh.setTexture(self.mesh.findTextureStage('tex{0}'.format(id+1)), loader.loadTexture(tex, anisotropicDegree=2 ), 1)
+            new_tex=loader.loadTexture(tex, anisotropicDegree=2 )  
+            if ConfigVariableBool('framebuffer-srgb',False).getValue():
+                tex_format=new_tex.getFormat()  
+                if tex_format==Texture.F_rgb:
+                    tex_format=Texture.F_srgb
+                elif tex_format==Texture.F_rgba:
+                    tex_format=Texture.F_srgb_alpha   
+                new_tex.setFormat(tex_format) 
+            self.mesh.setTexture(self.mesh.findTextureStage('tex{0}'.format(id+1)), new_tex, 1)
         for tex in self.textures_normal[:6]:
             id=self.textures_normal.index(tex)
             self.mesh.setTexture(self.mesh.findTextureStage('tex{0}n'.format(id+1)), loader.loadTexture(tex, anisotropicDegree=2), 1)
@@ -506,7 +514,7 @@ class Editor (DirectObject):
         render.setShaderInput('daytime', 12.0)
 
         #ambient light
-        self.lManager.ambientLight(0.15, 0.15, 0.15)    
+        self.lManager.ambientLight(0.15, 0.15, 0.2)    
         
         self.shadowCamera=render.attachNewNode('fake_shadow_camera_node')        
         self.shadowCamera.setPos(256, 256, 1000)
@@ -1394,7 +1402,18 @@ class Editor (DirectObject):
 
     def setTex(self, layer, id, guiEvent=None):
         self.curent_textures[layer]=id
-        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), loader.loadTexture(self.textures_diffuse[id], anisotropicDegree=2), 1)
+        
+        new_tex=loader.loadTexture(self.textures_diffuse[id], anisotropicDegree=2) 
+        if ConfigVariableBool('framebuffer-srgb',False).getValue():
+            tex_format=new_tex.getFormat()  
+            if tex_format==Texture.F_rgb:
+                tex_format=Texture.F_srgb
+            elif tex_format==Texture.F_rgba:
+                tex_format=Texture.F_srgb_alpha   
+            new_tex.setFormat(tex_format) 
+        
+        
+        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), new_tex, 1)
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)+'n'), loader.loadTexture(self.textures_normal[id], anisotropicDegree=2), 1)
         self.gui.elements[self.palette_id]['buttons'][layer]['frameTexture']=self.textures_diffuse[id]
 
@@ -1408,7 +1427,18 @@ class Editor (DirectObject):
         if id>len(self.textures_diffuse)-1:
             id=0
         self.curent_textures[layer]=id
-        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), loader.loadTexture(self.textures_diffuse[id], anisotropicDegree=2), 1)
+        
+        new_tex=loader.loadTexture(self.textures_diffuse[id], anisotropicDegree=2) 
+        if ConfigVariableBool('framebuffer-srgb',False).getValue():
+            tex_format=new_tex.getFormat()  
+            if tex_format==Texture.F_rgb:
+                tex_format=Texture.F_srgb
+            elif tex_format==Texture.F_rgba:
+                tex_format=Texture.F_srgb_alpha   
+            new_tex.setFormat(tex_format)
+        
+        
+        self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), new_tex, 1)
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)+'n'), loader.loadTexture(self.textures_normal[id], anisotropicDegree=2), 1)
         self.gui.elements[self.palette_id]['buttons'][layer]['frameTexture']=self.textures_diffuse[id]
 

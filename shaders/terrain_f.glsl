@@ -37,7 +37,7 @@ in vec2 texUVrepeat;
 in vec4 vpos;
 in vec4 world_pos;
 //in vec4 fog_color;
-in float waterFog;
+//in float waterFog;
 //in vec4 shadowCoord;
 //uniform sampler2D shadow;
 
@@ -114,8 +114,9 @@ void main()
 
         //lights   
         //ambient 
-        vec3 color=vec3(0.0, 0.0, 0.0);
-        color+= (ambient+max(dot(N,up), -0.2)*ambient)*0.5; 
+        //vec3 color=vec3(0.0, 0.0, 0.0);
+        //color+= (ambient+max(dot(N,up), -0.2)*ambient)*0.5; 
+        vec3 color=ambient;
         
         vec3 L;
         vec3 R;
@@ -129,7 +130,7 @@ void main()
             color+=light_color[i].rgb*max(dot(N,L), 0.0)*att;
             //specular
             R=reflect(L,N)*att;
-            specular +=pow(max(dot(R, V), 0.0), 11.0)*light_color[i].a*gloss;
+            specular +=pow(max(dot(R, V), 0.0), 15.0)*light_color[i].a*gloss;
             }
            
         color +=specular;
@@ -140,8 +141,10 @@ void main()
         //float shadowColor = texture(shadow, shadowUV.xy).r;            
         //if (shadowColor < shadowUV.z-0.001)
         //    shade=fogFactor;                    
-        //specular=specular*(1.0-fogFactor)*0.2;                
-        final=mix(final,  min(vec4(0.0, 0.02, 0.04, 1.0), vec4(fog.rgb, 1.0)), waterFog);
+        //specular=specular*(1.0-fogFactor)*0.2;               
+        float waterFog= clamp((world_pos.z-water_level)*-0.06, 0.0, 0.95); 
+        vec4 water_fog_color=min(vec4(0.0, 0.01, 0.025, 1.0), final);
+        final=mix(final,  min(water_fog_color, vec4(fog.rgb, 1.0)), waterFog);
         gl_FragData[0] = mix(final, vec4(fog.rgb, 1.0),fogFactor*fogFactor);       
         //gl_FragData[0] = vec4(texUV.rg, 0.0, 1.0);                                         
         //gl_FragData[0] = vec4(fog_color.rgb, 1.0);                

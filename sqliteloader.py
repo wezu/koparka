@@ -6,6 +6,25 @@ from direct.stdpy.file import listdir, exists
 from direct.actor.Actor import Actor
 from vfx_loader import createEffect
 
+
+def fixSrgbTextures(model):
+    for tex_stage in model.findAllTextureStages():            
+        tex=model.findTexture(tex_stage)
+        if tex:
+            file_name=tex.getFilename()
+            tex_format=tex.getFormat()   
+            #print tex_stage,  file_name, tex_format                
+            newTex=loader.loadTexture(str(file_name)[:-3]+'dds')
+            if tex_stage.getMode()==TextureStage.M_normal:
+                tex_stage.setMode(TextureStage.M_normal_gloss)
+            if tex_stage.getMode()!=TextureStage.M_normal_gloss:
+                if tex_format==Texture.F_rgb:
+                    tex_format=Texture.F_srgb
+                elif tex_format==Texture.F_rgba:
+                    tex_format=Texture.F_srgb_alpha    
+            newTex.setFormat(tex_format)
+            model.setTexture(tex_stage, newTex, 1)
+
 def findAnims(model):
     temp=model.split('_m_')
     path=temp[0]
@@ -79,6 +98,8 @@ def loadModel(file, collision=None, animation=None):
             #coll_sphere.show()
             if animation:
                 model.setPythonTag('actor_files', [file,animation,None])
+    if ConfigVariableBool('framebuffer-srgb',False).getValue():
+        fixSrgbTextures(model)            
     return model
     
 def LoadScene(file, quad_tree, actors, terrain, textures, current_textures, grass, grass_tex, current_grass_tex, flatten=False):    
@@ -97,7 +118,16 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures, gras
                 if current_textures:
                     id=textures.index(row[tex])                    
                     current_textures[int(tex[-1])-1]=id
-                terrain.setTexture(terrain.findTextureStage(tex), loader.loadTexture(row[tex]), 1)
+                new_tex=loader.loadTexture(row[tex])    
+                if ConfigVariableBool('framebuffer-srgb',False).getValue():
+                    print "srgb!"
+                    tex_format=new_tex.getFormat()  
+                    if tex_format==Texture.F_rgb:
+                        tex_format=Texture.F_srgb
+                    elif tex_format==Texture.F_rgba:
+                        tex_format=Texture.F_srgb_alpha   
+                    new_tex.setFormat(tex_format)      
+                terrain.setTexture(terrain.findTextureStage(tex), new_tex, 1)
                 normal_tex=row[tex].replace('/diffuse/','/normal/')
                 terrain.setTexture(terrain.findTextureStage(tex+'n'), loader.loadTexture(normal_tex), 1)
             else:
@@ -113,6 +143,14 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures, gras
                 grs_tex=loader.loadTexture(row[tex])
                 grs_tex.setWrapU(Texture.WMClamp)
                 grs_tex.setWrapV(Texture.WMClamp)
+                new_tex=loader.loadTexture(row[tex])    
+                if ConfigVariableBool('framebuffer-srgb',False).getValue():
+                    tex_format=grs_tex.getFormat()  
+                    if tex_format==Texture.F_rgb:
+                        tex_format=Texture.F_srgb
+                    elif tex_format==Texture.F_rgba:
+                        tex_format=Texture.F_srgb_alpha   
+                    grs_tex.setFormat(tex_format)                
                 grass.setTexture(grass.findTextureStage(tex), grs_tex, 1)                    
             else:
                 print "WARNING: grass texture '{0}' not found!".format(tex)
