@@ -1,7 +1,7 @@
 from panda3d.core import *
 from direct.actor.Actor import Actor
 #from direct.particles.ParticleEffect import ParticleEffect
-from jsonloader import loadModel
+from sqliteloader import loadModel
 from direct.stdpy.file import listdir
 
 class ObjectPainter():
@@ -155,17 +155,8 @@ class ObjectPainter():
             self.currentWall.removeNode()
             self.currentWall=None
 
-    def loadActor(self, model):        
-        dir_name=Filename(model).getDirname()+'/'
-        model_name=Filename(model).getBasename()[3:]
-        name_len=len(model_name)        
-        anim_dict={}
-        dirList=listdir(Filename(dir_name).toOsSpecific())
-        for fname in dirList:                        
-            if Filename(fname).getExtension() in ('egg', 'bam'): 
-                if fname.startswith("_a_"+model_name):
-                    anim_dict[fname[4+name_len:-4]]=dir_name+fname[:-4]
-        actor=loadModel(model,dir_name+"_c_"+model_name,anim_dict)            
+    def loadActor(self, model):      
+        actor=loadModel(model,animation=True)            
         self.actors.append(actor)
         self.currentObject=self.actors[-1]
         self.currentObject.reparentTo(render)

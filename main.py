@@ -227,6 +227,7 @@ class Editor (DirectObject):
         for fname in dirList:
             if  Filename(fname).getExtension() in ('dds', 'png'):
                 self.grass_textures.append(cfg['grs_tex_dir']+fname)
+        sort_nicely(self.grass_textures)        
         self.gui.addButton(self.grass_toolbar_id, self.grass_textures[0], self.setGrassMapColor, [(1.0, 0.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
         self.gui.addButton(self.grass_toolbar_id, self.grass_textures[1], self.setGrassMapColor, [(0.0, 1.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
         self.gui.addButton(self.grass_toolbar_id, self.grass_textures[2], self.setGrassMapColor, [(0.0, 0.0, 1.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
@@ -285,11 +286,8 @@ class Editor (DirectObject):
         #get actors
         dirList=listdir(Filename(path+cfg['actors_dir']).toOsSpecific())
         for fname in dirList:
-            if Filename(fname).getExtension() in ('egg', 'bam', 'pz') and fname.startswith('_m_'):                
-                model_name=Filename(fname).getBasenameWoExtension()
-                if model_name[-4:]=='.egg':
-                    model_name=model_name[:-4]
-                self.gui.addListButton(self.actor_toolbar_id, model_name[3:], command=self.setActor, arg=[cfg['actors_dir']+model_name])
+            if isdir(path+cfg['actors_dir']+fname): 
+                self.gui.addListButton(self.actor_toolbar_id, fname, command=self.setActor, arg=[cfg['actors_dir']+fname])
         #get collision-models
         #these hava a part named 'editor', when loading these 'editor' parts should be hidden
         #appart from that collision-models are just like normal models

@@ -1,0 +1,177 @@
+<CoordinateSystem> { Z-Up }
+
+<Group>  not_character {
+  <Group> collision {
+    <Collide> object { Polyset descend }
+    <VertexPool> collision.verts {
+      <Vertex> 0 {
+        -9.93363 -18.7609 6.82119e-017
+        <UV> { 1 0 }
+        <Normal> { 0 0 -1 }
+      }
+      <Vertex> 1 {
+        -9.93363 20.3774 6.82119e-017
+        <UV> { 1 1 }
+        <Normal> { 0 0 -1 }
+      }
+      <Vertex> 2 {
+        10.5404 20.3774 6.82119e-017
+        <UV> { 0 1 }
+        <Normal> { 0 0 -1 }
+      }
+      <Vertex> 3 {
+        10.5404 -18.7609 6.82119e-017
+        <UV> { 0 0 }
+        <Normal> { 0 0 -1 }
+      }
+      <Vertex> 4 {
+        -5.63728 3.95671 51.5054
+        <UV> { 0 0 }
+        <Normal> { 0 0.58081 0.814039 }
+      }
+      <Vertex> 5 {
+        6.24409 3.95671 51.5054
+        <UV> { 1 0 }
+        <Normal> { 0 0.58081 0.814039 }
+      }
+      <Vertex> 6 {
+        5.93057 15.0702 43.576
+        <UV> { 1 1 }
+        <Normal> { 0 0.58081 0.814039 }
+      }
+      <Vertex> 7 {
+        -5.32376 15.0702 43.576
+        <UV> { 0 1 }
+        <Normal> { 0 0.58081 0.814039 }
+      }
+      <Vertex> 8 {
+        -9.93363 -18.7609 6.82119e-017
+        <UV> { 0 0 }
+        <Normal> { 0 -0.914953 0.40356 }
+      }
+      <Vertex> 9 {
+        10.5404 -18.7609 6.82119e-017
+        <UV> { 1 0 }
+        <Normal> { 0 -0.914953 0.40356 }
+      }
+      <Vertex> 10 {
+        6.24409 3.95671 51.5054
+        <UV> { 1 1 }
+        <Normal> { 0 -0.914953 0.40356 }
+      }
+      <Vertex> 11 {
+        -5.63728 3.95671 51.5054
+        <UV> { 0 1 }
+        <Normal> { 0 -0.914953 0.40356 }
+      }
+      <Vertex> 12 {
+        10.5404 -18.7609 6.82119e-017
+        <UV> { 0 0 }
+        <Normal> { 0.995434 0.0140288 0.0944146 }
+      }
+      <Vertex> 13 {
+        10.5404 20.3774 6.82119e-017
+        <UV> { 1 0 }
+        <Normal> { 0.994451 0 0.105202 }
+      }
+      <Vertex> 14 {
+        5.93057 15.0702 43.576
+        <UV> { 1 1 }
+        <Normal> { 0.996488 0.0440937 0.0711846 }
+      }
+      <Vertex> 15 {
+        6.24409 3.95671 51.5054
+        <UV> { 0 1 }
+        <Normal> { 0.996337 0.0664832 0.053786 }
+      }
+      <Vertex> 16 {
+        10.5404 20.3774 6.82119e-017
+        <UV> { 0 0 }
+        <Normal> { 0 0.992665 0.120898 }
+      }
+      <Vertex> 17 {
+        -9.93363 20.3774 6.82119e-017
+        <UV> { 1 0 }
+        <Normal> { 0 0.992665 0.120898 }
+      }
+      <Vertex> 18 {
+        -5.32376 15.0702 43.576
+        <UV> { 1 1 }
+        <Normal> { 0 0.992665 0.120898 }
+      }
+      <Vertex> 19 {
+        5.93057 15.0702 43.576
+        <UV> { 0 1 }
+        <Normal> { 0 0.992665 0.120898 }
+      }
+      <Vertex> 20 {
+        -9.93363 20.3774 6.82119e-017
+        <UV> { 0 0 }
+        <Normal> { -0.996039 0.0145499 0.0877238 }
+      }
+      <Vertex> 21 {
+        -9.93363 -18.7609 6.82119e-017
+        <UV> { 1 0 }
+        <Normal> { -0.996539 0 0.0831268 }
+      }
+      <Vertex> 22 {
+        -5.63728 3.95671 51.5054
+        <UV> { 1 1 }
+        <Normal> { -0.993582 0.0531836 0.0998358 }
+      }
+      <Vertex> 23 {
+        -5.32376 15.0702 43.576
+        <UV> { 0 1 }
+        <Normal> { -0.986669 0.112044 0.118025 }
+      }
+    }
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <VertexRef> { 0 1 2 <Ref> { collision.verts } }
+    }
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <VertexRef> { 2 3 0 <Ref> { collision.verts } }
+    }
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <VertexRef> { 4 5 6 <Ref> { collision.verts } }
+    }
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <VertexRef> { 6 7 4 <Ref> { collision.verts } }
+    }
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <VertexRef> { 8 9 10 <Ref> { collision.verts } }
+    }
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <VertexRef> { 10 11 8 <Ref> { collision.verts } }
+    }
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <VertexRef> { 12 13 14 <Ref> { collision.verts } }
+    }
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <VertexRef> { 14 15 12 <Ref> { collision.verts } }
+    }
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <VertexRef> { 16 17 18 <Ref> { collision.verts } }
+    }
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <VertexRef> { 18 19 16 <Ref> { collision.verts } }
+    }
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <VertexRef> { 20 21 22 <Ref> { collision.verts } }
+    }
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <VertexRef> { 22 23 20 <Ref> { collision.verts } }
+    }
+  }
+}

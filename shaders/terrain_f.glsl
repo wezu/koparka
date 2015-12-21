@@ -114,9 +114,9 @@ void main()
 
         //lights   
         //ambient 
-        //vec3 color=vec3(0.0, 0.0, 0.0);
-        //color+= (ambient+max(dot(N,up), -0.2)*ambient)*0.5; 
-        vec3 color=ambient;
+        vec3 color=vec3(0.0, 0.0, 0.0);
+        color+= (ambient+max(dot(N,up), -0.2)*ambient)*0.5; 
+        //vec3 color=ambient;
         
         vec3 L;
         vec3 R;
@@ -130,7 +130,7 @@ void main()
             color+=light_color[i].rgb*max(dot(N,L), 0.0)*att;
             //specular
             R=reflect(L,N)*att;
-            specular +=pow(max(dot(R, V), 0.0), 15.0)*light_color[i].a*gloss;
+            specular +=pow(max(dot(R, V), 0.0), 8.0)*light_color[i].a*gloss*2.0;
             }
            
         color +=specular;

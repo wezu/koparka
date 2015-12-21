@@ -41,14 +41,20 @@ def findAnims(model):
 def loadModel(file, collision=None, animation=None):
     model=None
     if animation:
-        model=Actor(file, animation)                   
+        collision=file+'/collision'
+        anims={}
+        dirList=listdir(file+'/animation')
+        for fname in dirList:                            
+            anims[fname[:-4]]=file+'/animation/'+fname
+        #print anims    
+        model=Actor(file+'/model', anims)                   
         #default anim
-        if 'default' in animation:
+        if 'default' in anims:
             model.loop('default')
         elif 'idle' in animation:
             model.loop('idle')
-        else: #some random anim
-             model.loop(animation.items()[0])
+        else: #some first, random anim
+             model.loop(anims.items()[0])
     else:
         model=loader.loadModel(file)
     model.setPythonTag('model_file', file)
@@ -81,7 +87,7 @@ def loadModel(file, collision=None, animation=None):
         coll.find('**/collision').setCollideMask(BitMask32.bit(2))        
         coll.find('**/collision').setPythonTag('object', model)
         if animation:
-            model.setPythonTag('actor_files', [file,animation,coll]) 
+            model.setPythonTag('actor_files', [file,anims,coll]) 
     else:
         try:
             model.find('**/collision').setCollideMask(BitMask32.bit(2))        
@@ -168,7 +174,7 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures, gras
         cur.execute("SELECT * FROM actors WHERE map_name=?", (map_name,))
         objects = cur.fetchall()
         for object in objects:
-            model=loadModel(object['model'], object['collision'],findAnims(object['model']))
+            model=loadModel(object['model'], object['collision'],True)
             model.reparentTo(quad_tree[object['parent_index']]) 
             model.setPythonTag('props', object['props'])
             model.setHpr(render,object['h'],object['p'],object['r'])
