@@ -1,16 +1,17 @@
 //GLSL
-#version 110
+#version 140
 uniform sampler2D p3d_Texture0;
 uniform sampler2D map;
 uniform float use_map;
-varying vec4 color;
-varying vec2 uv;
-varying vec2 map_uv;
+uniform vec4 brush_color;
+in vec4 color;
+in vec2 uv;
+in vec2 map_uv;
 void main() 
     {        
-    vec4 brush=color*texture2D(p3d_Texture0, uv)*(1.0-use_map); 
+    vec4 brush=brush_color*texture2D(p3d_Texture0, uv)*(1.0-use_map); 
     
-    float sharpness=color.a*0.01;
+    float sharpness=brush_color.a*0.01;
     vec4 blur = texture2D(map, map_uv+vec2( -0.326212, -0.405805)*sharpness);
     blur += texture2D(map, map_uv + vec2(-0.840144, -0.073580)*sharpness);
     blur += texture2D(map, map_uv + vec2(-0.695914, 0.457137)*sharpness);
@@ -25,7 +26,9 @@ void main()
     blur += texture2D(map, map_uv + vec2(-0.791559, -0.597705)*sharpness);    
     blur/=12.0;
     blur.a=texture2D(p3d_Texture0, uv).a;     
-    blur*=use_map;    
+    blur*=use_map;   
+     
     gl_FragColor = brush+blur;    
+    //gl_FragColor = color;    
     }
  

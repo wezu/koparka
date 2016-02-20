@@ -5,7 +5,7 @@ from panda3d.core import Filename
 if appRunner:
     path=appRunner.p3dFilename.getDirname()+'/'
 else:
-    path=""
+    path=""    
 from panda3d.core import WindowProperties
 wp = WindowProperties.getDefault()
 wp.setOrigin(-2,-2)
@@ -85,7 +85,7 @@ MASK_TERRAIN_ONLY=BitMask32.bit(3)
 cfg={}
 
 class Editor (DirectObject):
-    def __init__(self):
+    def __init__(self):        
         self.loadcfg()
         #init ShowBase
         base = ShowBase.ShowBase()
@@ -362,21 +362,35 @@ class Editor (DirectObject):
         self.mesh=loader.loadModel(cfg['terrain_mesh'])
         #load default textures:
         #TODO(maybe): remove default tex from model ... and fix filtering then somehow
+        #for tex in self.textures_diffuse[:6]:
+        #    id=self.textures_diffuse.index(tex)
+        #    self.mesh.setTexture(self.mesh.findTextureStage('tex{0}'.format(id+1)), loader.loadTexture(tex, anisotropicDegree=2 ), 1)
+        #for tex in self.textures_normal[:6]:
+        #    id=self.textures_normal.index(tex)
+        #    self.mesh.setTexture(self.mesh.findTextureStage('tex{0}n'.format(id+1)), loader.loadTexture(tex, anisotropicDegree=2), 1)
+               
+        #srgb=ConfigVariableBool('framebuffer-srgb',False).getValue()
+        #srgb=cfg["srgb"]
+        #print srgb
         for tex in self.textures_diffuse[:6]:
             id=self.textures_diffuse.index(tex)
             new_tex=loader.loadTexture(tex, anisotropicDegree=2 )  
-            if ConfigVariableBool('framebuffer-srgb',False).getValue():
+            #if ConfigVariableBool('framebuffer-srgb',False).getValue():
+            if cfg["srgb"]:
                 tex_format=new_tex.getFormat()  
                 if tex_format==Texture.F_rgb:
                     tex_format=Texture.F_srgb
                 elif tex_format==Texture.F_rgba:
                     tex_format=Texture.F_srgb_alpha   
-                new_tex.setFormat(tex_format) 
+                new_tex.setFormat(tex_format)                 
             self.mesh.setTexture(self.mesh.findTextureStage('tex{0}'.format(id+1)), new_tex, 1)
         for tex in self.textures_normal[:6]:
             id=self.textures_normal.index(tex)
             self.mesh.setTexture(self.mesh.findTextureStage('tex{0}n'.format(id+1)), loader.loadTexture(tex, anisotropicDegree=2), 1)
+            
+            
         self.mesh.reparentTo(render)
+        
         if cfg["shader_terrain_tes"]=='':
             self.mesh.setShader(Shader.load(Shader.SLGLSL, cfg["shader_terrain_v"],cfg["shader_terrain_f"]))
         else:
@@ -566,8 +580,8 @@ class Editor (DirectObject):
         #make sure things have some/any starting value
         self.setMode(MODE_HEIGHT)
         self.setBrush(0)
-        self.painter.brushes[BUFFER_ATR].setColor(0,0,0,1.0)
-        self.painter.brushes[BUFFER_ATR2].setColor(0,0,1,1.0)
+        self.painter.setBrushIDColor(BUFFER_ATR,(0,0,0,1.0))
+        self.painter.setBrushIDColor(BUFFER_ATR2,(0,0,1,1.0))
         self.setTime(12.0)
         #tasks
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task', sort=46)
@@ -598,6 +612,7 @@ class Editor (DirectObject):
             self.size_info['text']='%.2f'%self.objectPainter.currentScale
         
     def loadcfg(self):
+        cfg['srgb']=ConfigVariableBool('framebuffer-srgb',False).getValue()
         cfg['filters']=ConfigVariableInt('koparka-filters', 2).getValue()
         #render grass? 0=no 1=yes
         cfg['grass']=ConfigVariableBool('koparka-use-grass',True).getValue()
@@ -963,7 +978,7 @@ class Editor (DirectObject):
                 #alpha (color)
                 if self.mode==MODE_HEIGHT and self.height_mode==HEIGHT_MODE_LEVEL:
                     self.tempColor=self.gui.ConfigOptions[1]
-                    self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
+                    self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1))                    
                     self.color_info['text']='%.2f'%self.tempColor
                 else:
                     self.painter.brushAlpha=self.gui.ConfigOptions[1]
@@ -972,14 +987,14 @@ class Editor (DirectObject):
 
     def changeGrassMode(self, mode=None, guiEvent=None):
         self.gui.grayOutButtons(self.grass_toolbar_id, (0,2), mode)
-        self.painter.brushes[BUFFER_GRASS].setColor(mode,0,0,1)
+        self.painter.setBrushIDColor(BUFFER_GRASS,(mode,0,0,1))
 
     def changeWalkMode(self, mode=None, guiEvent=None):
         self.gui.grayOutButtons(self.walkmap_toolbar_id, (0,2), mode)
         if mode==WALK_MODE_NOWALK:
-            self.painter.brushes[BUFFER_WALK].setColor(1,0,0, 1.0)
+            self.painter.setBrushIDColor(BUFFER_WALK,(1,0,0, 1.0))
         else:
-            self.painter.brushes[BUFFER_WALK].setColor(0,0,0, 1.0)
+            self.painter.setBrushIDColor(BUFFER_WALK,(0,0,0, 1.0))
 
     def changeHeightMode(self, mode=None, guiEvent=None):
         if mode==None:
@@ -988,29 +1003,29 @@ class Editor (DirectObject):
             mode=HEIGHT_MODE_UP
         if mode==HEIGHT_MODE_UP:
             self.tempColor=1
-            self.painter.brushAlpha=self.tempAlpha
-            self.painter.brushes[BUFFER_HEIGHT].setColor(1,1,1,self.painter.brushAlpha)
+            self.painter.brushAlpha=self.tempAlpha            
+            self.painter.setBrushIDColor(BUFFER_HEIGHT,(1,1,1,self.painter.brushAlpha))
             self.color_info['text']='%.2f'%self.tempAlpha
             self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 0.0)
         if mode==HEIGHT_MODE_DOWN:
             self.tempColor=0
-            self.painter.brushAlpha=self.tempAlpha
-            self.painter.brushes[BUFFER_HEIGHT].setColor(0,0,0,self.painter.brushAlpha)
+            self.painter.brushAlpha=self.tempAlpha            
+            self.painter.setBrushIDColor(BUFFER_HEIGHT,(0,0,0,self.painter.brushAlpha))
             self.color_info['text']='%.2f'%self.tempAlpha
             self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 0.0)
         if mode==HEIGHT_MODE_LEVEL:
             self.tempColor=self.painter.brushAlpha
             self.tempAlpha=self.painter.brushAlpha
-            self.painter.brushAlpha=1
-            self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
+            self.painter.brushAlpha=1            
+            self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1))
             self.color_info['text']='%.2f'%self.tempColor
             self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 0.0)
         if mode==HEIGHT_MODE_BLUR:
             self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 1.0)
             self.tempColor=self.painter.brushAlpha
             self.tempAlpha=self.painter.brushAlpha
-            self.painter.brushAlpha=1
-            self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
+            self.painter.brushAlpha=1            
+            self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1))
             self.color_info['text']='%.2f'%self.tempColor    
         self.gui.grayOutButtons(self.heightmode_toolbar_id, (0,4), mode)
         self.height_mode=mode
@@ -1749,17 +1764,19 @@ class Editor (DirectObject):
             self.painter.adjustBrushSize(-0.01)
             self.size_info['text']='%.2f'%self.painter.brushSize
         if self.keyMap['alpha_up']:
-            if self.mode==MODE_HEIGHT and self.height_mode==HEIGHT_MODE_LEVEL:
+            if self.mode==MODE_HEIGHT or self.height_mode==HEIGHT_MODE_LEVEL:
                 self.tempColor=min(1.0, max(0.0, self.tempColor+0.01))
-                self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
+                self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1))
+                self.painter.brushes[BUFFER_HEIGHT].setShaderInput("brush_color",Vec4(self.tempColor,self.tempColor,self.tempColor,1))
                 self.color_info['text']='%.2f'%self.tempColor
             else:
                 self.painter.adjustBrushAlpha(0.01)
                 self.color_info['text']='%.2f'%self.painter.brushAlpha
         if self.keyMap['alpha_down']:
-            if self.mode==MODE_HEIGHT and  self.height_mode==HEIGHT_MODE_LEVEL:
+            if self.mode==MODE_HEIGHT or  self.height_mode==HEIGHT_MODE_LEVEL:
                 self.tempColor=min(1.0, max(0.0, self.tempColor-0.01))
-                self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor,self.tempColor,self.tempColor,1)
+                self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1))
+                self.painter.brushes[BUFFER_HEIGHT].setShaderInput("brush_color",Vec4(self.tempColor,self.tempColor,self.tempColor,1))
                 self.color_info['text']='%.2f'%self.tempColor
             else:
                 self.painter.adjustBrushAlpha(-0.01)
@@ -1791,11 +1808,11 @@ class Editor (DirectObject):
                     self.filters[-2].setShaderInput('screen_size', Vec2(float(base.win.getXSize()),float(base.win.getYSize())))
 
     def setAtrMapColor(self, color1, color2, event=None):
-        self.painter.brushes[BUFFER_ATR].setColor(color1[0],color1[1],color1[2],self.painter.brushAlpha)
-        self.painter.brushes[BUFFER_ATR2].setColor(color2[0],color2[1],color2[2],self.painter.brushAlpha)
+        self.painter.setBrushIDColor(BUFFER_ATR,(color1[0],color1[1],color1[2],self.painter.brushAlpha))
+        self.painter.setBrushIDColor(BUFFER_ATR2,(color2[0],color2[1],color2[2],self.painter.brushAlpha))        
 
     def setGrassMapColor(self, color, event=None):
-        self.painter.brushes[BUFFER_GRASS].setColor(color[0],color[1],color[2],self.painter.brushAlpha)
+        self.painter.setBrushIDColor(BUFFER_GRASS,(color[0],color[1],color[2],self.painter.brushAlpha))
 
 if __name__ == "__main__":
     app=Editor()

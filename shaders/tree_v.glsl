@@ -3,7 +3,8 @@
 uniform mat4 p3d_ModelViewProjectionMatrix;
 uniform mat4 p3d_ModelViewMatrix;
 uniform mat4 p3d_ModelMatrix;
-uniform mat4 p3d_ModelMatrixInverseTranspose;
+//uniform mat4 p3d_ModelMatrixInverseTranspose;
+uniform mat4 tpose_model_to_world; //pre 1.10 cg-style input
 uniform vec4 fog;
 uniform float osg_FrameTime;
 
@@ -33,7 +34,7 @@ void main()
       
     gl_Position = p3d_ModelViewProjectionMatrix * vert;     
     uv = p3d_MultiTexCoord0;
-    normal = (p3d_ModelMatrixInverseTranspose * vec4(p3d_Normal, 0.0)).xyz; 
+    normal = (tpose_model_to_world * vec4(p3d_Normal, 0.0)).xyz; 
     
     vpos = p3d_ModelViewMatrix * vert;   
         

@@ -1,14 +1,14 @@
 //GLSL
-#version 110
+#version 140
 uniform mat4 p3d_ModelViewProjectionMatrix;
 uniform mat4 p3d_ModelMatrix;
-attribute vec4 p3d_Vertex;
-attribute vec4 p3d_Color;
-attribute vec2 p3d_MultiTexCoord0;
+in vec4 p3d_Vertex;
+in vec4 p3d_Color;
+in vec2 p3d_MultiTexCoord0;
 
-varying vec4 color;
-varying vec2 uv;
-varying vec2 map_uv;
+out vec4 color;
+out vec2 uv;
+out vec2 map_uv;
 
 void main()
     {
