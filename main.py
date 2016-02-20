@@ -1003,29 +1003,29 @@ class Editor (DirectObject):
             mode=HEIGHT_MODE_UP
         if mode==HEIGHT_MODE_UP:
             self.tempColor=1
-            self.painter.brushAlpha=self.tempAlpha            
-            self.painter.setBrushIDColor(BUFFER_HEIGHT,(1,1,1,self.painter.brushAlpha))
-            self.color_info['text']='%.2f'%self.tempAlpha
+            self.painter.brushAlpha=0.05
+            self.painter.setBrushIDColor(BUFFER_HEIGHT,(1,1,1,0.5), False)
+            self.color_info['text']='%.2f'%0.05
             self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 0.0)
         if mode==HEIGHT_MODE_DOWN:
             self.tempColor=0
-            self.painter.brushAlpha=self.tempAlpha            
-            self.painter.setBrushIDColor(BUFFER_HEIGHT,(0,0,0,self.painter.brushAlpha))
-            self.color_info['text']='%.2f'%self.tempAlpha
+            self.painter.brushAlpha=0.05           
+            self.painter.setBrushIDColor(BUFFER_HEIGHT,(0,0,0,0.05), False)
+            self.color_info['text']='%.2f'%0.05
             self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 0.0)
         if mode==HEIGHT_MODE_LEVEL:
             self.tempColor=self.painter.brushAlpha
             self.tempAlpha=self.painter.brushAlpha
-            self.painter.brushAlpha=1            
-            self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1))
-            self.color_info['text']='%.2f'%self.tempColor
+            self.painter.brushAlpha=0.25            
+            self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,0.25), False)
+            self.color_info['text']='%.2f'%0.25
             self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 0.0)
         if mode==HEIGHT_MODE_BLUR:
             self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 1.0)
             self.tempColor=self.painter.brushAlpha
             self.tempAlpha=self.painter.brushAlpha
             self.painter.brushAlpha=1            
-            self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1))
+            self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1), False)
             self.color_info['text']='%.2f'%self.tempColor    
         self.gui.grayOutButtons(self.heightmode_toolbar_id, (0,4), mode)
         self.height_mode=mode
@@ -1531,7 +1531,7 @@ class Editor (DirectObject):
                 self.color_info['text']='%.2f'%self.painter.brushAlpha
             self.gui.grayOutButtons(self.statusbar, (4,9), 4)
             self.painter.brushes[BUFFER_HEIGHT].show()
-            self.painter.brushes[BUFFER_HEIGHT].setColor(self.tempColor, self.tempColor, self.tempColor, self.painter.brushAlpha)
+            self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,self.painter.brushAlpha), False)
             self.painter.brushes[BUFFER_ATR].hide()
             self.painter.brushes[BUFFER_ATR2].hide()
             self.painter.brushes[BUFFER_GRASS].hide()
@@ -1764,19 +1764,17 @@ class Editor (DirectObject):
             self.painter.adjustBrushSize(-0.01)
             self.size_info['text']='%.2f'%self.painter.brushSize
         if self.keyMap['alpha_up']:
-            if self.mode==MODE_HEIGHT or self.height_mode==HEIGHT_MODE_LEVEL:
+            if self.mode==MODE_HEIGHT and self.height_mode==HEIGHT_MODE_LEVEL:
                 self.tempColor=min(1.0, max(0.0, self.tempColor+0.01))
-                self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1))
-                self.painter.brushes[BUFFER_HEIGHT].setShaderInput("brush_color",Vec4(self.tempColor,self.tempColor,self.tempColor,1))
+                self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1),False)                
                 self.color_info['text']='%.2f'%self.tempColor
             else:
                 self.painter.adjustBrushAlpha(0.01)
                 self.color_info['text']='%.2f'%self.painter.brushAlpha
         if self.keyMap['alpha_down']:
-            if self.mode==MODE_HEIGHT or  self.height_mode==HEIGHT_MODE_LEVEL:
+            if self.mode==MODE_HEIGHT and  self.height_mode==HEIGHT_MODE_LEVEL:
                 self.tempColor=min(1.0, max(0.0, self.tempColor-0.01))
-                self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1))
-                self.painter.brushes[BUFFER_HEIGHT].setShaderInput("brush_color",Vec4(self.tempColor,self.tempColor,self.tempColor,1))
+                self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1),False)                
                 self.color_info['text']='%.2f'%self.tempColor
             else:
                 self.painter.adjustBrushAlpha(-0.01)
