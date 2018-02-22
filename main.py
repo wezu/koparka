@@ -207,19 +207,19 @@ class Editor (DirectObject):
             id=self.textures_normal.index(tex)
             self.textures_normal[id]=cfg['nrm_tex_dir']+tex
 
-        self.gui.addButton(self.palette_id, self.textures_diffuse[0], self.setAtrMapColor, [(1.0, 0.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, self.textures_diffuse[1], self.setAtrMapColor, [(0.0, 1.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, self.textures_diffuse[2], self.setAtrMapColor, [(0.0, 0.0, 1.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, self.textures_diffuse[3], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(1.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, self.textures_diffuse[4], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(0.0, 1.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, self.textures_diffuse[5], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(0.0, 0.0, 1.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[0], self.setAtrMapColor, [(1.0, 0.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ], tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[1], self.setAtrMapColor, [(0.0, 1.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ], tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[2], self.setAtrMapColor, [(0.0, 0.0, 1.0, 1.0),(0.0, 0.0, 0.0, 1.0) ], tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[3], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(1.0, 0.0, 0.0, 1.0) ], tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[4], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(0.0, 1.0, 0.0, 1.0) ], tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[5], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(0.0, 0.0, 1.0, 1.0) ], tooltip=self.tooltip, tooltip_text='Set Brush Texture')
 
-        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 48], self.changeTex,[0] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 128], self.changeTex,[1] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 208], self.changeTex,[2] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 288], self.changeTex,[3] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 368], self.changeTex,[4] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 448], self.changeTex,[5] ,tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 48], self.changeTex,[0], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 128], self.changeTex,[1], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 208], self.changeTex,[2], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 288], self.changeTex,[3], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 368], self.changeTex,[4], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 448], self.changeTex,[5], tooltip=self.tooltip, tooltip_text='Change texture')
 
         #grass 'palette'
         self.grass_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (80, 512),icon_size=80, x_offset=-80, y_offset=0, hover_command=self.onToolbarHover)
@@ -228,13 +228,13 @@ class Editor (DirectObject):
             if  Filename(fname).getExtension() in ('dds', 'png'):
                 self.grass_textures.append(cfg['grs_tex_dir']+fname)
         sort_nicely(self.grass_textures)
-        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[0], self.setGrassMapColor, [(1.0, 0.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
-        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[1], self.setGrassMapColor, [(0.0, 1.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
-        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[2], self.setGrassMapColor, [(0.0, 0.0, 1.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
-        self.gui.addButton(self.grass_toolbar_id, cfg['theme']+'/del.png', self.setGrassMapColor, [(0.0, 0.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Remove Grass', back_icon=cfg['theme']+'/icon.png')
-        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 48], self.changeGrassTex,[0] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 128], self.changeGrassTex,[1] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 208], self.changeGrassTex,[2] ,tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[0], self.setGrassMapColor, [(1.0, 0.0, 0.0, 1.0)], tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
+        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[1], self.setGrassMapColor, [(0.0, 1.0, 0.0, 1.0)], tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
+        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[2], self.setGrassMapColor, [(0.0, 0.0, 1.0, 1.0)], tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
+        self.gui.addButton(self.grass_toolbar_id, cfg['theme']+'/del.png', self.setGrassMapColor, [(0.0, 0.0, 0.0, 1.0)], tooltip=self.tooltip, tooltip_text='Remove Grass', back_icon=cfg['theme']+'/icon.png')
+        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 48], self.changeGrassTex,[0], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 128], self.changeGrassTex,[1], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 208], self.changeGrassTex,[2], tooltip=self.tooltip, tooltip_text='Change texture')
         self.gui.hideElement(self.grass_toolbar_id)
 
         #save/load
