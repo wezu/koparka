@@ -142,7 +142,7 @@ class GuiHelper():
         value=None
         try:
             value=astEval(text)
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 value=fail_value
         except:
             value=fail_value    
@@ -157,7 +157,7 @@ class GuiHelper():
         self.dialogOk.bind(DGG.B1PRESS, command, arg)
     
     def validateEntry(self,id, text=None): 
-        if isinstance(id, basestring):
+        if isinstance(id, str):
             id=text
         value=0.0
         if id<100:
@@ -1009,7 +1009,7 @@ class GuiHelper():
             pixel=astEval(color)  
             self.sample['frameColor']=(pixel[0]/255.0, pixel[1]/255.0, pixel[2]/255.0, 1.0)            
         except:
-            print "Unknown format!"
+            print("Unknown format!")
             
     def pickColor(self, event=None):        
         mpos=Vec2(event.getMouse()[0], event.getMouse()[1])                
@@ -1025,7 +1025,7 @@ class GuiHelper():
             self.colorEntry.set('{0}, {1}, {2}'.format(*pixel))
             self.sample['frameColor']=(pixel[0]/255.0, pixel[1]/255.0, pixel[2]/255.0, 1.0)
         except:
-            print "Pixel out of range, try again!"
+            print("Pixel out of range, try again!")
             
     def addColorPicker(self, apply_command):
         self.colorPickerFrame=DirectFrame(frameSize=_rec2d(256,256+64),

@@ -3,7 +3,7 @@ import json
 #import os
 from direct.stdpy.file import exists, open
 from direct.actor.Actor import Actor
-from vfx_loader import createEffect
+from .vfx_loader import createEffect
 
 def loadModel(file, collision=None, animation=None):
     model=None
@@ -15,7 +15,7 @@ def loadModel(file, collision=None, animation=None):
         elif 'idle' in animation:
             model.loop('idle')
         else: #some random anim
-             model.loop(animation.items()[0])
+             model.loop(list(animation.items())[0])
     else:
         model=loader.loadModel(file)
     model.setPythonTag('model_file', file)
@@ -53,7 +53,7 @@ def loadModel(file, collision=None, animation=None):
             model.find('**/collision').setCollideMask(BitMask32.bit(2))        
             model.find('**/collision').setPythonTag('object', model)        
         except:
-            print "WARNING: Model {0} has no collision geometry!\nGenerating collision sphere...".format(file)
+            print("WARNING: Model {0} has no collision geometry!\nGenerating collision sphere...".format(file))
             bounds=model.getBounds()
             radi=bounds.getRadius()
             cent=bounds.getCenter()
@@ -74,7 +74,7 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures, gras
         json_data=json.load(f)
     return_data=[]    
     for object in json_data:
-        print ".",
+        print(".", end=' ')
         model=None
         if 'textures' in object:
             i=0
@@ -88,7 +88,7 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures, gras
                     normal_tex=tex.replace('/diffuse/','/normal/')
                     terrain.setTexture(terrain.findTextureStage('tex{0}n'.format(i+1)), loader.loadTexture(normal_tex), 1)
                 else:
-                    print "WARNING: texture '{0}' not found!".format(tex)
+                    print("WARNING: texture '{0}' not found!".format(tex))
                 i+=1
             continue  
         elif 'grass' in object:
@@ -103,7 +103,7 @@ def LoadScene(file, quad_tree, actors, terrain, textures, current_textures, gras
                         grs_tex.setWrapV(Texture.WMClamp)
                     grass.setTexture(grass.findTextureStage('tex{0}'.format(i+1)), grs_tex, 1)                    
                 else:
-                    print "WARNING: grass texture '{0}' not found!".format(tex)
+                    print("WARNING: grass texture '{0}' not found!".format(tex))
                 i+=1
             continue        
         elif 'model' in object:
@@ -144,11 +144,11 @@ def SaveScene(file, quad_tree, extra_data=None):
         for child in node.getChildren():
             temp={}            
             if child.hasPythonTag('actor_files'):
-                temp['actor']=unicode(child.getPythonTag('actor_files')[0])
+                temp['actor']=str(child.getPythonTag('actor_files')[0])
                 temp['actor_anims']=child.getPythonTag('actor_files')[1]
                 temp['actor_collision']=child.getPythonTag('actor_files')[2]
             elif child.hasPythonTag('model_file'):
-                temp['model']=unicode(child.getPythonTag('model_file'))    
+                temp['model']=str(child.getPythonTag('model_file'))    
             if child.hasPythonTag('light_color'):
                 c=child.getPythonTag('light_color')
                 temp['color_r']=c[0]    
@@ -163,7 +163,7 @@ def SaveScene(file, quad_tree, extra_data=None):
             temp['scale']=child.getScale()[0]            
             temp['parent_name']=node.getName()
             temp['parent_index']=quad_tree.index(node)
-            temp['props']=unicode(child.getPythonTag('props'))
+            temp['props']=str(child.getPythonTag('props'))
             export_data.append(temp)
     with open(file, 'w') as outfile:
         json.dump(export_data, outfile, indent=4, separators=(',', ': '), sort_keys=True)        

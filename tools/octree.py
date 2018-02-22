@@ -115,7 +115,7 @@ def buildOctree(group):
     global verbose, prepCollide
     if prepCollide: group.triangulatePolygons(0xff)
     polywraps = [i for i in genPolyWraps(group)]
-    if verbose: print len(polywraps),"polygons"
+    if verbose: print(len(polywraps),"polygons")
     
     center = getCenter(polywraps)
     quadrants = splitIntoQuadrants(polywraps,center)
@@ -133,15 +133,15 @@ def recr(quadrants,indent = 1):
   """
   global verbose, maxNumber, maxRec, prepCollide
   qs = [i for i in quadrants]
-  if verbose: print "  "*indent,"8 quadrents have ",[len(i) for i in qs]," polygons"
+  if verbose: print("  "*indent,"8 quadrents have ",[len(i) for i in qs]," polygons")
   
   for i, quadrent in enumerate(qs):
     if len(quadrent) == 0:
-      if verbose: print "  "*indent," no polygons in quadrent"
+      if verbose: print("  "*indent," no polygons in quadrent")
       continue
     elif (len(quadrent) <= maxNumber) or (indent >= maxRec):
       center = getCenter(quadrent)
-      if verbose: print "  "*indent," triangle center", center, len(quadrent)
+      if verbose: print("  "*indent," triangle center", center, len(quadrent))
       eg = EggGroup('leaf %i-%i (%i tri)'%(indent,i,len(quadrent)))
       if prepCollide: eg.addObjectType('barrier')
       for pw in quadrent:
@@ -180,11 +180,11 @@ def iterVertexes(eggNode):
   """ iterate all vertexes of polygon or polylist """
   try:
     index = eggNode.getHighestIndex()
-    for i in xrange(index+1):
+    for i in range(index+1):
       yield eggNode.getVertex(i)
   except:
     index = eggNode.getNumVertices()
-    for i in xrange(index):
+    for i in range(index):
       yield eggNode.getVertex(i)
     pass
 
@@ -192,7 +192,7 @@ def iterVertexes(eggNode):
 def eggLs(eggNode,indent=0):
   """ list whats in our egg """
   if eggNode.__class__.__name__ != "EggPolygon":
-    print " "*indent+eggNode.__class__.__name__+" "+eggNode.getName()
+    print(" "*indent+eggNode.__class__.__name__+" "+eggNode.getName())
     for eggChildren in iterChildren(eggNode):
       eggLs(eggChildren,indent+1)
 
@@ -220,7 +220,7 @@ def octreefy(infile,outfile):
   vertexPool = False
   comment = None
   if verbose:
-    print 'Input:'
+    print('Input:')
     eggLs(egg)
 
   # find the fist group and find the first vertexPool
@@ -262,22 +262,22 @@ def octreefy(infile,outfile):
     if listResultingEgg: eggLs(ed)
     ed.writeEgg(Filename(outfile))
   else:
-    print 'Could not find vertexPool or group'
+    print('Could not find vertexPool or group')
 
 
 def main():
   """ interface to our egg octreefier """
   try:
     optlist, list = getopt.getopt(sys.argv[1:], 'hlvo:n:r:c')
-  except Exception,e:
-    print e
+  except Exception as e:
+    print(e)
     sys.exit(0)
 
   global verbose, listResultingEgg, maxNumber, maxRec, prepCollide
   outfile = False
   for opt in optlist:
     if opt[0] == '-h':
-      print __doc__
+      print(__doc__)
       sys.exit(0)
     if opt[0] == '-l':
       listResultingEgg = True
@@ -292,7 +292,7 @@ def main():
     if opt[0] == '-o':
       outfile = opt[1]
   if outfile and len(list) > 1:
-        print "error can have an outfile and more then one infile"
+        print("error can have an outfile and more then one infile")
         sys.exit(0)
 
   if maxNumber==-1:
@@ -304,7 +304,7 @@ def main():
 
   for file in list:
     if '.egg' in file:
-      if verbose: print "processing",file
+      if verbose: print("processing",file)
       if outfile:
         octreefy(file,outfile)
       else:

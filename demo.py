@@ -39,17 +39,17 @@ from direct.actor.Actor import Actor
 import json
 import sys
 
-from demo_util import loadLevel
-from demo_util import setupLights
-from demo_util import setupShadows
-from demo_util import setupFilters
-from demo_util import processProps
-from demo_util import CameraControler
-from demo_util import PointAndClick
-from demo_util import Navigator
+from .demo_util import loadLevel
+from .demo_util import setupLights
+from .demo_util import setupShadows
+from .demo_util import setupFilters
+from .demo_util import processProps
+from .demo_util import CameraControler
+from .demo_util import PointAndClick
+from .demo_util import Navigator
 
 
-from lightmanager import LightManager
+from .lightmanager import LightManager
 
 
 class Demo (DirectObject):
@@ -194,12 +194,12 @@ class Demo (DirectObject):
         #node.setTransparency(TransparencyAttrib.MAlpha)
         
     def setCollideMaskOn(self, node, mask):
-        print "setting mask", mask, "on", node
+        print("setting mask", mask, "on", node)
         node.setCollideMask(BitMask32.bit(mask))
     
     def hideNode(self, node, doHide):
         if doHide==1:
-            print "hidding node", node
+            print("hidding node", node)
             node.hide()    
     
     def setStratPos(self, node, not_used=None):

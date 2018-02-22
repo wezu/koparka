@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 from panda3d.core import LPoint3d, CS_default
 from panda3d.egg import EggData
 #from math import floor
