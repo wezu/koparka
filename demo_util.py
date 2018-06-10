@@ -90,7 +90,7 @@ def loadModel(file, collision=None, animation=None):
         elif 'idle' in animation:
             model.loop('idle')
         else: #some random anim
-             model.loop(animation.items()[0])
+             model.loop(list(animation.items())[0])
     else:
         model=loader.loadModel(file)
     model.setPythonTag('model_file', file)
@@ -118,7 +118,7 @@ def loadModel(file, collision=None, animation=None):
             model.find('**/collision').setCollideMask(BitMask32.bit(2))
             model.find('**/collision').setPythonTag('object', model)
         except:
-            print "WARNING: Model {0} has no collision geometry!\nGenerating collision sphere...".format(file)
+            print("WARNING: Model {0} has no collision geometry!\nGenerating collision sphere...".format(file))
             bounds=model.getBounds()
             radi=bounds.getRadius()
             cent=bounds.getCenter()
@@ -607,14 +607,14 @@ class Navigator():
             self.target=target
             #print "new target"
         except:
-            print "Can't get there!"
+            print("Can't get there!")
 
     def AIUpdate(self,task):
         try:
             self.AIworld.update()
         except:
-             print "AI exception!"
-             print "the AI exploded, if you can provide info on how it happend, fell free to bug rdb on IRC about it, don't tell him I send you"
+             print("AI exception!")
+             print("the AI exploded, if you can provide info on how it happend, fell free to bug rdb on IRC about it, don't tell him I send you")
         #self.AIworld.update()
         pos=self.seekerNode.getPos(render)
         pos[2]=self.seeker.getZ()

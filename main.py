@@ -1,3 +1,4 @@
+from __future__ import print_function
 from panda3d.core import loadPrcFile
 loadPrcFile("cfg.prc")
 from direct.showbase.AppRunnerGlobal import appRunner
@@ -5,7 +6,7 @@ from panda3d.core import Filename
 if appRunner:
     path=appRunner.p3dFilename.getDirname()+'/'
 else:
-    path=""    
+    path=""
 from panda3d.core import WindowProperties
 wp = WindowProperties.getDefault()
 wp.setOrigin(-2,-2)
@@ -36,7 +37,7 @@ def sort_nicely( l ):
     convert = lambda text: int(text) if text.isdigit() else text
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ]
     l.sort( key=alphanum_key )
-    
+
 def convertToPatches(model):
     """ Converts a model to patches. This is required before being able
     to use it with tesselation shaders """
@@ -46,7 +47,7 @@ def convertToPatches(model):
         num_geoms = geom_node.get_num_geoms()
         for i in range(num_geoms):
             geom_node.modify_geom(i).make_patches_in_place()
-            
+
 BUFFER_HEIGHT=0
 BUFFER_ATR=1
 BUFFER_GRASS=2
@@ -85,14 +86,14 @@ MASK_TERRAIN_ONLY=BitMask32.bit(3)
 cfg={}
 
 class Editor (DirectObject):
-    def __init__(self):        
+    def __init__(self):
         self.loadcfg()
         #init ShowBase
         base = ShowBase.ShowBase()
         render.hide(MASK_TERRAIN_ONLY)
         base.enableParticles()
         #PStatClient.connect()
-        
+
         #manager for post process filters (fxaa, soft shadows, dof)
         manager=FilterManager(base.win, base.cam)
         fxaa_only=True
@@ -147,7 +148,7 @@ class Editor (DirectObject):
         self.grass_textures=[]
         self.current_grass_textures=[0,1,2]
         self.last_object_index=0
-        
+
         #camera control
         base.disableMouse()
         self.controler=CameraControler(cfg)
@@ -178,7 +179,7 @@ class Editor (DirectObject):
         #gl selection
         if cfg['use_gl_select']:
             self.painter.setupGlSelect(self.painter.textures[BUFFER_HEIGHT])
-            
+
         #GUI
         self.gui=GuiHelper(path, cfg['theme'])
         #tooltip bar
@@ -207,19 +208,19 @@ class Editor (DirectObject):
             id=self.textures_normal.index(tex)
             self.textures_normal[id]=cfg['nrm_tex_dir']+tex
 
-        self.gui.addButton(self.palette_id, self.textures_diffuse[0], self.setAtrMapColor, [(1.0, 0.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, self.textures_diffuse[1], self.setAtrMapColor, [(0.0, 1.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, self.textures_diffuse[2], self.setAtrMapColor, [(0.0, 0.0, 1.0, 1.0),(0.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, self.textures_diffuse[3], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(1.0, 0.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, self.textures_diffuse[4], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(0.0, 1.0, 0.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
-        self.gui.addButton(self.palette_id, self.textures_diffuse[5], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(0.0, 0.0, 1.0, 1.0) ] ,tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[0], self.setAtrMapColor, [(1.0, 0.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ], tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[1], self.setAtrMapColor, [(0.0, 1.0, 0.0, 1.0),(0.0, 0.0, 0.0, 1.0) ], tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[2], self.setAtrMapColor, [(0.0, 0.0, 1.0, 1.0),(0.0, 0.0, 0.0, 1.0) ], tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[3], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(1.0, 0.0, 0.0, 1.0) ], tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[4], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(0.0, 1.0, 0.0, 1.0) ], tooltip=self.tooltip, tooltip_text='Set Brush Texture')
+        self.gui.addButton(self.palette_id, self.textures_diffuse[5], self.setAtrMapColor, [(0.0, 0.0, 0.0, 1.0),(0.0, 0.0, 1.0, 1.0) ], tooltip=self.tooltip, tooltip_text='Set Brush Texture')
 
-        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 48], self.changeTex,[0] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 128], self.changeTex,[1] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 208], self.changeTex,[2] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 288], self.changeTex,[3] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 368], self.changeTex,[4] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 448], self.changeTex,[5] ,tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 48], self.changeTex,[0], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 128], self.changeTex,[1], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 208], self.changeTex,[2], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 288], self.changeTex,[3], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 368], self.changeTex,[4], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.palette_id, [32,32], cfg['theme']+'/change.png',[48, 448], self.changeTex,[5], tooltip=self.tooltip, tooltip_text='Change texture')
 
         #grass 'palette'
         self.grass_toolbar_id=self.gui.addToolbar(self.gui.TopRight, (80, 512),icon_size=80, x_offset=-80, y_offset=0, hover_command=self.onToolbarHover)
@@ -227,14 +228,14 @@ class Editor (DirectObject):
         for fname in dirList:
             if  Filename(fname).getExtension() in ('dds', 'png'):
                 self.grass_textures.append(cfg['grs_tex_dir']+fname)
-        sort_nicely(self.grass_textures)        
-        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[0], self.setGrassMapColor, [(1.0, 0.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
-        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[1], self.setGrassMapColor, [(0.0, 1.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
-        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[2], self.setGrassMapColor, [(0.0, 0.0, 1.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
-        self.gui.addButton(self.grass_toolbar_id, cfg['theme']+'/del.png', self.setGrassMapColor, [(0.0, 0.0, 0.0, 1.0)] ,tooltip=self.tooltip, tooltip_text='Remove Grass', back_icon=cfg['theme']+'/icon.png')
-        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 48], self.changeGrassTex,[0] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 128], self.changeGrassTex,[1] ,tooltip=self.tooltip, tooltip_text='Change texture')
-        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 208], self.changeGrassTex,[2] ,tooltip=self.tooltip, tooltip_text='Change texture')
+        sort_nicely(self.grass_textures)
+        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[0], self.setGrassMapColor, [(1.0, 0.0, 0.0, 1.0)], tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
+        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[1], self.setGrassMapColor, [(0.0, 1.0, 0.0, 1.0)], tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
+        self.gui.addButton(self.grass_toolbar_id, self.grass_textures[2], self.setGrassMapColor, [(0.0, 0.0, 1.0, 1.0)], tooltip=self.tooltip, tooltip_text='Set Grass Texture', back_icon=cfg['theme']+'/icon.png')
+        self.gui.addButton(self.grass_toolbar_id, cfg['theme']+'/del.png', self.setGrassMapColor, [(0.0, 0.0, 0.0, 1.0)], tooltip=self.tooltip, tooltip_text='Remove Grass', back_icon=cfg['theme']+'/icon.png')
+        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 48], self.changeGrassTex,[0], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 128], self.changeGrassTex,[1], tooltip=self.tooltip, tooltip_text='Change texture')
+        self.gui.addFloatingButton(self.grass_toolbar_id, [32,32], cfg['theme']+'/change.png',[48, 208], self.changeGrassTex,[2], tooltip=self.tooltip, tooltip_text='Change texture')
         self.gui.hideElement(self.grass_toolbar_id)
 
         #save/load
@@ -286,7 +287,7 @@ class Editor (DirectObject):
         #get actors
         dirList=listdir(Filename(path+cfg['actors_dir']).toOsSpecific())
         for fname in dirList:
-            if isdir(path+cfg['actors_dir']+fname): 
+            if isdir(path+cfg['actors_dir']+fname):
                 self.gui.addListButton(self.actor_toolbar_id, fname, command=self.setActor, arg=[cfg['actors_dir']+fname])
         #get collision-models
         #these hava a part named 'editor', when loading these 'editor' parts should be hidden
@@ -368,35 +369,35 @@ class Editor (DirectObject):
         #for tex in self.textures_normal[:6]:
         #    id=self.textures_normal.index(tex)
         #    self.mesh.setTexture(self.mesh.findTextureStage('tex{0}n'.format(id+1)), loader.loadTexture(tex, anisotropicDegree=2), 1)
-               
+
         #srgb=ConfigVariableBool('framebuffer-srgb',False).getValue()
         #srgb=cfg["srgb"]
         #print srgb
         for tex in self.textures_diffuse[:6]:
             id=self.textures_diffuse.index(tex)
-            new_tex=loader.loadTexture(tex, anisotropicDegree=2 )  
+            new_tex=loader.loadTexture(tex, anisotropicDegree=2 )
             #if ConfigVariableBool('framebuffer-srgb',False).getValue():
             if cfg["srgb"]:
-                tex_format=new_tex.getFormat()  
+                tex_format=new_tex.getFormat()
                 if tex_format==Texture.F_rgb:
                     tex_format=Texture.F_srgb
                 elif tex_format==Texture.F_rgba:
-                    tex_format=Texture.F_srgb_alpha   
-                new_tex.setFormat(tex_format)                 
+                    tex_format=Texture.F_srgb_alpha
+                new_tex.setFormat(tex_format)
             self.mesh.setTexture(self.mesh.findTextureStage('tex{0}'.format(id+1)), new_tex, 1)
         for tex in self.textures_normal[:6]:
             id=self.textures_normal.index(tex)
             self.mesh.setTexture(self.mesh.findTextureStage('tex{0}n'.format(id+1)), loader.loadTexture(tex, anisotropicDegree=2), 1)
-            
-            
+
+
         self.mesh.reparentTo(render)
-        
+
         if cfg["shader_terrain_tes"]=='':
             self.mesh.setShader(Shader.load(Shader.SLGLSL, cfg["shader_terrain_v"],cfg["shader_terrain_f"]))
         else:
-            convertToPatches(self.mesh)  
-            self.mesh.setShader(Shader.load(Shader.SLGLSL, cfg["shader_terrain_v"],cfg["shader_terrain_f"],"",cfg["shader_terrain_tc"],cfg["shader_terrain_tes"]))            
-            
+            convertToPatches(self.mesh)
+            self.mesh.setShader(Shader.load(Shader.SLGLSL, cfg["shader_terrain_v"],cfg["shader_terrain_f"],"",cfg["shader_terrain_tc"],cfg["shader_terrain_tes"]))
+
         self.mesh.setShaderInput("height", self.painter.textures[BUFFER_HEIGHT])
         self.mesh.setShaderInput("atr1", self.painter.textures[BUFFER_ATR])
         self.mesh.setShaderInput("atr2", self.painter.textures[BUFFER_ATR2])
@@ -407,7 +408,7 @@ class Editor (DirectObject):
         self.mesh.node().setBounds(OmniBoundingVolume())
         self.mesh.node().setFinal(1)
         self.mesh.setBin("background", 11)
-        self.mesh.showThrough(MASK_TERRAIN_ONLY)        
+        self.mesh.showThrough(MASK_TERRAIN_ONLY)
         if cfg['shadow_terrain']==False:
             self.mesh.hide(MASK_SHADOW)
         if cfg['reflect_terrain']==False:
@@ -526,13 +527,13 @@ class Editor (DirectObject):
         render.setShaderInput('daytime', 12.0)
 
         #ambient light
-        self.lManager.ambientLight(0.15, 0.15, 0.2)    
-        
-        self.shadowCamera=render.attachNewNode('fake_shadow_camera_node')        
+        self.lManager.ambientLight(0.15, 0.15, 0.2)
+
+        self.shadowCamera=render.attachNewNode('fake_shadow_camera_node')
         self.shadowCamera.setPos(256, 256, 1000)
         self.shadowCamera.setHpr(90, -90, 0)
         self.sunNode=render.attachNewNode('sunNode')
-        self.sunNode.setPos(256, 256, 0)        
+        self.sunNode.setPos(256, 256, 0)
         self.shadowCamera.wrtReparentTo(self.sunNode)
 
         #fog
@@ -586,15 +587,15 @@ class Editor (DirectObject):
         #tasks
         taskMgr.add(self.perFrameUpdate, 'perFrameUpdate_task', sort=46)
         #self.clock=12.0
-        #taskMgr.doMethodLater(.1, self.clockTick,'clock_task') 
-    
+        #taskMgr.doMethodLater(.1, self.clockTick,'clock_task')
+
     def setHeading(self,slider):
         if self.mode in (MODE_GRASS,MODE_HEIGHT, MODE_TEXTURE, MODE_WALK):
             self.painter.setBrushHeading(slider)
             self.heading_info['text']=self.hpr_axis+'%.0f'%self.painter.brushes[0].getH()
-        else:            
-            self.heading_info['text']=self.objectPainter.setHpr(self.hpr_axis, slider=slider)        
-        
+        else:
+            self.heading_info['text']=self.objectPainter.setHpr(self.hpr_axis, slider=slider)
+
     def setStrength(self, slider):
         if self.mode in (MODE_GRASS,MODE_HEIGHT, MODE_TEXTURE, MODE_WALK):
             self.painter.setBrushAlpha(slider)
@@ -602,7 +603,7 @@ class Editor (DirectObject):
         else:
             self.objectPainter.setZ(slider)
             self.color_info['text']='%.2f'%self.objectPainter.currentZ
-                
+
     def setSize(self,slider):
         if self.mode in (MODE_GRASS,MODE_HEIGHT, MODE_TEXTURE, MODE_WALK):
             self.painter.setBrushSize(slider)
@@ -610,7 +611,7 @@ class Editor (DirectObject):
         else:
             self.objectPainter.setScale(slider)
             self.size_info['text']='%.2f'%self.objectPainter.currentScale
-        
+
     def loadcfg(self):
         cfg['srgb']=ConfigVariableBool('framebuffer-srgb',False).getValue()
         cfg['filters']=ConfigVariableInt('koparka-filters', 2).getValue()
@@ -697,7 +698,7 @@ class Editor (DirectObject):
         cfg['key_cam_zoomout2']=ConfigVariableString('koparka-key-camera-zoomout2','-').getValue()
         cfg['theme']=ConfigVariableString('koparka-gui-theme','icon').getValue()
         cfg['use_gl_select']=ConfigVariableBool('koparka-gl-select', False).getValue()
-        
+
     def setLightColor(self):
         if self.objectPainter.currentObject:
             if self.objectPainter.currentObject.hasPythonTag('hasLight'):
@@ -777,7 +778,7 @@ class Editor (DirectObject):
                     child.setPythonTag('hasLight', id)
 
     def setupFilters(self, manager, path="", fxaa_only=False):
-        colorTex = Texture()#the scene               
+        colorTex = Texture()#the scene
         filters=[]
         final_quad = manager.renderSceneInto(colortex=colorTex)
         #fxaa
@@ -978,7 +979,7 @@ class Editor (DirectObject):
                 #alpha (color)
                 if self.mode==MODE_HEIGHT and self.height_mode==HEIGHT_MODE_LEVEL:
                     self.tempColor=self.gui.ConfigOptions[1]
-                    self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1))                    
+                    self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1))
                     self.color_info['text']='%.2f'%self.tempColor
                 else:
                     self.painter.brushAlpha=self.gui.ConfigOptions[1]
@@ -1009,14 +1010,14 @@ class Editor (DirectObject):
             self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 0.0)
         if mode==HEIGHT_MODE_DOWN:
             self.tempColor=0
-            self.painter.brushAlpha=0.05           
+            self.painter.brushAlpha=0.05
             self.painter.setBrushIDColor(BUFFER_HEIGHT,(0,0,0,0.05), False)
             self.color_info['text']='%.2f'%0.05
             self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 0.0)
         if mode==HEIGHT_MODE_LEVEL:
             self.tempColor=self.painter.brushAlpha
             self.tempAlpha=self.painter.brushAlpha
-            self.painter.brushAlpha=0.25            
+            self.painter.brushAlpha=0.25
             self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,0.25), False)
             self.color_info['text']='%.2f'%0.25
             self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 0.0)
@@ -1024,9 +1025,9 @@ class Editor (DirectObject):
             self.painter.brushes[BUFFER_HEIGHT].setShaderInput('use_map', 1.0)
             self.tempColor=self.painter.brushAlpha
             self.tempAlpha=self.painter.brushAlpha
-            self.painter.brushAlpha=1            
+            self.painter.brushAlpha=1
             self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1), False)
-            self.color_info['text']='%.2f'%self.tempColor    
+            self.color_info['text']='%.2f'%self.tempColor
         self.gui.grayOutButtons(self.heightmode_toolbar_id, (0,4), mode)
         self.height_mode=mode
 
@@ -1051,21 +1052,21 @@ class Editor (DirectObject):
         if model_path==None:
             model_path=self.last_model_path
         else:
-            self.last_object_index=-1    
+            self.last_object_index=-1
         models=[]
         dirList=listdir(Filename(model_path).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('egg', 'bam', 'pz'):
                 model_name=str(Filename(fname).getBasenameWoExtension()).strip(".egg")
                 models.append(model_path+model_name)
-        if self.last_object_index+direction < len(models):  
+        if self.last_object_index+direction < len(models):
             self.last_object_index+=direction
             if self.last_object_index<0:
-                self.last_object_index=len(models)-1                
+                self.last_object_index=len(models)-1
         else:
-            self.last_object_index=0            
-        print "model index: ", self.last_object_index
-                
+            self.last_object_index=0
+        print("model index: ", self.last_object_index)
+
         if self.objectPainter.currentWall:
             self.objectPainter.loadWall(models[self.last_object_index], True)
         else:
@@ -1077,29 +1078,29 @@ class Editor (DirectObject):
         #    self.gui.blink(self.multi_toolbar_id, id)
         if model_path==None:
             model_path=self.last_model_path
-        else:    
-            self.last_object_index=-1 
+        else:
+            self.last_object_index=-1
         models=[]
         dirList=listdir(Filename(model_path).toOsSpecific())
         for fname in dirList:
             if  Filename(fname).getExtension() in ('egg', 'bam', 'pz'):
                 model_name=str(Filename(fname).getBasenameWoExtension()).strip(".egg")
-                models.append(model_path+model_name)                         
-                
-        if self.last_object_index+direction < len(models):  
+                models.append(model_path+model_name)
+
+        if self.last_object_index+direction < len(models):
             self.last_object_index+=direction
             if self.last_object_index<0:
                 self.last_object_index=len(models)-1
         else:
-            self.last_object_index=0            
-        print "model index: ", self.last_object_index
-        self.objectPainter.loadModel(models[self.last_object_index])                
+            self.last_object_index=0
+        print("model index: ", self.last_object_index)
+        self.objectPainter.loadModel(models[self.last_object_index])
         #self.objectPainter.adjustHpr(random.randint(0,72)*5,axis='H: ')
         #self.objectPainter.adjustScale(random.randint(-1,1)*0.05)
         #self.heading_info['text']=self.objectPainter.adjustHpr(0,self.hpr_axis)
         #self.size_info['text']='%.2f'%self.objectPainter.currentScale
-        self.last_model_path=model_path        
-        
+        self.last_model_path=model_path
+
     def setActor(self, model, id=None, guiEvent=None):
         if id!=None:
             #self.gui.blink(self.object_toolbar_id, id)
@@ -1214,41 +1215,41 @@ class Editor (DirectObject):
         save_dir=path+self.gui.entry1.get()
         feedback=""
         if self.gui.flags[0]:#height map
-            print "loading height map...",
+            print("loading height map...", end=' ')
             file=path+save_dir+"/"+self.gui.entry2.get()+'.png'
             if exists(file):
                 self.painter.paintPlanes[BUFFER_HEIGHT].setTexture(loader.loadTexture(file))
-                print "done"
+                print("done")
             else:
-                print "FILE NOT FOUND!"
+                print("FILE NOT FOUND!")
                 feedback+=file +' '
         if self.gui.flags[1]:#atr map, both
-            print "loading detail map...",
+            print("loading detail map...", end=' ')
             file=path+save_dir+"/"+self.gui.entry3.get()+'0.png'
             if exists(file):
                 self.painter.paintPlanes[BUFFER_ATR].setTexture(loader.loadTexture(file))
-                print "ok...",
+                print("ok...", end=' ')
             else:
-                print "FILE NOT FOUND!"
+                print("FILE NOT FOUND!")
                 feedback+=file+' '
             file=path+save_dir+"/"+self.gui.entry3.get()+'1.png'
             if exists(file):
                 self.painter.paintPlanes[BUFFER_ATR2].setTexture(loader.loadTexture(file))
-                print "done"
+                print("done")
             else:
-                print "FILE NOT FOUND!"
+                print("FILE NOT FOUND!")
                 feedback+=file+' '
         if self.gui.flags[2]:#grass map
-            print "loading grass map...",
+            print("loading grass map...", end=' ')
             file=path+save_dir+"/"+self.gui.entry5.get()+'.png'
             if exists(file):
                 self.painter.paintPlanes[BUFFER_GRASS].setTexture(loader.loadTexture(file))
-                print "done"
+                print("done")
             else:
-                print "FILE NOT FOUND!"
+                print("FILE NOT FOUND!")
                 feedback+=file+' '
         if self.gui.flags[4]:#objects and textures used for terrain
-            print "loading objects",
+            print("loading objects", end=' ')
             file=path+save_dir+"/"+self.gui.entry6.get()
             data=LoadScene(file,
                            self.objectPainter.quadtree,
@@ -1259,7 +1260,7 @@ class Editor (DirectObject):
                            self.grass,
                            self.grass_textures,
                            self.current_grass_textures)
-            if data:               
+            if data:
                 i=0
                 for id in self.curent_textures:
                     self.gui.elements[self.palette_id]['buttons'][i]['frameTexture']=self.textures_diffuse[id]
@@ -1307,12 +1308,12 @@ class Editor (DirectObject):
                     self.wBuffer.setActive(False)
                     self.mesh.setShaderInput("water_level",-10.0)
                 self.findLights()
-                print "done"
+                print("done")
             else:
-                print "FILE NOT FOUND!"
+                print("FILE NOT FOUND!")
                 feedback+=file+' '
         if self.gui.flags[5]:#collision
-            print "loading collision mesh...",
+            print("loading collision mesh...", end=' ')
             file=path+save_dir+"/"+self.gui.entry7.get()+'.egg'
             if exists(file):
                 if self.collision_mesh:
@@ -1320,20 +1321,20 @@ class Editor (DirectObject):
                 self.collision_mesh=loader.loadModel(file)
                 self.collision_mesh.reparentTo(render)
                 self.collision_mesh.setCollideMask(BitMask32.bit(1))
-                print "done"
+                print("done")
             else:
-                print "FILE NOT FOUND!"
+                print("FILE NOT FOUND!")
                 feedback+=file+' '
         if self.gui.flags[6]:#nav map
-            print "loading navigation map...",
+            print("loading navigation map...", end=' ')
             file=path+save_dir+"/"+self.gui.entry8.get()+".png"
             if exists(file):
                 self.painter.paintPlanes[BUFFER_WALK].setTexture(loader.loadTexture(file))
-                print "done"
+                print("done")
             else:
-                print "FILE NOT FOUND!"
+                print("FILE NOT FOUND!")
                 feedback+=file+' '
-        print "Loading DONE!"
+        print("Loading DONE!")
         if feedback!="":
             self.gui.okDialog(text="Some files are missing:\n"+feedback, command=self.hideDialog)
         self.hideSaveMenu()
@@ -1353,21 +1354,21 @@ class Editor (DirectObject):
         else:
             makedirs(Filename(path+save_dir).toOsSpecific())
         if self.gui.flags[0]:#height map
-            print "saving height map...",
+            print("saving height map...", end=' ')
             self.painter.write(BUFFER_HEIGHT, path+save_dir+"/"+self.gui.entry2.get()+'.png')
-            print "done"
+            print("done")
         if self.gui.flags[1]:#atr maps
-            print "saving detail map...",
+            print("saving detail map...", end=' ')
             self.painter.write(BUFFER_ATR, path+save_dir+"/"+self.gui.entry3.get()+'0.png')
-            print "ok... "
+            print("ok... ")
             self.painter.write(BUFFER_ATR2, path+save_dir+"/"+self.gui.entry3.get()+'1.png')
-            print "done"
+            print("done")
         if self.gui.flags[2]:#grass map
-            print "saving grass map...",
+            print("saving grass map...", end=' ')
             self.painter.write(BUFFER_GRASS, path+save_dir+"/"+self.gui.entry5.get()+'.png')
-            print "done"
+            print("done")
         if self.gui.flags[4]:#objects and textures used
-            print "saving objects...",
+            print("saving objects...", end=' ')
             #sky and water data
             TerrainTile=self.gui.SkySeaOptions[0]
             TerrainScale=self.gui.SkySeaOptions[1]
@@ -1399,33 +1400,33 @@ class Editor (DirectObject):
                 grs.append(self.grass_textures[id])
             extra_data=[sky_water, {'textures':tex}, {'grass':grs}]
             SaveScene(path+save_dir+"/"+self.gui.entry6.get()+'.json', self.objectPainter.quadtree, extra_data)
-            print "done"
+            print("done")
         if self.gui.flags[5]:#collison
-            print "saving collision mesh...",
+            print("saving collision mesh...", end=' ')
             self.genCollision(True, path+save_dir+"/"+self.gui.entry7.get()+'.egg')
-            print "done"
+            print("done")
         if self.gui.flags[6]:#navmesh
-            print "saving Navigation Mesh(CSV) and map...",
+            print("saving Navigation Mesh(CSV) and map...", end=' ')
             map=self.painter.write(BUFFER_WALK, path+save_dir+"/"+self.gui.entry8.get()+'.png', True)
             GenerateNavmeshCSV(map, path+save_dir+"/"+self.gui.entry8.get()+'.csv')
-            print "done"
-        print "SAVING DONE!"
+            print("done")
+        print("SAVING DONE!")
         self.gui.okDialog(text="Files saved to:\n"+save_dir, command=self.hideDialog)
         self.hideSaveMenu()
 
     def setTex(self, layer, id, guiEvent=None):
         self.curent_textures[layer]=id
-        
-        new_tex=loader.loadTexture(self.textures_diffuse[id], anisotropicDegree=2) 
+
+        new_tex=loader.loadTexture(self.textures_diffuse[id], anisotropicDegree=2)
         if ConfigVariableBool('framebuffer-srgb',False).getValue():
-            tex_format=new_tex.getFormat()  
+            tex_format=new_tex.getFormat()
             if tex_format==Texture.F_rgb:
                 tex_format=Texture.F_srgb
             elif tex_format==Texture.F_rgba:
-                tex_format=Texture.F_srgb_alpha   
-            new_tex.setFormat(tex_format) 
-        
-        
+                tex_format=Texture.F_srgb_alpha
+            new_tex.setFormat(tex_format)
+
+
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), new_tex, 1)
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)+'n'), loader.loadTexture(self.textures_normal[id], anisotropicDegree=2), 1)
         self.gui.elements[self.palette_id]['buttons'][layer]['frameTexture']=self.textures_diffuse[id]
@@ -1440,17 +1441,17 @@ class Editor (DirectObject):
         if id>len(self.textures_diffuse)-1:
             id=0
         self.curent_textures[layer]=id
-        
-        new_tex=loader.loadTexture(self.textures_diffuse[id], anisotropicDegree=2) 
+
+        new_tex=loader.loadTexture(self.textures_diffuse[id], anisotropicDegree=2)
         if ConfigVariableBool('framebuffer-srgb',False).getValue():
-            tex_format=new_tex.getFormat()  
+            tex_format=new_tex.getFormat()
             if tex_format==Texture.F_rgb:
                 tex_format=Texture.F_srgb
             elif tex_format==Texture.F_rgba:
-                tex_format=Texture.F_srgb_alpha   
+                tex_format=Texture.F_srgb_alpha
             new_tex.setFormat(tex_format)
-        
-        
+
+
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)), new_tex, 1)
         self.mesh.setTexture(self.mesh.findTextureStage('tex'+str(layer+1)+'n'), loader.loadTexture(self.textures_normal[id], anisotropicDegree=2), 1)
         self.gui.elements[self.palette_id]['buttons'][layer]['frameTexture']=self.textures_diffuse[id]
@@ -1685,7 +1686,7 @@ class Editor (DirectObject):
         if yes:
             if guiEvent!=None:
                 self.gui.dialog.hide()
-                self.gui.wait.show() 
+                self.gui.wait.show()
                 base.graphicsEngine.renderFrame()
                 base.graphicsEngine.renderFrame()
             heightmap=PNMImage(self.painter.buffSize[BUFFER_HEIGHT], self.painter.buffSize[BUFFER_HEIGHT],4)
@@ -1694,7 +1695,7 @@ class Editor (DirectObject):
             GenerateCollisionEgg(heightmap, file, input='data/collision80k.egg',scale=self.gui.SkySeaOptions[1] )
             if self.collision_mesh:
                 self.collision_mesh.removeNode()
-            print "Loading mesh..."    
+            print("Loading mesh...")
             self.collision_mesh=loader.loadModel(file, noCache=True)
             self.collision_mesh.reparentTo(render)
             self.collision_mesh.setCollideMask(BitMask32.bit(1))
@@ -1703,7 +1704,7 @@ class Editor (DirectObject):
             if yes:
                 self.gui.wait.hide()
                 self.gui.okDialog(text="Collision mesh saved to:\n"+file, command=self.hideDialog)
-        
+
     def nextModel(self):
         if self.mode==MODE_OBJECT:
             if self.object_mode==OBJECT_MODE_MULTI:
@@ -1716,7 +1717,7 @@ class Editor (DirectObject):
                 self.setNextObject(direction=-1)
             if self.object_mode==OBJECT_MODE_WALL:
                 self.nextWall(direction=-1)
-                
+
     def update(self):
         if self.mode==MODE_HEIGHT:
             if self.keyMap['paint']:
@@ -1766,7 +1767,7 @@ class Editor (DirectObject):
         if self.keyMap['alpha_up']:
             if self.mode==MODE_HEIGHT and self.height_mode==HEIGHT_MODE_LEVEL:
                 self.tempColor=min(1.0, max(0.0, self.tempColor+0.01))
-                self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1),False)                
+                self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1),False)
                 self.color_info['text']='%.2f'%self.tempColor
             else:
                 self.painter.adjustBrushAlpha(0.01)
@@ -1774,7 +1775,7 @@ class Editor (DirectObject):
         if self.keyMap['alpha_down']:
             if self.mode==MODE_HEIGHT and  self.height_mode==HEIGHT_MODE_LEVEL:
                 self.tempColor=min(1.0, max(0.0, self.tempColor-0.01))
-                self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1),False)                
+                self.painter.setBrushIDColor(BUFFER_HEIGHT,(self.tempColor,self.tempColor,self.tempColor,1),False)
                 self.color_info['text']='%.2f'%self.tempColor
             else:
                 self.painter.adjustBrushAlpha(-0.01)
@@ -1807,7 +1808,7 @@ class Editor (DirectObject):
 
     def setAtrMapColor(self, color1, color2, event=None):
         self.painter.setBrushIDColor(BUFFER_ATR,(color1[0],color1[1],color1[2],self.painter.brushAlpha))
-        self.painter.setBrushIDColor(BUFFER_ATR2,(color2[0],color2[1],color2[2],self.painter.brushAlpha))        
+        self.painter.setBrushIDColor(BUFFER_ATR2,(color2[0],color2[1],color2[2],self.painter.brushAlpha))
 
     def setGrassMapColor(self, color, event=None):
         self.painter.setBrushIDColor(BUFFER_GRASS,(color[0],color[1],color[2],self.painter.brushAlpha))
@@ -1815,4 +1816,3 @@ class Editor (DirectObject):
 if __name__ == "__main__":
     app=Editor()
     base.run()
-

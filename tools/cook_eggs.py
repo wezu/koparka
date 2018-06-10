@@ -16,12 +16,12 @@ def removeTagFromEgg(file_name, tags_to_remove=['<Tangent>', '<Binormal>', '<RGB
 
 def cookEggs(directory):
     dirList=os.listdir(directory)
-    print directory
+    print(directory)
     for fname in dirList:        
         if os.path.isdir(directory+'/'+fname):  
             cookEggs(directory+'/'+fname)
         if fname[-4:]=='.egg':    
-            print fname
+            print(fname)
             removeTagFromEgg(directory+'/'+fname)                    
     
 cookEggs('../models')

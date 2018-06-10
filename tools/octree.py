@@ -1,22 +1,22 @@
 #!/usr/bin/python
 """
-                             _                 
-                            | |               
+                             _
+                            | |
   ___  __ _  __ _  ___   ___| |_ _ __ ___  ___
  / _ \/ _` |/ _` |/ _ \ / __| __| '__/ _ \/ _ \
 |  __/ (_| | (_| | (_) | (__| |_| | |  __/  __/
  \___|\__, |\__, |\___/ \___|\__|_|  \___|\___|
        __/ | __/ | by treeform, modified by lethe
-      |___/ |___/                                                             
-                             
+      |___/ |___/
+
 This is a replacement of raytaller wonderful
 Egg Octree script many people had problem using it
 (I always guessed wrong about the size of cells.)
 and it generated many "empty" branches which this
-one does not. 
+one does not.
 original see : http://panda3d.org/phpbb2/viewtopic.php?t=2502
 This script like the original also released under the WTFPL license.
-Usage: egg-octreefy [args] [-o outfile.egg] infile.egg [infile.egg...] 
+Usage: egg-octreefy [args] [-o outfile.egg] infile.egg [infile.egg...]
 -h     display this
 -v     verbose
 -l     list resulting egg file
@@ -30,6 +30,9 @@ import sys, getopt
 import math
 from pandac.PandaModules import *
 
+# Python 3
+if sys.version_info >= (3, 0):
+    xrange = range
 
 global verbose, listResultingEgg, maxNumber, maxRec, prepCollide
 
@@ -46,10 +49,10 @@ def getCenter(polywrapList):
   center = Point3D(0,0,0)
   for pw in polywrapList:
     center += pw.center
-  
+
   num = len(polywrapList)
   if num>0: center /= float(num)
-  
+
   return center
 
 
@@ -103,7 +106,7 @@ def genPolyWraps(group):
         center += vtx.getPos3()
         num += 1
       if num>0: center /= float(num)
-      
+
       pw = Polywrap()
       pw.polygon = polygon
       pw.center = center
@@ -115,11 +118,11 @@ def buildOctree(group):
     global verbose, prepCollide
     if prepCollide: group.triangulatePolygons(0xff)
     polywraps = [i for i in genPolyWraps(group)]
-    if verbose: print len(polywraps),"polygons"
-    
+    if verbose: print(len(polywraps),"polygons")
+
     center = getCenter(polywraps)
     quadrants = splitIntoQuadrants(polywraps,center)
-    
+
     eg = EggGroup('octree-root')
     for node in recr(quadrants):
         eg.addChild(node)
@@ -133,15 +136,15 @@ def recr(quadrants,indent = 1):
   """
   global verbose, maxNumber, maxRec, prepCollide
   qs = [i for i in quadrants]
-  if verbose: print "  "*indent,"8 quadrents have ",[len(i) for i in qs]," polygons"
-  
+  if verbose: print("  "*indent,"8 quadrents have ",[len(i) for i in qs]," polygons")
+
   for i, quadrent in enumerate(qs):
     if len(quadrent) == 0:
-      if verbose: print "  "*indent," no polygons in quadrent"
+      if verbose: print("  "*indent," no polygons in quadrent")
       continue
     elif (len(quadrent) <= maxNumber) or (indent >= maxRec):
       center = getCenter(quadrent)
-      if verbose: print "  "*indent," triangle center", center, len(quadrent)
+      if verbose: print("  "*indent," triangle center", center, len(quadrent))
       eg = EggGroup('leaf %i-%i (%i tri)'%(indent,i,len(quadrent)))
       if prepCollide: eg.addObjectType('barrier')
       for pw in quadrent:
@@ -192,7 +195,7 @@ def iterVertexes(eggNode):
 def eggLs(eggNode,indent=0):
   """ list whats in our egg """
   if eggNode.__class__.__name__ != "EggPolygon":
-    print " "*indent+eggNode.__class__.__name__+" "+eggNode.getName()
+    print(" "*indent+eggNode.__class__.__name__+" "+eggNode.getName())
     for eggChildren in iterChildren(eggNode):
       eggLs(eggChildren,indent+1)
 
@@ -220,7 +223,7 @@ def octreefy(infile,outfile):
   vertexPool = False
   comment = None
   if verbose:
-    print 'Input:'
+    print('Input:')
     eggLs(egg)
 
   # find the fist group and find the first vertexPool
@@ -256,28 +259,28 @@ def octreefy(infile,outfile):
       ed.addChild(EggComment('',com+'; '+comment.getComment()))
     else:
       ed.addChild(EggComment('',com))
-    
+
     ed.addChild(vertexPool)
     ed.addChild(buildOctree(group))
     if listResultingEgg: eggLs(ed)
     ed.writeEgg(Filename(outfile))
   else:
-    print 'Could not find vertexPool or group'
+    print('Could not find vertexPool or group')
 
 
 def main():
   """ interface to our egg octreefier """
   try:
     optlist, list = getopt.getopt(sys.argv[1:], 'hlvo:n:r:c')
-  except Exception,e:
-    print e
+  except Exception as e:
+    print(e)
     sys.exit(0)
 
   global verbose, listResultingEgg, maxNumber, maxRec, prepCollide
   outfile = False
   for opt in optlist:
     if opt[0] == '-h':
-      print __doc__
+      print(__doc__)
       sys.exit(0)
     if opt[0] == '-l':
       listResultingEgg = True
@@ -292,7 +295,7 @@ def main():
     if opt[0] == '-o':
       outfile = opt[1]
   if outfile and len(list) > 1:
-        print "error can have an outfile and more then one infile"
+        print("error can have an outfile and more then one infile")
         sys.exit(0)
 
   if maxNumber==-1:
@@ -304,7 +307,7 @@ def main():
 
   for file in list:
     if '.egg' in file:
-      if verbose: print "processing",file
+      if verbose: print("processing",file)
       if outfile:
         octreefy(file,outfile)
       else:

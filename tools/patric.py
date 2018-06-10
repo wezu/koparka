@@ -694,7 +694,7 @@ class Editor (DirectObject):
     def export(self, event=None):
         self.saveDir=self.saveEntry.get()
         dir=dirname(self.saveDir)
-        print dir
+        print(dir)
         if not exists(dir):
            makedirs(dir)   
         self.values['color_gradient']=self.saveDir+"_color.png"
@@ -1282,7 +1282,7 @@ class Editor (DirectObject):
             pixel=astEval(color)  
             self.sample['frameColor']=(pixel[0]/255.0, pixel[1]/255.0, pixel[2]/255.0, 1.0)            
         except:
-            print "Unknown format!" 
+            print("Unknown format!") 
             
     def pickAlpha(self, event=None):        
         mpos=Vec2(event.getMouse()[0], event.getMouse()[1])                
@@ -1297,7 +1297,7 @@ class Editor (DirectObject):
             pixel=float(pixel[0])
             self.alphaEntry.set(str(round(pixel/255.0, 3)))
         except:
-            print "Pixel out of range, try again!"
+            print("Pixel out of range, try again!")
     
     def pickColor(self, event=None):        
         mpos=Vec2(event.getMouse()[0], event.getMouse()[1])                
@@ -1313,7 +1313,7 @@ class Editor (DirectObject):
             self.colorEntry.set('{0}, {1}, {2}'.format(*pixel))
             self.sample['frameColor']=(pixel[0]/255.0, pixel[1]/255.0, pixel[2]/255.0, 1.0)
         except:
-            print "Pixel out of range, try again!"
+            print("Pixel out of range, try again!")
             
     def shapeSetup(self, id, event=None):    
         self.shapePickerFrame.show()
