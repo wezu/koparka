@@ -1,22 +1,22 @@
 #!/usr/bin/python
 """
-                             _                 
-                            | |               
+                             _
+                            | |
   ___  __ _  __ _  ___   ___| |_ _ __ ___  ___
  / _ \/ _` |/ _` |/ _ \ / __| __| '__/ _ \/ _ \
 |  __/ (_| | (_| | (_) | (__| |_| | |  __/  __/
  \___|\__, |\__, |\___/ \___|\__|_|  \___|\___|
        __/ | __/ | by treeform, modified by lethe
-      |___/ |___/                                                             
-                             
+      |___/ |___/
+
 This is a replacement of raytaller wonderful
 Egg Octree script many people had problem using it
 (I always guessed wrong about the size of cells.)
 and it generated many "empty" branches which this
-one does not. 
+one does not.
 original see : http://panda3d.org/phpbb2/viewtopic.php?t=2502
 This script like the original also released under the WTFPL license.
-Usage: egg-octreefy [args] [-o outfile.egg] infile.egg [infile.egg...] 
+Usage: egg-octreefy [args] [-o outfile.egg] infile.egg [infile.egg...]
 -h     display this
 -v     verbose
 -l     list resulting egg file
@@ -30,6 +30,9 @@ import sys, getopt
 import math
 from pandac.PandaModules import *
 
+# Python 3
+if sys.version_info >= (3, 0):
+    xrange = range
 
 global verbose, listResultingEgg, maxNumber, maxRec, prepCollide
 
@@ -46,10 +49,10 @@ def getCenter(polywrapList):
   center = Point3D(0,0,0)
   for pw in polywrapList:
     center += pw.center
-  
+
   num = len(polywrapList)
   if num>0: center /= float(num)
-  
+
   return center
 
 
@@ -103,7 +106,7 @@ def genPolyWraps(group):
         center += vtx.getPos3()
         num += 1
       if num>0: center /= float(num)
-      
+
       pw = Polywrap()
       pw.polygon = polygon
       pw.center = center
@@ -116,10 +119,10 @@ def buildOctree(group):
     if prepCollide: group.triangulatePolygons(0xff)
     polywraps = [i for i in genPolyWraps(group)]
     if verbose: print(len(polywraps),"polygons")
-    
+
     center = getCenter(polywraps)
     quadrants = splitIntoQuadrants(polywraps,center)
-    
+
     eg = EggGroup('octree-root')
     for node in recr(quadrants):
         eg.addChild(node)
@@ -134,7 +137,7 @@ def recr(quadrants,indent = 1):
   global verbose, maxNumber, maxRec, prepCollide
   qs = [i for i in quadrants]
   if verbose: print("  "*indent,"8 quadrents have ",[len(i) for i in qs]," polygons")
-  
+
   for i, quadrent in enumerate(qs):
     if len(quadrent) == 0:
       if verbose: print("  "*indent," no polygons in quadrent")
@@ -180,11 +183,11 @@ def iterVertexes(eggNode):
   """ iterate all vertexes of polygon or polylist """
   try:
     index = eggNode.getHighestIndex()
-    for i in range(index+1):
+    for i in xrange(index+1):
       yield eggNode.getVertex(i)
   except:
     index = eggNode.getNumVertices()
-    for i in range(index):
+    for i in xrange(index):
       yield eggNode.getVertex(i)
     pass
 
@@ -256,7 +259,7 @@ def octreefy(infile,outfile):
       ed.addChild(EggComment('',com+'; '+comment.getComment()))
     else:
       ed.addChild(EggComment('',com))
-    
+
     ed.addChild(vertexPool)
     ed.addChild(buildOctree(group))
     if listResultingEgg: eggLs(ed)
