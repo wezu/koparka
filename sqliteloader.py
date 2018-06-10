@@ -2,10 +2,14 @@ from panda3d.core import *
 import sqlite3
 import json
 #import os
+import sys
 from direct.stdpy.file import listdir, exists
 from direct.actor.Actor import Actor
 from vfx_loader import createEffect
 
+# Python 3
+if sys.version_info >= (3, 0):
+    unicode = str
 
 def fixSrgbTextures(model):
     for tex_stage in model.findAllTextureStages():
@@ -250,7 +254,7 @@ def SaveScene(file, quad_tree, extra_data=None):
                     temp['r']=c[0]
                     temp['g']=c[1]
                     temp['b']=c[2]
-                    temp['model']=str(child.getPythonTag('model_file'))
+                    temp['model']=unicode(child.getPythonTag('model_file'))
                     temp['x']=child.getX(render)
                     temp['y']=child.getY(render)
                     temp['z']=child.getZ(render)
@@ -259,8 +263,8 @@ def SaveScene(file, quad_tree, extra_data=None):
                     temp['parent_index']=quad_tree.index(node)
                     cur.execute("INSERT INTO lights VALUES(:map_name, :model, :x, :y, :z, :scale, :r,:g,:b, :parent_name, :parent_index)", temp)
                 elif child.hasPythonTag('actor_files'):
-                    temp['model']=str(child.getPythonTag('actor_files')[0])
-                    temp['collision']=str(child.getPythonTag('actor_files')[2])
+                    temp['model']=unicode(child.getPythonTag('actor_files')[0])
+                    temp['collision']=unicode(child.getPythonTag('actor_files')[2])
                     temp['h']=child.getH(render)
                     temp['p']=child.getP(render)
                     temp['r']=child.getR(render)
@@ -270,10 +274,10 @@ def SaveScene(file, quad_tree, extra_data=None):
                     temp['scale']=child.getScale()[0]
                     temp['parent_name']=node.getName()
                     temp['parent_index']=quad_tree.index(node)
-                    temp['props']=str(child.getPythonTag('props'))
+                    temp['props']=unicode(child.getPythonTag('props'))
                     cur.execute("INSERT INTO actors VALUES(:map_name, :model, :collision, :h, :p, :r, :x, :y, :z, :scale, :parent_name, :parent_index, :props)", temp)
                 elif child.hasPythonTag('model_file'):
-                    temp['model']=str(child.getPythonTag('model_file'))
+                    temp['model']=unicode(child.getPythonTag('model_file'))
                     temp['h']=child.getH(render)
                     temp['p']=child.getP(render)
                     temp['r']=child.getR(render)
@@ -283,5 +287,5 @@ def SaveScene(file, quad_tree, extra_data=None):
                     temp['scale']=child.getScale()[0]
                     temp['parent_name']=node.getName()
                     temp['parent_index']=quad_tree.index(node)
-                    temp['props']=str(child.getPythonTag('props'))
+                    temp['props']=unicode(child.getPythonTag('props'))
                     cur.execute("INSERT INTO models VALUES(:map_name, :model, :h, :p, :r, :x, :y, :z, :scale, :parent_name, :parent_index, :props)", temp)
