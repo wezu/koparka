@@ -1,3 +1,4 @@
+from __future__ import print_function
 from panda3d.core import loadPrcFile
 loadPrcFile("cfg.prc")
 from direct.showbase.AppRunnerGlobal import appRunner
